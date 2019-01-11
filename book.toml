@@ -1,0 +1,13 @@
+[book]
+authors = ["Robert Masen"]
+multilingual = false
+src = "src"
+title = "Build JavaScript Development Tools with Rust"
+
+[build]
+build-dir = "./docs"
+
+[output.html]
+google-analytics = false
+
+[preprocessor.presentation-preprocessor]
