@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Building a Highlighter - Build JavaScript Development Tools with Rust</title>
+        <title>Building a Linter - Build JavaScript Development Tools with Rust</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html" class="active"><strong aria-hidden="true">2.1.</strong> Building a Highlighter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">5.2.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">5.3.</strong> StringWriter</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html" class="active"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">5.2.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">5.3.</strong> StringWriter</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -154,6 +154,7 @@ ress = &quot;0.5&quot;
 serde = &quot;1&quot;
 serde_derive = &quot;1&quot;
 toml = &quot;0.4&quot;
+atty = &quot;0.2&quot;
 </code></pre>
 <p>Next we want to use the <code>Scanner</code> and <code>Token</code> from <code>ress</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -178,7 +179,7 @@ struct BannedTokens {
     strings: Vec&lt;String&gt;,
 }
 #}</code></pre></pre>
-<p>The toml file we are going to use is pretty big so I am not going to list it here. If you want to see what it looks like you can check it out <a href="https://github.com/freemasen/rusty-ecma-book/">here</a>. Essentially it is a list of identifiers, strings, punctuation and keywords that would cause an error when trying to run in IE8.</p>
+<p>The toml file we are going to use is pretty big so I am not going to list it here. If you want to see what it looks like you can check it out <a href="https://github.com/FreeMasen/rusty-ecma-book/blob/master/lint-ie8/banned_tokens.toml">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
 <p>To start we need to deserialize that file, we can do that with the <code>std::fs::read_to_string</code> and <code>toml::from_str</code> functions.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -186,12 +187,10 @@ struct BannedTokens {
     let config_text = ::std::fs::read_to_string(&quot;banned_tokens.toml&quot;).expect(&quot;failed to read config&quot;);
     let banned: BannedTokens = from_str(&amp;config_text).expect(&quot;Failed to deserialize banned tokens&quot;);
 #}</code></pre></pre>
-<p>Now that we have a list of tokens that should not be included in our javascript, let's get the javascript. I want this utility to be able to take a path argument or read the raw js from stdin. The function will check for an argument first and fallback to reading from stdin, it looks something like this.</p>
+<p>Now that we have a list of tokens that should not be included in our javascript, let's get that text. It would be useful to be able to take a path argument or read the raw js from stdin. The function will check for an argument first and fallback to reading from stdin, it looks something like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
-    let args = args();
     let mut cmd_args = args();
     let _ = cmd_args.next(); //discard bin name
     let js = if let Some(file_name) = cmd_args.next() {
@@ -199,32 +198,174 @@ fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
         js
     } else {
         let mut std_in = ::std::io::stdin();
-        let mut buf = String::new();
-        std_in.read_to_string(&amp;mut buf)?;
-        buf
+        let mut ret = String::new();
+        if atty::is(atty::Stream::Stdin) {
+            return Ok(ret)
+        }
+        std_in.read_to_string(&amp;mut ret);
+        ret
     };
     Ok(js)
 }
 #}</code></pre></pre>
-<p>we will call it like this</p>
+<p>we will call it like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
     let js = match get_js() {
         Ok(js) =&gt; if js.len() == 0 {
-            println!(&quot;Unable to get javascript&quot;);
             print_usage();
-            return;
+            std::process::exit(1);
         } else {
             js
         },
         Err(e) =&gt; {
-            println!(&quot;Error getting javascript {}&quot;, e);
             print_usage();
-            return;
+            std::process::exit(1);
+        }
+    };
+    let finder = BannedFinder::new(&amp;js, banned);
+    for item in finder {
+#}</code></pre></pre>
+<p>I want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>.  If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message, how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn print_usage() {
+    println!(&quot;banned_tokens &lt;infile&gt;
+cat &lt;path/to/file&gt; | banned_tokens&quot;);
+}
+#}</code></pre></pre>
+<p>With that out of the way, we now can get into how we are going to solve the actual problem of finding these tokens in a javascript file. There are many ways to make this work but for this example we are going to wrap the <code>Scanner</code> in another struct that implements <code>Iterator</code>. First here is what that struct is going to look like.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+
+#fn main() {
+struct BannedFinder {
+    scanner: Scanner,
+    banned: BannedTokens,
+}
+#}</code></pre></pre>
+<p>Before we get into the <code>impl Iterator</code> we should go over an <code>Error</code> implementation that we are going to use. It is relatively straight forward, the actual struct is going to be a tuple struct with three items. The first item is going to be a message that will include the token and type, the second and third are going to be the column/row of the banned token. We need to implement display (<code>Error</code> requires it) which will just create a nice error message for us.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub struct BannedError(String, usize, usize);
+
+impl ::std::error::Error for BannedError {
+
+}
+
+impl ::std::fmt::Display for BannedError {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        write!(f, &quot;Banned {} found at {}:{}&quot;, self.0, self.1, self.2)
+    }
+}
+#}</code></pre></pre>
+<p>The last thing we need to do is create a way to map from a byte index to a column/row pair. Thankfully the <code>Scanner</code> exposes the original text as a property <code>stream</code> so we can use that to figure out what line and column any index means. The first thing we need to do that is the ability to tell when any given character is a new line character. JavaScript allows for 5 new line sequences (<code>\r</code>,<code>\n</code>, <code>\r\n</code>, <code>\u{2028}</code>, and <code>\u{2029}</code>) so a function that would test for that might look like this.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn is_js_new_line(c: char) -&gt; bool {
+    c == '\n'
+    || c == '\u{2028}'
+    || c == '\u{2029}'
+}
+#}</code></pre></pre>
+<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl BannedFinder {
+    fn get_position(&amp;self, idx: usize) -&gt; (usize, usize) {
+        let row = self.scanner.stream[..idx]
+            .chars()
+            .fold(1, |acc, c| if is_js_new_line(c) {
+                acc + 1
+            } else {
+                acc
+            });
+        let line_start = self.scanner.stream[..idx]
+                            .char_indices()
+                            .fold(0, |acc, (i, c)| if is_js_new_line(c) {
+                                i.saturating_add(1)
+                            } else {
+                                acc
+                            });
+        let col = if line_start == 0 {
+            idx
+        } else {
+            idx.saturating_sub(line_start)
+        };
+        (row, col)
+    }
+}
+#}</code></pre></pre>
+<p>The first step there is to figure out what row we are on. We can do that by using <code>chars</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over the <code>char</code>s in the string. We then <code>fold</code> that iterator into a single number, starting with 1, if the current character is a new line we add one to the accumulator, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines.</p>
+<p>After we have counted the new lines, we can move on to the column. First we need to figure out where this line starts. We do that by using the <code>char_indices</code> method on <code>&amp;str</code>, this like <code>chars</code> will give us an iterator but this is over a <code>(usize, char)</code> pair, we are again going to use fold as a way to covert the iterator into a single number. In this case we are going to start with 0 and, and only update that accumulator if we found a new line character (adding 1 because out line starts at the next <code>char</code>). This will ensure that the last new line found will be the start of this token's line. If the <code>line_start</code> is 0 that means we didn't find anything so we can just assume it is the first line, meaning the index is the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
+<p>Ok, I know I said before that we were going to get to the good stuff but now I really mean it. We are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl Iterator for BannedFinder {
+    type Item = Result&lt;(), BannedError&gt;;
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        if let Some(item) = self.scanner.next() {
+            Some(match &amp;item.token {
+                Token::Ident(ref id) =&gt; {
+                    let id = id.to_string();
+                    if self.banned.idents.contains(&amp;id) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;identifier {}&quot;, id), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                Token::Keyword(ref key) =&gt; {
+                    if self.banned.keywords.contains(&amp;key.to_string()) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;keyword {}&quot;, key.to_string()), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                Token::Punct(ref punct) =&gt; {
+                    if self.banned.puncts.contains(&amp;punct.to_string()) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;punct {}&quot;, punct.to_string()), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                Token::String(ref lit) =&gt; {
+                    if self.banned.strings.contains(&amp;lit.no_quote()) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;string {}&quot;, lit.to_string()), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                _ =&gt; Ok(()),
+            })
+        } else {
+            None
         }
     }
+}
 #}</code></pre></pre>
+<p>First we need to define what the <code>Item</code> for our <code>Iterator</code> is. It is going to be a <code>Result&lt;(), BannedError&gt;</code>, this will allow the caller to check if an item passed inspection. Now we can add the <code>fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;</code> definition. Inside that we first want to make sure that the <code>Scanner</code> isn't returning <code>None</code>, if it is we can just return <code>None</code>. If the scanner returns and <code>Item</code> we want to check what kind of token it is, we can do that by matching on <code>&amp;item.token</code>.  We only care if the token is a <code>Keyword</code>, <code>Ident</code>, <code>Punct</code> or <code>String</code>, other wise we can say that the token passed. For each of these tokens we are going to check if the actual text is included in any of the <code>Vec&lt;String&gt;</code> properties of <code>self.banned</code>, if it is included we return a <code>BannedError</code> where the first property is a message containing the name of the token type and the text that token represents.</p>
+<p>Now that we have all of the underlying infrastructure setup, let's use the <code>BannedFinder</code> in our <code>main</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+        match item {
+            Ok(_) =&gt; (),
+            Err(msg) =&gt; println!(&quot;{}&quot;, msg),
+        }
+    }
+}
+#}</code></pre></pre>
+<p>That is pretty much it. If you wanted to see the full project you can find it in the <a href="https://github.com/FreeMasen/rusty-ecma-book/tree/master/lint-ie8">lint-ie8</a> folder of this book's github repository.</p>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script>
                     </main>
 

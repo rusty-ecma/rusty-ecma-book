@@ -1,12 +1,8 @@
 [package]
-name = "lint-ie8"
+name = "console_logify"
 version = "0.1.0"
 authors = ["Robert Masen <r@robertmasen.pizza>"]
 edition = "2018"
 
 [dependencies]
-ress = "0.5"
-serde = "1"
-serde_derive = "1"
-toml = "0.4"
-atty = "0.2"
+ressa = "0.2"

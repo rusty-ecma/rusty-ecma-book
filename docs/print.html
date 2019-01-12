@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Highlighter</a></li></ol></li><li><a href="03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="a.appendix/ast.html"><strong aria-hidden="true">5.2.</strong> AST</a></li><li><a href="a.appendix/string.writer.html"><strong aria-hidden="true">5.3.</strong> StringWriter</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="a.appendix/ast.html"><strong aria-hidden="true">5.2.</strong> AST</a></li><li><a href="a.appendix/string.writer.html"><strong aria-hidden="true">5.3.</strong> StringWriter</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -489,6 +489,7 @@ ress = &quot;0.5&quot;
 serde = &quot;1&quot;
 serde_derive = &quot;1&quot;
 toml = &quot;0.4&quot;
+atty = &quot;0.2&quot;
 </code></pre>
 <p>Next we want to use the <code>Scanner</code> and <code>Token</code> from <code>ress</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -513,7 +514,7 @@ struct BannedTokens {
     strings: Vec&lt;String&gt;,
 }
 #}</code></pre></pre>
-<p>The toml file we are going to use is pretty big so I am not going to list it here. If you want to see what it looks like you can check it out <a href="https://github.com/freemasen/rusty-ecma-book/">here</a>. Essentially it is a list of identifiers, strings, punctuation and keywords that would cause an error when trying to run in IE8.</p>
+<p>The toml file we are going to use is pretty big so I am not going to list it here. If you want to see what it looks like you can check it out <a href="https://github.com/FreeMasen/rusty-ecma-book/blob/master/lint-ie8/banned_tokens.toml">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
 <p>To start we need to deserialize that file, we can do that with the <code>std::fs::read_to_string</code> and <code>toml::from_str</code> functions.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -521,12 +522,10 @@ struct BannedTokens {
     let config_text = ::std::fs::read_to_string(&quot;banned_tokens.toml&quot;).expect(&quot;failed to read config&quot;);
     let banned: BannedTokens = from_str(&amp;config_text).expect(&quot;Failed to deserialize banned tokens&quot;);
 #}</code></pre></pre>
-<p>Now that we have a list of tokens that should not be included in our javascript, let's get the javascript. I want this utility to be able to take a path argument or read the raw js from stdin. The function will check for an argument first and fallback to reading from stdin, it looks something like this.</p>
+<p>Now that we have a list of tokens that should not be included in our javascript, let's get that text. It would be useful to be able to take a path argument or read the raw js from stdin. The function will check for an argument first and fallback to reading from stdin, it looks something like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
-    let args = args();
     let mut cmd_args = args();
     let _ = cmd_args.next(); //discard bin name
     let js = if let Some(file_name) = cmd_args.next() {
@@ -534,38 +533,613 @@ fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
         js
     } else {
         let mut std_in = ::std::io::stdin();
-        let mut buf = String::new();
-        std_in.read_to_string(&amp;mut buf)?;
-        buf
+        let mut ret = String::new();
+        if atty::is(atty::Stream::Stdin) {
+            return Ok(ret)
+        }
+        std_in.read_to_string(&amp;mut ret);
+        ret
     };
     Ok(js)
 }
 #}</code></pre></pre>
-<p>we will call it like this</p>
+<p>we will call it like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
     let js = match get_js() {
         Ok(js) =&gt; if js.len() == 0 {
-            println!(&quot;Unable to get javascript&quot;);
             print_usage();
-            return;
+            std::process::exit(1);
         } else {
             js
         },
         Err(e) =&gt; {
-            println!(&quot;Error getting javascript {}&quot;, e);
             print_usage();
-            return;
+            std::process::exit(1);
+        }
+    };
+    let finder = BannedFinder::new(&amp;js, banned);
+    for item in finder {
+#}</code></pre></pre>
+<p>I want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>.  If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message, how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn print_usage() {
+    println!(&quot;banned_tokens &lt;infile&gt;
+cat &lt;path/to/file&gt; | banned_tokens&quot;);
+}
+#}</code></pre></pre>
+<p>With that out of the way, we now can get into how we are going to solve the actual problem of finding these tokens in a javascript file. There are many ways to make this work but for this example we are going to wrap the <code>Scanner</code> in another struct that implements <code>Iterator</code>. First here is what that struct is going to look like.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+
+#fn main() {
+struct BannedFinder {
+    scanner: Scanner,
+    banned: BannedTokens,
+}
+#}</code></pre></pre>
+<p>Before we get into the <code>impl Iterator</code> we should go over an <code>Error</code> implementation that we are going to use. It is relatively straight forward, the actual struct is going to be a tuple struct with three items. The first item is going to be a message that will include the token and type, the second and third are going to be the column/row of the banned token. We need to implement display (<code>Error</code> requires it) which will just create a nice error message for us.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub struct BannedError(String, usize, usize);
+
+impl ::std::error::Error for BannedError {
+
+}
+
+impl ::std::fmt::Display for BannedError {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        write!(f, &quot;Banned {} found at {}:{}&quot;, self.0, self.1, self.2)
+    }
+}
+#}</code></pre></pre>
+<p>The last thing we need to do is create a way to map from a byte index to a column/row pair. Thankfully the <code>Scanner</code> exposes the original text as a property <code>stream</code> so we can use that to figure out what line and column any index means. The first thing we need to do that is the ability to tell when any given character is a new line character. JavaScript allows for 5 new line sequences (<code>\r</code>,<code>\n</code>, <code>\r\n</code>, <code>\u{2028}</code>, and <code>\u{2029}</code>) so a function that would test for that might look like this.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn is_js_new_line(c: char) -&gt; bool {
+    c == '\n'
+    || c == '\u{2028}'
+    || c == '\u{2029}'
+}
+#}</code></pre></pre>
+<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl BannedFinder {
+    fn get_position(&amp;self, idx: usize) -&gt; (usize, usize) {
+        let row = self.scanner.stream[..idx]
+            .chars()
+            .fold(1, |acc, c| if is_js_new_line(c) {
+                acc + 1
+            } else {
+                acc
+            });
+        let line_start = self.scanner.stream[..idx]
+                            .char_indices()
+                            .fold(0, |acc, (i, c)| if is_js_new_line(c) {
+                                i.saturating_add(1)
+                            } else {
+                                acc
+                            });
+        let col = if line_start == 0 {
+            idx
+        } else {
+            idx.saturating_sub(line_start)
+        };
+        (row, col)
+    }
+}
+#}</code></pre></pre>
+<p>The first step there is to figure out what row we are on. We can do that by using <code>chars</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over the <code>char</code>s in the string. We then <code>fold</code> that iterator into a single number, starting with 1, if the current character is a new line we add one to the accumulator, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines.</p>
+<p>After we have counted the new lines, we can move on to the column. First we need to figure out where this line starts. We do that by using the <code>char_indices</code> method on <code>&amp;str</code>, this like <code>chars</code> will give us an iterator but this is over a <code>(usize, char)</code> pair, we are again going to use fold as a way to covert the iterator into a single number. In this case we are going to start with 0 and, and only update that accumulator if we found a new line character (adding 1 because out line starts at the next <code>char</code>). This will ensure that the last new line found will be the start of this token's line. If the <code>line_start</code> is 0 that means we didn't find anything so we can just assume it is the first line, meaning the index is the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
+<p>Ok, I know I said before that we were going to get to the good stuff but now I really mean it. We are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+impl Iterator for BannedFinder {
+    type Item = Result&lt;(), BannedError&gt;;
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        if let Some(item) = self.scanner.next() {
+            Some(match &amp;item.token {
+                Token::Ident(ref id) =&gt; {
+                    let id = id.to_string();
+                    if self.banned.idents.contains(&amp;id) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;identifier {}&quot;, id), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                Token::Keyword(ref key) =&gt; {
+                    if self.banned.keywords.contains(&amp;key.to_string()) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;keyword {}&quot;, key.to_string()), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                Token::Punct(ref punct) =&gt; {
+                    if self.banned.puncts.contains(&amp;punct.to_string()) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;punct {}&quot;, punct.to_string()), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                Token::String(ref lit) =&gt; {
+                    if self.banned.strings.contains(&amp;lit.no_quote()) {
+                        let (row, column) = self.get_position(item.span.start);
+                        Err(BannedError(format!(&quot;string {}&quot;, lit.to_string()), row, column))
+                    } else {
+                        Ok(())
+                    }
+                },
+                _ =&gt; Ok(()),
+            })
+        } else {
+            None
         }
     }
+}
 #}</code></pre></pre>
+<p>First we need to define what the <code>Item</code> for our <code>Iterator</code> is. It is going to be a <code>Result&lt;(), BannedError&gt;</code>, this will allow the caller to check if an item passed inspection. Now we can add the <code>fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;</code> definition. Inside that we first want to make sure that the <code>Scanner</code> isn't returning <code>None</code>, if it is we can just return <code>None</code>. If the scanner returns and <code>Item</code> we want to check what kind of token it is, we can do that by matching on <code>&amp;item.token</code>.  We only care if the token is a <code>Keyword</code>, <code>Ident</code>, <code>Punct</code> or <code>String</code>, other wise we can say that the token passed. For each of these tokens we are going to check if the actual text is included in any of the <code>Vec&lt;String&gt;</code> properties of <code>self.banned</code>, if it is included we return a <code>BannedError</code> where the first property is a message containing the name of the token type and the text that token represents.</p>
+<p>Now that we have all of the underlying infrastructure setup, let's use the <code>BannedFinder</code> in our <code>main</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+        match item {
+            Ok(_) =&gt; (),
+            Err(msg) =&gt; println!(&quot;{}&quot;, msg),
+        }
+    }
+}
+#}</code></pre></pre>
+<p>That is pretty much it. If you wanted to see the full project you can find it in the <a href="https://github.com/FreeMasen/rusty-ecma-book/tree/master/lint-ie8">lint-ie8</a> folder of this book's github repository.</p>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#ressa" id="ressa"><h1>RESSA</h1></a>
+<p>Before we get into how to use <code>ressa</code>, It is a good idea to briefly touch on the scope of a <strong>parser</strong> or <strong>syntax analyzer</strong>. The biggest thing to understand is that we still are not dealing with the <em>semantic</em> meaning of the program. That means we won't be able to discover things like assigning to undeclared variables or attempting to call undefined functions because we need to have access to a larger context definition. To that end, <code>ressa</code>'s true value isn't realized until it is embedded into another program that provide this information.</p>
+<p>With that said <code>ressa</code> is providing that same larger contenxt for what is provided by <code>ress</code>. It achieves that by wrapping the <code>Scanner</code> in a struct called <code>Parser</code>. Essentially <code>Parser</code> provides a way to keep track of what any given set of <code>Token</code>s might mean. <code>Parser</code> also implements <code>Iterator</code> over the enum <code>ProgramPart</code>, which has 3 cases representing the 3 different top level JavaScript constructs.</p>
+<ul>
+<li><code>Decl</code> - a variable/function/class declaration
+<ul>
+<li><code>Variable</code> - A top level variable declaration e.g. <code>let x = 0;</code></li>
+<li><code>Class</code> - A named class definition at the top level</li>
+<li><code>Function</code> - A named function definition at the top level</li>
+<li><code>Import</code> - An ES Module import statement</li>
+<li><code>Export</code> - An ES Module export statement</li>
+</ul>
+</li>
+<li><code>Directive</code> - pretty much just 'use strict'</li>
+<li><code>Statement</code> - A catch all for everything else
+<ul>
+<li><code>Block</code> - A collection of statements wrapped in curly braces</li>
+<li><code>Break</code> - A break statement will exit a loop or labeled statement early</li>
+<li><code>Continue</code> - A continue statement will short circuit a loop</li>
+<li><code>Debugger</code> - The literal ident <code>debugger</code></li>
+<li><code>DoWhile</code> - A do loop which executes the body before testing whether to continue</li>
+<li><code>Empty</code> - A single semicolon</li>
+<li><code>Expr</code> - A catch-all for everything else</li>
+<li><code>For</code> - A c-style for loop e.g. `for</li>
+<li><code>ForIn</code> - A for loop that assigns the key of an enumerable at the top of each iteration</li>
+<li><code>ForOf</code> - A for loop that assigns the value of an iterable at the top of each iteration</li>
+<li><code>If</code> - A set of if/else if/else statements</li>
+<li><code>Labeled</code> - A statement that has been named by an attached identifier</li>
+<li><code>Return</code> - The return statement that resolves a function's value</li>
+<li><code>Switch</code> - A test <code>Expression</code> a collection of <code>CaseStatements</code></li>
+<li><code>Throw</code> - A statement that results in an error being thrown</li>
+<li><code>Try</code> - A try/catch/finally block</li>
+<li><code>Var</code> - A non-top level variable declaration</li>
+<li><code>While</code> - A loop which continues based on a test <code>Expresssion</code></li>
+<li><code>With</code> - An antiquated statement that changes the order of identifier resolution</li>
+</ul>
+</li>
+</ul>
+<p><code>Statement</code> being the real work-horse of the group, while a top level function definition would be a <code>Decl</code>, a non-top level function definition would be a <code>Statement</code>. Both <code>Decl</code> and <code>Statement</code> themselves are enums representing the different possible variations. Looking further into the <code>Statement</code> variants, you may notice there is another <em>catch-all</em> in the <code>Expr</code> variant. A sub class of <code>Statement</code> is the <code>Expression</code> enum which defines an even more granular set of program parts.</p>
+<ul>
+<li><code>Expression</code>
+<ul>
+<li><code>Assignment</code> - A single assignment in a variable declaration, this is required because a variable declaration can have multiple assignments</li>
+<li><code>Array</code> - An array literal</li>
+<li><code>ArrowFunction</code> - An arrow function expression</li>
+<li><code>Await</code> - Any expression preceded by the <code>await</code> keyword</li>
+<li><code>Call</code> - Calling a function or method</li>
+<li><code>Class</code> - A class expression is a class definition with an optional identifier that is assigned to a variable</li>
+<li><code>Conditional</code> - Also known as the &quot;ternary&quot; operator e.g.<code>let x = test ? consequent : alternate</code></li>
+<li><code>Function</code> - A function expression is a function definition with an optional identifier that is either self executing, assigned to a variable or a <code>Call</code> argument</li>
+<li><code>Ident</code> - The identifier of a variable, class, import, export or function</li>
+<li><code>Literal</code> - A &quot;primitive&quot; literal</li>
+<li><code>Logical</code> - Two expressions separated by <code>&amp;&amp;</code> or <code>||</code></li>
+<li><code>Member</code> - Accessing a sub property on something. e.g. <code>[0,1,2][1]</code> or <code>console.log</code></li>
+<li><code>MetaProperty</code> - Currently the only <code>MetaProperty</code> is in a function body you can check <code>new.target</code> to see if something was called with the <code>new</code> keyword</li>
+<li><code>New</code> - A <code>Call</code> expression preceded by the <code>new</code> keyword</li>
+<li><code>Object</code> - An object literal</li>
+<li><code>Sequence</code> - Any sequence of expressions separated by commas</li>
+<li><code>Spread</code> - the <code>...</code> operator followed by an expression</li>
+<li><code>SuperExpression</code> - The <code>super</code> pseudo-keyword</li>
+<li><code>TaggedTemplate</code> - An identifier followed by a template literal</li>
+<li><code>ThisExpression</code> - The <code>this</code> pseudo-keyword</li>
+<li><code>Unary</code> - An operation (that is not an update) that requires on expression as an argument</li>
+<li><code>Update</code> - An operation that uses the <code>++</code> or <code>--</code> operator</li>
+<li><code>Yield</code> - the <code>yield</code> contextual keyword followed by an optional expression for use in generator function</li>
+</ul>
+</li>
+</ul>
+<p>Most of the <code>Expression</code>, <code>Statement</code>, and <code>Decl</code> variants have associated values, to see more information about them I encourage you to check out the <a href="https://docs.rs/ressa">documentation</a>. There should be an example and description provided for each of the possible combinations.</p>
+<p>With that long winded explanation of the <em>basic</em> structure we are working with let's take a look at how we would use the <code>Parser</code> and <code>ProgramPart</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">use ressa::*;
+
+static JS: &amp;str = &quot;
+function Thing(stuff) {
+    this.stuff = stuff;
+}
+class Stuff {
+    constructor(thing) {
+        this.thing = thing;
+    }
+}
+&quot;;
+
+fn main() {
+    let parser = Parser::new(JS).expect(&quot;Failed to create parser&quot;);
+    for part in parser {
+        let part = part.expect(&quot;Failed to parse part&quot;);
+        println!(&quot;{:?}&quot;, part);
+    }
+}
+</code></pre></pre>
+<p>If we were to run the above we would get the following output.</p>
+<pre><code class="language-ron">Script([
+    Decl(
+        Function(
+            Function {
+                id: Some(
+                    &quot;Thing&quot;
+                ),
+                params: [
+                    Pattern(
+                        Identifier(
+                            &quot;stuff&quot;
+                        )
+                    )
+                ],
+                body: [
+                    Statement(
+                        Expr(
+                            Assignment(
+                                AssignmentExpression {
+                                    operator: Equal,
+                                    left: Expr(
+                                        Member(
+                                            MemberExpression {
+                                                object: ThisExpression,
+                                                property: Ident(
+                                                    &quot;stuff&quot;
+                                                ),
+                                                computed: false
+                                            }
+                                        )
+                                    ),
+                                    right: Ident(
+                                        &quot;stuff&quot;
+                                    )
+                                }
+                            )
+                        )
+                    )
+                ],
+                generator: false,
+                is_async: false
+            }
+        )
+    )
+])
+</code></pre>
+<p>If we walk through the output, we start by seeing that the</p>
+<ol>
+<li>This program consists of a single part which is a  <code>ProgramPart::Decl</code></li>
+<li>Inside of that is a <code>Declaration::Function</code></li>
+<li>Inside of that is a <code>Function</code>
+<ol>
+<li>Has an <code>id</code> of an optional <code>Identifier</code> with the value of <code>Some(&quot;Thing&quot;)</code></li>
+<li>It has a one item vec of <code>Pattern</code>s in <code>params</code>
+<ol>
+<li>Which is a <code>Pattern::Identifier</code></li>
+<li>Inside of that is an <code>Identifier</code> with the value of &quot;stuff&quot;</li>
+</ol>
+</li>
+<li>It has a body that is a one item vec of <code>ProgramPart</code>s
+<ol>
+<li>The item is a <code>ProgramPart::Statement</code></li>
+<li>Which is a <code>Statement::Expr</code></li>
+<li>Inside of that is an <code>Expression::Assignment</code></li>
+<li>Inside of that is an <code>AssignmentExpression</code>
+<ol>
+<li>Which has an <code>operator</code> of <code>Equal</code></li>
+<li>The <code>left</code> hand side is an <code>Expression::Member</code>
+<ol>
+<li>The <code>object</code> being <code>Expression::This</code></li>
+<li>The <code>property</code> of <code>Expression::Ident</code> with the value of &quot;stuff&quot;</li>
+</ol>
+</li>
+<li>The <code>right</code> hand side is an <code>Expression::Ident</code> with the value of &quot;stuff&quot;</li>
+<li><code>computed</code> is false</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>It is not a <code>generator</code></li>
+<li>It is not <code>is_async</code></li>
+</ol>
+</li>
+</ol>
+<p>Phew! That is quite a lot of information! A big part of why we need to be that verbose is because of the &quot;you can do anything&quot; nature of JavaScript. Let's use the <code>MemberExpression</code> and an example, below are a collection of ways to write a <code>MemberExpression</code> in JavaScript.</p>
+<pre><code class="language-js">console.log;
+console['log'];
+const logVar = 'log';
+console[logVar];
+console[['l','o','g'].join('')];
+class Log {
+    toString() {
+        return 'log';
+    }
+}
+const logToString = new Log();
+console[logToString];
+function logFunc() {
+    return 'log';
+}
+console[logFunc()];
+function getConsole() {
+    return console
+}
+getConsole()[logFunc()];
+getConsole().log;
+</code></pre>
+<p>And I am sure that this isn't an exhaustive list of ways to construct a <code>MemberExpression</code>. With the level of information provided we have enough to truly understand the syntactic meaning of the text. This will enable us to build more powerful tools to analyze and/or manipulate the any given JavaScript program. With the pervasivness of <a href="https://en.wikipedia.org/wiki/Debugging#Techniques">print debugging</a>, wouldn't it be nice if we had a tool that would automatically insert a <code>console.log</code> at the top of every function and method in a program that would print the name of that function and also each of the arguments? Let's take a look at what that might look like.</p>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#building-a-debug-helper" id="building-a-debug-helper"><h1>Building a Debug Helper</h1></a>
+<p>To simplify things, we are just going to lift the technique for getting the JavaScript text from the <a href="../02.ress/2.html">ress example</a>, so we won't be covering that again.</p>
+<p>With that out of the way let's take a look at the <code>Cargo.toml</code> and <code>use</code> statements for our program.</p>
+<pre><code class="language-toml">[package]
+name = &quot;console_logify&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Robert Masen &lt;r@robertmasen.pizza&gt;&quot;]
+edition = &quot;2018&quot;
+
+[dependencies]
+ressa = &quot;0.2&quot;
+</code></pre>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+use ressa::{
+    Parser,
+    node::*,
+};
+#}</code></pre></pre>
+<p>This will make sure that all of the items we will need from <code>ressa</code> are in scope. Now we can start defining our method for inserting the debug logging into any functions that we find. To start we are going to create a function that will generate a new <code>ProgramPart::Statement</code> that will represent our call to <code>console.log</code> which might look like this.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+            )
+        )
+    )
+}
+
+fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
+    let mut cmd_args = args();
+    let _ = cmd_args.next(); //discard bin name
+    let js = if let Some(file_name) = cmd_args.next() {
+        let js = read_to_string(file_name)?;
+        js
+    } else {
+        let mut std_in = ::std::io::stdin();
+        let mut ret = String::new();
+        if atty::is(atty::Stream::Stdin) {
+#}</code></pre></pre>
+<p>We need to make the arguments configuable so we can insert the context information for each instance of a function but otherwise it is a pretty straight foward. Now that we have that, we need to start digging from <code>ProgramPart</code> to identify anything we want to modify. Since <code>Parser</code> implements <code>Iterator</code> we use the <code>map</code> method to make this update. With that in mind the entry point is going to be a function that takes a <code>ProgramPart</code> and returns a new <code>ProgramPart</code>. It might look like this</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn map_part(part: ProgramPart) -&gt; ProgramPart {
+    match part {
+        ProgramPart::Decl(ref decl) =&gt; ProgramPart::Decl(map_decl(decl)),
+        ProgramPart::Statement(ref stmt) =&gt; ProgramPart::Statement(map_stmt(stmt)),
+        ProgramPart::Directive(_) =&gt; part,
+    }
+}
+#}</code></pre></pre>
+<p>We are going to match on the part provided and either return that part if it is a <code>Directive</code> or if it isn't we need to investigate further to discover if it is a function or not. We do that in two places <code>map_decl</code> and <code>map_stmt</code> both of which are going to utilize similar method for digging further into the tree.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn map_decl(decl: &amp;Declaration) -&gt; Declaration {
+    match decl {
+        Declaration::Function(ref f) =&gt; Declaration::Function(map_func(f)),
+        Declaration::Class(ref class) =&gt; Declaration::Class(map_class(class)),
+        _ =&gt; decl.clone()
+    }
+}
+
+fn map_stmt(stmt: &amp;Statement) -&gt; Statement {
+    match stmt {
+        Statement::Expr(ref expr) =&gt; Statement::Expr(map_expr(expr)),
+        _ =&gt; stmt.clone(),
+    }
+}
+#}</code></pre></pre>
+<p>There are two ways for a <code>Declaration</code> to resolve into a function or method and that is with the <code>Function</code> and <code>Class</code> variants while a <code>Statement</code> can only be a target for us if it is an <code>Expr</code>. When we include <code>map_expr</code> we see that there are cases for both <code>Function</code> and <code>Class</code> in the <code>Expression</code> enum. That means these will converge with what <code>map_decl</code> is doing.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn map_expr(expr: &amp;Expression) -&gt; Expression {
+    match expr {
+        Expression::Function(ref f) =&gt; Expression::Function(map_func(f)),
+        Expression::Class(ref c) =&gt; Expression::Class(map_class(c)),
+        _ =&gt; expr.clone(),
+    }
+}
+#}</code></pre></pre>
+<p>Finally we are at the meat of one of the cases we want to modify <code>map_func</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn map_func(func: &amp;Function) -&gt; Function {
+    let mut f = func.clone();
+    let mut args = vec![];
+    if let Some(ref name) = f.id {
+        args.push(
+            Expression::string(&amp;format!(&quot;'{}'&quot;, name))
+        );
+    }
+    for arg in f.params.iter().filter_map(|a| match a {
+        FunctionArg::Expr(e) =&gt; match e {
+            Expression::Ident(i)  =&gt; Some(i),
+            _ =&gt; None,
+        },
+        FunctionArg::Pattern(p) =&gt; match p {
+            Pattern::Identifier(i) =&gt; Some(i),
+            _ =&gt; None,
+        },
+    }) {
+        args.push(Expression::ident(arg));
+    }
+    f.body.insert(
+        0,
+        console_log(args),
+    );
+    f.body = f.body.into_iter().map(map_part).collect();
+    f
+}
+#}</code></pre></pre>
+<p>The first thing we are going to do is to clone the <code>func</code> to give us a mutable version. Next we are going to check if the <code>id</code> is <code>Some</code>, if it is we can add that name to our <code>console.log</code> arguments. Now function arguments can be pretty complicated, to try and keep things simple we are going to only worry about the ones that are either <code>Expression::Ident</code> or <code>Pattern::Identifier</code>. To build something more robust it might be good to include destructured arguments or arguments with default values but for this example we are just going to keep it simple.</p>
+<p>First we are going to <code>filter_map</code> the <code>func.params</code> to only get the items that ultimatly resolve to <code>Identifer</code>s, at that point we can wrap all of these identifiers in an <code>Expression::Ident</code> and add them to the <code>console.log</code> args. Now we can simply insert the result of passing those args to <code>console_log</code> at the first position of the <code>func.body</code>. Because functions can appear in the body of other functions we also want to map all of the <code>func.body</code> program parts. Once that has completed we can return the updated <code>func</code> to the caller.</p>
+<p>The next thing we are going to want to deal with is <code>Class</code>, we want to insert console.log into the top of each method on a class. This is a bit unique because we also want to provide the name of that class (if it exists) as the first argument to console.log. That might look like this.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn map_class(class: &amp;Class) -&gt; Class {
+    let mut class = class.clone();
+    let prefix =  if let Some(ref id) = class.id {
+        id.clone()
+    } else {
+        String::new()
+    };
+
+    class.body = class.body
+                        .iter()
+                        .map(|prop| map_class_prop(&amp;prefix, prop))
+                        .collect();
+    class
+}
+
+fn map_class_prop(prefix: &amp;str, prop: &amp;Property) -&gt; Property {
+    let mut prop = prop.clone();
+    let mut args = match prop.kind {
+        PropertyKind::Ctor =&gt; {
+            vec![Expression::string(&amp;format!(&quot;'new {}'&quot;, prefix))]
+        },
+        PropertyKind::Get =&gt; {
+            vec![
+                Expression::string(&amp;format!(&quot;'{}'&quot;, prefix)),
+                Expression::string(&quot;get&quot;),
+            ]
+        },
+        PropertyKind::Set =&gt; {
+            vec![
+                Expression::string(&amp;format!(&quot;'{}'&quot;, prefix)),
+                Expression::string(&quot;set&quot;),
+            ]
+        },
+        PropertyKind::Method =&gt; {
+            vec![
+                Expression::string(&amp;format!(&quot;'{}'&quot;, prefix)),
+            ]
+        },
+        _ =&gt; vec![],
+    };
+    match &amp;prop.key {
+        PropertyKey::Ident(ref i) =&gt; {
+            if i != &quot;constructor&quot; {
+                args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, i)));
+            }
+        },
+        PropertyKey::Literal(ref l) =&gt; {
+            match l {
+                Literal::Boolean(ref b) =&gt; {
+                    args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, b)));
+                },
+                Literal::Null =&gt; {
+                    args.push(Expression::string(&quot;'null'&quot;));
+                },
+                Literal::Number(ref n) =&gt; {
+                    args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, n)));
+                }
+                Literal::RegEx(ref r) =&gt; {
+                    args.push(Expression::string(&amp;format!(&quot;'/{}/{}'&quot;, r.pattern, r.flags)));
+                },
+                Literal::String(ref s) =&gt; {
+                    if s != &quot;constructor&quot; {
+                        args.push(Expression::string(s));
+                    }
+                },
+                _ =&gt; (),
+            }
+        },
+        PropertyKey::Pattern(ref p) =&gt; {
+            match p {
+                Pattern::Identifier(ref i) =&gt; {
+                    args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, i)));
+                },
+                _ =&gt; (),
+            }
+        },
+    }
+    if let PropertyValue::Expr(ref mut expr) = prop.value {
+        match expr {
+            Expression::Function(ref mut f) =&gt; {
+                for ref arg in &amp;f.params {
+                    match arg {
+                        FunctionArg::Expr(ref expr) =&gt; {
+                            match expr {
+                                Expression::Ident(_) =&gt; args.push(expr.clone()),
+                                _ =&gt; (),
+                            }
+                        },
+                        FunctionArg::Pattern(ref pat) =&gt; {
+                            match pat {
+                                Pattern::Identifier(ref ident) =&gt; {
+                                    args.push(Expression::ident(ident))
+                                },
+                                _ =&gt; {},
+                            }
+                        }
+                    }
+                }
+                f.body.insert(0,
+                    console_log(args)
+                )
+            },
+            _ =&gt; (),
+        }
+    }
+    prop
+}
+
+pub fn console_log(args: Vec&lt;Expression&gt;) -&gt; ProgramPart {
+    ProgramPart::Statement(
+        Statement::Expr(
+            Expression::call(
+#}</code></pre></pre>
+<p>Here we have two functions, the first pulls out the id from the provided class or uses an empty string of it doesn't exist. We then just pass that off to <code>map_class_prop</code> which will handle all of the different types of properties a class can have. The first thing this does is map the <code>prefix</code> into the right format, so a call to <code>new Thing()</code> would print <code>new Thing</code>, or a get method would print <code>Thing get</code> before the method name. Next we take a look at the <code>property.key</code>, this will provide us with the name of our function, but according to the specification a class property key can be an identifier, a literal value, or a pattern, so we need to figure out what the name of this method is by digging into that value. First in the case that it is an ident we want to add it to the args, unless it is the value <code>constructor</code> because we already put the <code>new</code> keyword in that one. Next we can pull out the literal values and add those as they appear. Lastly we will only handle the pattern case when it is a <code>Pattern::Identifier</code> otherwise we will just skip it. Now to get the parameter names from the method definition we need to look at the <code>property.value</code> which should always be either an <code>Expression::Function</code>. Once we match on that we simply repeat the process of <code>map_function</code> pulling the args out but only when they are <code>Ident</code>s and then passing that along to <code>console_log</code> and inserting that <code>Expression</code> at the top of the function body.</p>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}

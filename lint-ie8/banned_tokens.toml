@@ -1,4 +1,3 @@
-[banned_tokens]
 idents = [
     "Int8Array",
     "Uint8Array",
