@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="../01.overview/1.html" class="active"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">5.2.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">5.3.</strong> StringWriter</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="../01.overview/1.html" class="active"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">6.2.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">6.3.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">6.4.</strong> Projects</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -139,9 +139,9 @@
                         <style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <h1 style="text-align: center;margin: 0;">An Overview</h1>
-<div style="margin: auto;width:500px;height: 500px;">
+<div style="margin: auto;width:100%;max-width:500px;max-height:500px;">
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" height="500" width="500" viewBox="0 0 135 135" xml:space="preserve">
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 135 135" xml:space="preserve">
     <defs>
     </defs>
     <g transform="scale(0.2)">
@@ -375,6 +375,27 @@
 <!--web-only-->
 <p>To get started building development tools using the Rust programming language, we are going to be utilizing 2 crates. The first is a crate called <a href="https://github.com/FreeMasen/RESS"><code>ress</code></a> or Rusty ECMAScript Scanner, this crate is used to convert JavaScript text into a series of <code>Token</code>s. Next is <a href="https://github.com/FreeMasen/RESSA"><code>ressa</code></a> or Rusty ECMAScript Syntax Analyzer, this crate will take that series of <code>Token</code>s and build an Abstract Syntax Tree or AST. Either of these tools will be useful for building development tools however since the output of <code>ress</code> is essentially flat it means we can only build a much simpler kind of tool. Over the course of this book we will dig into how to build a development tool with either of these crates.</p>
 <!--web-only-end-->
+<!--slides-only-->
+<ul>
+<li>What is RESS
+<ul>
+<li>Overview</li>
+<li>Demo Project</li>
+</ul>
+</li>
+<li>What is RESSA
+<ul>
+<li>Overview</li>
+<li>Demo Project</li>
+</ul>
+</li>
+<li>What is RESW (maybe)
+<ul>
+<li>Overview</li>
+</ul>
+</li>
+</ul>
+<!--slides-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script>
                     </main>
 

@@ -2,11 +2,19 @@ use ressa::{
     Parser,
     node::*,
 };
-
+use std::{
+    io::Read,
+    env::args,
+    fs::read_to_string,
+};
+use resw::Writer;
 fn main() {
     let js = get_js().expect("Unable to get JavaScript");
-    let parser = Parser::new(js).expect("Unable to construct parser");
-
+    let parser = Parser::new(&js).expect("Unable to construct parser");
+    let mut writer = Writer::new(::std::io::stdout());
+    for part in parser.filter_map(|p| p.ok()).map(map_part) {
+        writer.write_part(&part).expect("Failed to write part");
+    }
 }
 
 fn map_part(part: ProgramPart) -> ProgramPart {
@@ -176,7 +184,7 @@ fn map_class_prop(prefix: &str, prop: &Property) -> Property {
     prop
 }
 
-pub fn console_log(args: Vec<Expression>) -> ProgramPart {
+fn console_log(args: Vec<Expression>) -> ProgramPart {
     ProgramPart::Statement(
         Statement::Expr(
             Expression::call(
@@ -203,7 +211,7 @@ fn get_js() -> Result<String, ::std::io::Error> {
         if atty::is(atty::Stream::Stdin) {
             return Ok(ret)
         }
-        std_in.read_to_string(&mut ret);
+        let _ = std_in.read_to_string(&mut ret);
         ret
     };
     Ok(js)

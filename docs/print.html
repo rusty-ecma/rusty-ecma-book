@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="a.appendix/ast.html"><strong aria-hidden="true">5.2.</strong> AST</a></li><li><a href="a.appendix/string.writer.html"><strong aria-hidden="true">5.3.</strong> StringWriter</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="a.appendix/tokens.html"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="a.appendix/ast.html"><strong aria-hidden="true">6.2.</strong> AST</a></li><li><a href="a.appendix/string.writer.html"><strong aria-hidden="true">6.3.</strong> StringWriter</a></li><li><a href="a.appendix/projects.html"><strong aria-hidden="true">6.4.</strong> Projects</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -139,9 +139,9 @@
                         <style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <h1 style="text-align: center;margin: 0;">An Overview</h1>
-<div style="margin: auto;width:500px;height: 500px;">
+<div style="margin: auto;width:100%;max-width:500px;max-height:500px;">
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" height="500" width="500" viewBox="0 0 135 135" xml:space="preserve">
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 135 135" xml:space="preserve">
     <defs>
     </defs>
     <g transform="scale(0.2)">
@@ -375,16 +375,47 @@
 <!--web-only-->
 <p>To get started building development tools using the Rust programming language, we are going to be utilizing 2 crates. The first is a crate called <a href="https://github.com/FreeMasen/RESS"><code>ress</code></a> or Rusty ECMAScript Scanner, this crate is used to convert JavaScript text into a series of <code>Token</code>s. Next is <a href="https://github.com/FreeMasen/RESSA"><code>ressa</code></a> or Rusty ECMAScript Syntax Analyzer, this crate will take that series of <code>Token</code>s and build an Abstract Syntax Tree or AST. Either of these tools will be useful for building development tools however since the output of <code>ress</code> is essentially flat it means we can only build a much simpler kind of tool. Over the course of this book we will dig into how to build a development tool with either of these crates.</p>
 <!--web-only-end-->
+<!--slides-only-->
+<ul>
+<li>What is RESS
+<ul>
+<li>Overview</li>
+<li>Demo Project</li>
+</ul>
+</li>
+<li>What is RESSA
+<ul>
+<li>Overview</li>
+<li>Demo Project</li>
+</ul>
+</li>
+<li>What is RESW (maybe)
+<ul>
+<li>Overview</li>
+</ul>
+</li>
+</ul>
+<!--slides-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#ress" id="ress"><h1><code>RESS</code></h1></a>
-<p>Before we dig into an example I want to go over what <code>ress</code> does. The job of a <strong>scanner</strong> or <strong>tokenizer</strong> in the parsing process is to convert raw text or bytes into logically separated parts called <em>tokens</em> and <code>ress</code> does just that. It reads your JavaScript text and then tells you what a given word or symbol might represent. It does this through the <code>Scanner</code> interface, to construct a scanner you pass it the text you would like it to tokenize.</p>
+<!--slides-only-->
+<ul>
+<li><code>impl Iterator for Scanner</code></li>
+<li>Converts text into <code>Token</code>s</li>
+<li>Flat Structure</li>
+</ul>
+<!--slides-only-end-->
+<!--web-only-->
+<p>Before we dig into an example let's dig a little into what <code>ress</code> does. The job of a <strong>scanner</strong> or <strong>tokenizer</strong> in the parsing process is to convert raw text or bytes into logically separated parts called <em>tokens</em> and <code>ress</code> does just that. It reads your JavaScript text and then tells you what a given word or symbol might represent. It does this through the <code>Scanner</code> interface, to construct a scanner you pass it the text you would like it to tokenize.</p>
+<!--web-only-end-->
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
     let js = &quot;var i = 0;&quot;;
     let scanner = Scanner::new(js);
 #}</code></pre></pre>
+<!--web-only-->
 <p>Now that you have prepared your scanner, how do we use it? Well, the <code>Scanner</code> implements <code>Iterator</code> so we can actually use it in a for loop like so.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -394,6 +425,7 @@
     }
 #}</code></pre></pre>
 <p>If we were to run the above program it would print to the terminal the following.</p>
+<!--web-only-end-->
 <pre><code>Item {
     token: Keyword(
         Var
@@ -451,6 +483,7 @@ Item {
     }
 }
 </code></pre>
+<!--web-only-->
 <p>The scanner's <code>::next()</code> method returns an <code>Item</code> which has 2 properties <code>token</code> and <code>span</code>. The <code>span</code> is the byte index that starts and ends the token, the <code>token</code> property is going to be one variant of the <code>Token</code> enum which has the following variants.</p>
 <ul>
 <li><code>Token::Boolean(BooleanLiteral)</code> - The text <code>true</code> or <code>false</code></li>
@@ -466,15 +499,12 @@ Item {
 </ul>
 <p>For a more indepth look at these tokens, take a look at the <a href="../a.appendix/tokens.html">Appendix</a></p>
 <p>Overall the output of our scanner isn't going to provide any context for where these tokens appear, that means when we are building our development tools it is going to be a little harder to figure out what is going on in any given span. One way we could take that is to just build a tool that is concerned with the token level of information. Say you work on a team of JavaScript developers that need to adhear to a strict code style because the organization needs their website to be usable in Internet Explorer 8. With that restriction there are a large number of tools that are off the table, looking over <a href="https://caniuse.com/#compare=ie+8,firefox+64&amp;compare_cats=JS,JS%20API">this list</a> we can see how big that really is. It could be useful to have a linter that will check for the keywords and identifiers that are not available in IE8. let's try and build one.</p>
-<style>
-   .playpen .buttons {
-        display: none;
-    }
-</style>
+<!--web-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#building-an-ie8-linter" id="building-an-ie8-linter"><h1>Building an IE8 Linter</h1></a>
-<p>To get started we need to add <code>ress</code> to our dependencies. I am also going to add <code>serde</code>, <code>serde_derive</code> and <code>toml</code> because I want to list of unavailable tokens to be configurable.</p>
+<!--web-only-->
+<p>To get started we need to add <code>ress</code> to our dependencies. This project is also going to need <code>serde</code>, <code>serde_derive</code> and <code>toml</code> because it will rely on a <code>.toml</code> file to make the list of unavailable tokens configurable.</p>
 <blockquote>
 <p>Cargo.toml</p>
 </blockquote>
@@ -502,7 +532,7 @@ use ress::{
     Token,
 };
 #}</code></pre></pre>
-<p>Since I want to use a <code>.toml</code> file to provide the list of banned tokens, let's create a struct that will represent our configuration.</p>
+<p>Since we are using a <code>.toml</code> file to provide the list of banned tokens, let's create a struct that will represent our configuration.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -514,7 +544,7 @@ struct BannedTokens {
     strings: Vec&lt;String&gt;,
 }
 #}</code></pre></pre>
-<p>The toml file we are going to use is pretty big so I am not going to list it here. If you want to see what it looks like you can check it out <a href="https://github.com/FreeMasen/rusty-ecma-book/blob/master/lint-ie8/banned_tokens.toml">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
+<p>The toml file we are going to use is pretty big so it doesn't make sense list it here. If you want to see what it looks like you can check it out <a href="https://github.com/FreeMasen/rusty-ecma-book/blob/master/lint-ie8/banned_tokens.toml">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
 <p>To start we need to deserialize that file, we can do that with the <code>std::fs::read_to_string</code> and <code>toml::from_str</code> functions.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -562,7 +592,7 @@ struct BannedTokens {
     let finder = BannedFinder::new(&amp;js, banned);
     for item in finder {
 #}</code></pre></pre>
-<p>I want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>.  If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message, how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message, how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -638,7 +668,7 @@ impl BannedFinder {
 #}</code></pre></pre>
 <p>The first step there is to figure out what row we are on. We can do that by using <code>chars</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over the <code>char</code>s in the string. We then <code>fold</code> that iterator into a single number, starting with 1, if the current character is a new line we add one to the accumulator, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines.</p>
 <p>After we have counted the new lines, we can move on to the column. First we need to figure out where this line starts. We do that by using the <code>char_indices</code> method on <code>&amp;str</code>, this like <code>chars</code> will give us an iterator but this is over a <code>(usize, char)</code> pair, we are again going to use fold as a way to covert the iterator into a single number. In this case we are going to start with 0 and, and only update that accumulator if we found a new line character (adding 1 because out line starts at the next <code>char</code>). This will ensure that the last new line found will be the start of this token's line. If the <code>line_start</code> is 0 that means we didn't find anything so we can just assume it is the first line, meaning the index is the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
-<p>Ok, I know I said before that we were going to get to the good stuff but now I really mean it. We are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
+<p>Ok, now for the exciting part; we are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -701,9 +731,21 @@ impl Iterator for BannedFinder {
 }
 #}</code></pre></pre>
 <p>That is pretty much it. If you wanted to see the full project you can find it in the <a href="https://github.com/FreeMasen/rusty-ecma-book/tree/master/lint-ie8">lint-ie8</a> folder of this book's github repository.</p>
+<!--web-only-end-->
+<!--slides-only-->
+<a class="header" href="#demo" id="demo"><h2>Demo</h2></a>
+<!--slides-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#ressa" id="ressa"><h1>RESSA</h1></a>
+<!--slides-only-->
+<ul>
+<li><code>impl Iterator for Parser</code></li>
+<li>Converts stream of <code>Token</code>s into AST</li>
+<li>Significantly more context</li>
+</ul>
+<!--slides-only-end-->
+<!--web-only-->
 <p>Before we get into how to use <code>ressa</code>, It is a good idea to briefly touch on the scope of a <strong>parser</strong> or <strong>syntax analyzer</strong>. The biggest thing to understand is that we still are not dealing with the <em>semantic</em> meaning of the program. That means we won't be able to discover things like assigning to undeclared variables or attempting to call undefined functions because we need to have access to a larger context definition. To that end, <code>ressa</code>'s true value isn't realized until it is embedded into another program that provide this information.</p>
 <p>With that said <code>ressa</code> is providing that same larger contenxt for what is provided by <code>ress</code>. It achieves that by wrapping the <code>Scanner</code> in a struct called <code>Parser</code>. Essentially <code>Parser</code> provides a way to keep track of what any given set of <code>Token</code>s might mean. <code>Parser</code> also implements <code>Iterator</code> over the enum <code>ProgramPart</code>, which has 3 cases representing the 3 different top level JavaScript constructs.</p>
 <ul>
@@ -771,8 +813,9 @@ impl Iterator for BannedFinder {
 </ul>
 </li>
 </ul>
-<p>Most of the <code>Expression</code>, <code>Statement</code>, and <code>Decl</code> variants have associated values, to see more information about them I encourage you to check out the <a href="https://docs.rs/ressa">documentation</a>. There should be an example and description provided for each of the possible combinations.</p>
+<p>Most of the <code>Expression</code>, <code>Statement</code>, and <code>Decl</code> variants have associated values, to see more information about them check out the <a href="https://docs.rs/ressa">documentation</a>. There should be an example and description provided for each of the possible combinations.</p>
 <p>With that long winded explanation of the <em>basic</em> structure we are working with let's take a look at how we would use the <code>Parser</code> and <code>ProgramPart</code>.</p>
+<!--web-only-end-->
 <pre><pre class="playpen"><code class="language-rust">use ressa::*;
 
 static JS: &amp;str = &quot;
@@ -794,7 +837,9 @@ fn main() {
     }
 }
 </code></pre></pre>
+<!--web-only-->
 <p>If we were to run the above we would get the following output.</p>
+<!--web-only-end-->
 <pre><code class="language-ron">Script([
     Decl(
         Function(
@@ -841,6 +886,7 @@ fn main() {
     )
 ])
 </code></pre>
+<!--web-only-->
 <p>If we walk through the output, we start by seeing that the</p>
 <ol>
 <li>This program consists of a single part which is a  <code>ProgramPart::Decl</code></li>
@@ -902,10 +948,15 @@ function getConsole() {
 getConsole()[logFunc()];
 getConsole().log;
 </code></pre>
-<p>And I am sure that this isn't an exhaustive list of ways to construct a <code>MemberExpression</code>. With the level of information provided we have enough to truly understand the syntactic meaning of the text. This will enable us to build more powerful tools to analyze and/or manipulate the any given JavaScript program. With the pervasivness of <a href="https://en.wikipedia.org/wiki/Debugging#Techniques">print debugging</a>, wouldn't it be nice if we had a tool that would automatically insert a <code>console.log</code> at the top of every function and method in a program that would print the name of that function and also each of the arguments? Let's take a look at what that might look like.</p>
+<p>And with the way JavaScript has evolved this probably isn't an exhaustive list of ways to construct a <code>MemberExpression</code>. With the level of information provided we have enough to truly understand the syntactic meaning of the text. This will enable us to build more powerful tools to analyze and/or manipulate the any given JavaScript program. With the pervasivness of <a href="https://en.wikipedia.org/wiki/Debugging#Techniques">print debugging</a>, wouldn't it be nice if we had a tool that would automatically insert a <code>console.log</code> at the top of every function and method in a program that would print the name of that function and also each of the arguments? Let's take a look at what that might look like.</p>
+<!--web-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#building-a-debug-helper" id="building-a-debug-helper"><h1>Building a Debug Helper</h1></a>
+<!--slides-only-->
+<a class="header" href="#demo-1" id="demo-1"><h2>Demo</h2></a>
+<!--slides-only-end-->
+<!--web-only-->
 <p>To simplify things, we are just going to lift the technique for getting the JavaScript text from the <a href="../02.ress/2.html">ress example</a>, so we won't be covering that again.</p>
 <p>With that out of the way let's take a look at the <code>Cargo.toml</code> and <code>use</code> statements for our program.</p>
 <pre><code class="language-toml">[package]
@@ -916,6 +967,8 @@ edition = &quot;2018&quot;
 
 [dependencies]
 ressa = &quot;0.2&quot;
+atty = &quot;0.2&quot;
+resw = &quot;0.1&quot;
 </code></pre>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -924,30 +977,35 @@ use ressa::{
     Parser,
     node::*,
 };
+use std::{
+    io::Read,
+    env::args,
+    fs::read_to_string,
+};
 #}</code></pre></pre>
 <p>This will make sure that all of the items we will need from <code>ressa</code> are in scope. Now we can start defining our method for inserting the debug logging into any functions that we find. To start we are going to create a function that will generate a new <code>ProgramPart::Statement</code> that will represent our call to <code>console.log</code> which might look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
+fn console_log(args: Vec&lt;Expression&gt;) -&gt; ProgramPart {
+    ProgramPart::Statement(
+        Statement::Expr(
+            Expression::call(
+                Expression::member(
+                    Expression::ident(&quot;console&quot;),
+                    Expression::ident(&quot;log&quot;),
+                    false,
+                ),
+                args,
             )
         )
     )
-}
-
-fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
-    let mut cmd_args = args();
-    let _ = cmd_args.next(); //discard bin name
-    let js = if let Some(file_name) = cmd_args.next() {
-        let js = read_to_string(file_name)?;
-        js
-    } else {
-        let mut std_in = ::std::io::stdin();
-        let mut ret = String::new();
-        if atty::is(atty::Stream::Stdin) {
 #}</code></pre></pre>
-<p>We need to make the arguments configuable so we can insert the context information for each instance of a function but otherwise it is a pretty straight foward. Now that we have that, we need to start digging from <code>ProgramPart</code> to identify anything we want to modify. Since <code>Parser</code> implements <code>Iterator</code> we use the <code>map</code> method to make this update. With that in mind the entry point is going to be a function that takes a <code>ProgramPart</code> and returns a new <code>ProgramPart</code>. It might look like this</p>
+<p>We need to make the arguments configuable so we can insert the context information for each instance of a function but otherwise it is a pretty straight foward. Now that we have that, we need to start digging into the <code>ProgramPart</code> to identify anything we want to modify. Since <code>Parser</code> implements <code>Iterator</code> and its <code>Item</code> is <code>Result&lt;ProgramPart, Error&gt;</code> we first need to use <code>filter_map</code> to extract the <code>ProgramPart</code> from the result. It would probably be good to handle the error case here but for the sake of simplicity we are going to skip any error. Now that we have an <code>Iterator</code> over <code>ProgramPart</code>s we can use <code>map</code> to update each part. With that in mind the entry point is going to be a function that takes a <code>ProgramPart</code> and returns a new <code>ProgramPart</code>. It might look like this</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
 fn map_part(part: ProgramPart) -&gt; ProgramPart {
     match part {
@@ -955,11 +1013,11 @@ fn map_part(part: ProgramPart) -&gt; ProgramPart {
         ProgramPart::Statement(ref stmt) =&gt; ProgramPart::Statement(map_stmt(stmt)),
         ProgramPart::Directive(_) =&gt; part,
     }
-}
 #}</code></pre></pre>
 <p>We are going to match on the part provided and either return that part if it is a <code>Directive</code> or if it isn't we need to investigate further to discover if it is a function or not. We do that in two places <code>map_decl</code> and <code>map_stmt</code> both of which are going to utilize similar method for digging further into the tree.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
 fn map_decl(decl: &amp;Declaration) -&gt; Declaration {
     match decl {
@@ -974,11 +1032,11 @@ fn map_stmt(stmt: &amp;Statement) -&gt; Statement {
         Statement::Expr(ref expr) =&gt; Statement::Expr(map_expr(expr)),
         _ =&gt; stmt.clone(),
     }
-}
 #}</code></pre></pre>
-<p>There are two ways for a <code>Declaration</code> to resolve into a function or method and that is with the <code>Function</code> and <code>Class</code> variants while a <code>Statement</code> can only be a target for us if it is an <code>Expr</code>. When we include <code>map_expr</code> we see that there are cases for both <code>Function</code> and <code>Class</code> in the <code>Expression</code> enum. That means these will converge with what <code>map_decl</code> is doing.</p>
+<p>There are two ways for a <code>Declaration</code> to resolve into a function or method and that is with the <code>Function</code> and <code>Class</code> variants while a <code>Statement</code> can only be one of our targets if it is an <code>Expr</code>. When we include <code>map_expr</code> we see that there are cases for both <code>Function</code> and <code>Class</code> in the <code>Expression</code> enum. That means once we get past those we will be handling the rest in the exact same way.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
 fn map_expr(expr: &amp;Expression) -&gt; Expression {
     match expr {
@@ -986,11 +1044,11 @@ fn map_expr(expr: &amp;Expression) -&gt; Expression {
         Expression::Class(ref c) =&gt; Expression::Class(map_class(c)),
         _ =&gt; expr.clone(),
     }
-}
 #}</code></pre></pre>
 <p>Finally we are at the meat of one of the cases we want to modify <code>map_func</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
 fn map_func(func: &amp;Function) -&gt; Function {
     let mut f = func.clone();
@@ -1018,13 +1076,13 @@ fn map_func(func: &amp;Function) -&gt; Function {
     );
     f.body = f.body.into_iter().map(map_part).collect();
     f
-}
 #}</code></pre></pre>
 <p>The first thing we are going to do is to clone the <code>func</code> to give us a mutable version. Next we are going to check if the <code>id</code> is <code>Some</code>, if it is we can add that name to our <code>console.log</code> arguments. Now function arguments can be pretty complicated, to try and keep things simple we are going to only worry about the ones that are either <code>Expression::Ident</code> or <code>Pattern::Identifier</code>. To build something more robust it might be good to include destructured arguments or arguments with default values but for this example we are just going to keep it simple.</p>
 <p>First we are going to <code>filter_map</code> the <code>func.params</code> to only get the items that ultimatly resolve to <code>Identifer</code>s, at that point we can wrap all of these identifiers in an <code>Expression::Ident</code> and add them to the <code>console.log</code> args. Now we can simply insert the result of passing those args to <code>console_log</code> at the first position of the <code>func.body</code>. Because functions can appear in the body of other functions we also want to map all of the <code>func.body</code> program parts. Once that has completed we can return the updated <code>func</code> to the caller.</p>
 <p>The next thing we are going to want to deal with is <code>Class</code>, we want to insert console.log into the top of each method on a class. This is a bit unique because we also want to provide the name of that class (if it exists) as the first argument to console.log. That might look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
 fn map_class(class: &amp;Class) -&gt; Class {
     let mut class = class.clone();
@@ -1132,37 +1190,135 @@ fn map_class_prop(prefix: &amp;str, prop: &amp;Property) -&gt; Property {
         }
     }
     prop
-}
-
-pub fn console_log(args: Vec&lt;Expression&gt;) -&gt; ProgramPart {
-    ProgramPart::Statement(
-        Statement::Expr(
-            Expression::call(
 #}</code></pre></pre>
 <p>Here we have two functions, the first pulls out the id from the provided class or uses an empty string of it doesn't exist. We then just pass that off to <code>map_class_prop</code> which will handle all of the different types of properties a class can have. The first thing this does is map the <code>prefix</code> into the right format, so a call to <code>new Thing()</code> would print <code>new Thing</code>, or a get method would print <code>Thing get</code> before the method name. Next we take a look at the <code>property.key</code>, this will provide us with the name of our function, but according to the specification a class property key can be an identifier, a literal value, or a pattern, so we need to figure out what the name of this method is by digging into that value. First in the case that it is an ident we want to add it to the args, unless it is the value <code>constructor</code> because we already put the <code>new</code> keyword in that one. Next we can pull out the literal values and add those as they appear. Lastly we will only handle the pattern case when it is a <code>Pattern::Identifier</code> otherwise we will just skip it. Now to get the parameter names from the method definition we need to look at the <code>property.value</code> which should always be either an <code>Expression::Function</code>. Once we match on that we simply repeat the process of <code>map_function</code> pulling the args out but only when they are <code>Ident</code>s and then passing that along to <code>console_log</code> and inserting that <code>Expression</code> at the top of the function body.</p>
+<p>Now if we head back up to <code>main</code> where we are getting the js and passing that off to the <code>Parser</code>, we can start using the code.</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    let js = get_js().expect(&quot;Unable to get JavaScript&quot;);
+    let parser = Parser::new(&amp;js).expect(&quot;Unable to construct parser&quot;);
+    let mut writer = Writer::new(::std::io::stdout());
+    for part in parser.filter_map(|p| p.ok()).map(map_part) {
+        writer.write_part(&amp;part).expect(&quot;Failed to write part&quot;);
+    }
+</code></pre></pre>
+<p>At this point we have successfully updated our AST to include a call to <code>console.log</code> at the top of each function and method in our code. Now the big question is how do we write that out to a file. This problem is not a small one, in the next section we are going to cover an expermental crate <code>resw</code> that we can use to finish this project.</p>
+<!--web-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
+<a class="header" href="#resw" id="resw"><h1>RESW</h1></a>
+<!--web-only-->
+<p>While <code>ress</code> and <code>ressa</code> consume text and generate data structures, <code>resw</code> is going to consume data structures and write out text. This is going to make solving the problem that our debug logging project has left us with trivial. However instead of just sweeping that under the rug, we are going to go over how <code>resw</code> works because the nature of JavaScript, <code>resw</code> makes some style decisions that might not work for everyone. By going over the project in detail the hope is that other's will feel enabled to either contribute a configuration option into <code>resw</code> or ever implement their own project that consumes <code>ressa</code>'s AST and generates text.</p>
+<p>If you are not interested just seeing how we are going to finish the project from the last chapter, feel free to skip this chapter.</p>
+<p>Similar to the structure of <code>ressa</code>, <code>resw</code> exposes a struct that will keep track of the context for us called <code>Writer</code>. There are 2 methods for constructing a <code>Writer</code>, the first is with the <code>::new</code> method the second <code>::builder</code> utilizes the <em>builder</em> pattern to customize some options. Those options include</p>
+<ul>
+<li>New line character (default <code>\n</code>)</li>
+<li>Quote (default to use origin symbol)
+<ul>
+<li>Setting this to any value will for all of the string literals in the provided JavaScript to be re-written with the provided quotes.</li>
+</ul>
+</li>
+<li>Indent (default 4 spaces)</li>
+</ul>
+<p>Either method you are going to need to provide the destination which can be anything that implements the <code>std::io::Write</code> trait. For testing purposes the crate provides an implementor of <code>Write</code> in <code>WriteString</code>, we are not going to cover that here but a more detailed explaination can be found in the <a href="./a.appendix/string.writer.html">appendix</a>.</p>
+<p>Once a <code>Writer</code> is constructed, it provides a</p>
+<!--web-only-end-->
+<!--slides-only-->
+<ul>
+<li><code>Writer</code> takes <code>ProgramPart</code>s</li>
+<li>Somewhat Configurable</li>
+<li>Writes to <code>impl Write</code></li>
+</ul>
+<!--slides-only-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#building-a-writer" id="building-a-writer"><h1>Building a Writer</h1></a>
+<!--web-only-->
+<p>Thankfully because of the existence of <code>resw</code> completing the <code>console.log</code> debugging tool is going to be trivial. The primary entry point for <code>resw</code> is the <code>Writer</code> struct, which has a method <code>write_part</code> that will take a <code>&amp;mut self</code> and <code>&amp;ProgramPart</code>, so we can use that in our for loop to write out the parts as they are parsed. That might look like this.</p>
+<pre><pre class="playpen"><code class="language-rust">use resw::Writer;
+fn main() {
+    let js = get_js().expect(&quot;Unable to get JavaScript&quot;);
+    let parser = Parser::new(&amp;js).expect(&quot;Unable to construct parser&quot;);
+    let mut writer = Writer::new(::std::io::stdout());
+    for part in parser.filter_map(|p| p.ok()).map(map_part) {
+        writer.write_part(&amp;part).expect(&quot;Failed to write part&quot;);
+    }
+}
+</code></pre></pre>
+<p>With that complete we can see how well it works for us. Let's use the following example JavaScript.</p>
+<pre><code class="language-js">function Thing(stuff) {
+    this.stuff = stuff;
+}
+let x = new Thing('argument');
+</code></pre>
+<p>Just as a simple test we could enter the following into our terminal</p>
+<pre><code class="language-bash">$ echo &quot;function Thing(stuff) {
+    this.stuff = stuff;
+}
+let x = new Thing('argument');
+&quot; | console_logify
+function Thing(stuff) {
+    console.log('Thing', stuff);
+    this.stuff = stuff;
+}
+
+let x = new Thing('argument!');
+</code></pre>
+<p>That looks exactly like the output we were looking for. Let's double check that it will behave as expected by piping the output to <code>node</code></p>
+<pre><code class="language-bash">$ echo &quot;function Thing(stuff) {
+    this.stuff = stuff;
+}
+let x = new Thing('argument');
+&quot; | console_logify | node -
+Thing argument
+</code></pre>
+<p>Exactly what we expected.</p>
+<!--web-only-end-->
+<!--slides-only-->
+<a class="header" href="#demo-2" id="demo-2"><h2>Demo</h2></a>
+<!--slides-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
+<a class="header" href="#conclusion" id="conclusion"><h1>Conclusion</h1></a>
 <!--web-only-->
+<p>Hopefully now you have the skills to get started building your JavaScript development tools using Rust. If you do, open an issue on this project's <a href="https://github.com/FreeMasen/rusty-ecma-book/issues">GitHub issues</a> page with the project's name a short description and a URI, and it will be added to the <a href="/a.appendix/projects.html">appendix</a>.</p>
+<p>If you run into any problems (including typos in this book) it would be wonderful of you to open an issue on GitHub.</p>
+<ul>
+<li><a href="https://github.com/FreeMasen/RESS/issues"><code>ress</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/RESSA/issues"><code>ressa</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/RESW/issues"><code>resw</code> issues</a></li>
+</ul>
+<p>If you want to get involved, there are probably a few open issues that could use some help. Each project does provide a contributing guidelines.</p>
+<ul>
+<li><a href="https://github.com/FreeMasen/RESSA/blob/master/CONTRIBUTING.md"><code>ress</code></a></li>
+<li><a href="https://github.com/FreeMasen/RESSA/blob/master/CONTRIBUTING.md"><code>ressa</code></a></li>
+<li><a href="https://github.com/FreeMasen/RESW#contributing"><code>resw</code></a></li>
+</ul>
+<!--web-only-end-->
+<!--slides-only-->
+<ul>
+<li>Annotated version of this presentation
+<ul>
+<li>https://FreeMasen.github.io/rusty-ecma-book</li>
+</ul>
+</li>
+<li>Where to find me
+<ul>
+<li>email: r.f.masen@gmail.com</li>
+<li>website: https://WiredForge.com</li>
+<li>twitter/github: @FreeMasen</li>
+</ul>
+</li>
+</ul>
+<!--slides-only-end-->
+<script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
+</style>
 <a class="header" href="#appendix" id="appendix"><h1>Appendix</h1></a>
 <ol>
 <li><a href="./tokens.html">Tokens</a></li>
 <li><a href="./a.appendix/ast.html">AST</a></li>
 <li><a href="./a.appendix/string.writer.html">StringWriter</a></li>
+<li><a href="./a.ap%5Bendix/projects.html">Projects</a></li>
 </ol>
-<!--web-only-end-->
-<!--slides-only-->
-<a class="header" href="#where-to-find-me" id="where-to-find-me"><h1>Where to find me</h1></a>
-<ul>
-<li>Github: https://github.com/FreeMasen</li>
-<li>Twitter: @FreeMasen</li>
-<li>Website: https://WiredForge.com</li>
-</ul>
-<!--slides-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#tokens" id="tokens"><h1>Tokens</h1></a>
@@ -1172,6 +1328,13 @@ pub fn console_log(args: Vec&lt;Expression&gt;) -&gt; ProgramPart {
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#stringwriter" id="stringwriter"><h1>StringWriter</h1></a>
+<script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
+</style>
+<a class="header" href="#projects" id="projects"><h1>Projects</h1></a>
+<table><thead><tr><th> name           </th><th> description                                                                                       </th><th> website                                              </th></tr></thead><tbody>
+<tr><td> console_logger </td><td> A utility that will insert <code>console.log</code> to the top of all of your function bodies                </td><td> <a href="https://github.com/freemasen/rusty-ecma-book">repo</a> </td></tr>
+<tr><td> lint-ie8       </td><td> A utility that will check for any javascript that would fail when executed by Internet Explorer 8 </td><td> <a href="https://github.com/freemasen/rusty-ecma-book">repo</a> </td></tr>
+</tbody></table>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script>
                     </main>
 
