@@ -4,11 +4,6 @@ static JS: &str = "
 function Thing(stuff) {
     this.stuff = stuff;
 }
-class Stuff {
-    constructor(thing) {
-        this.thing = thing;
-    }
-}
 ";
 
 fn main() {

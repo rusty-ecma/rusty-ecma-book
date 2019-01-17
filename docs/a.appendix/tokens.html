@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html" class="active"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">6.2.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">6.3.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">6.4.</strong> Projects</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Finishing a Debug Helper</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html" class="active"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="../a.appendix/ie-8-banned.html"><strong aria-hidden="true">6.2.</strong> Banned Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">6.3.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">6.4.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">6.5.</strong> Projects</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -139,6 +139,174 @@
                         <style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#tokens" id="tokens"><h1>Tokens</h1></a>
+<p>Here is a list of all of the possible tokens <code>ress</code> provides</p>
+<ul>
+<li><code>Token</code>
+<ul>
+<li><code>EoF</code></li>
+<li><code>Boolean</code> - <code>enum BooleanLiteral</code>
+<ul>
+<li><code>True</code></li>
+<li><code>False</code></li>
+</ul>
+</li>
+<li><code>Ident</code> - <code>struct Ident(String)</code></li>
+<li><code>Keyword</code> - <code>enum Keyword</code>
+<ul>
+<li><code>Await</code></li>
+<li><code>Break</code></li>
+<li><code>Case</code></li>
+<li><code>Catch</code></li>
+<li><code>Class</code></li>
+<li><code>Const</code></li>
+<li><code>Continue</code></li>
+<li><code>Debugger</code></li>
+<li><code>Default</code></li>
+<li><code>Delete</code></li>
+<li><code>Do</code></li>
+<li><code>Else</code></li>
+<li><code>Enum</code></li>
+<li><code>Export</code></li>
+<li><code>Finally</code></li>
+<li><code>For</code></li>
+<li><code>Function</code></li>
+<li><code>If</code></li>
+<li><code>Implements</code></li>
+<li><code>Import</code></li>
+<li><code>In</code></li>
+<li><code>InstanceOf</code></li>
+<li><code>Interface</code></li>
+<li><code>Let</code></li>
+<li><code>New</code></li>
+<li><code>Package</code></li>
+<li><code>Private</code></li>
+<li><code>Protected</code></li>
+<li><code>Public</code></li>
+<li><code>Return</code></li>
+<li><code>Static</code></li>
+<li><code>Super</code></li>
+<li><code>Switch</code></li>
+<li><code>This</code></li>
+<li><code>Throw</code></li>
+<li><code>Try</code></li>
+<li><code>TypeOf</code></li>
+<li><code>Var</code></li>
+<li><code>Void</code></li>
+<li><code>While</code></li>
+<li><code>With</code></li>
+<li><code>Yield</code></li>
+</ul>
+</li>
+<li><code>Null</code></li>
+<li><code>Numeric</code> - <code>struct Number(String)</code>
+<ul>
+<li><code>0</code></li>
+<li><code>.0</code></li>
+<li><code>0.0</code></li>
+<li><code>0.0e1</code></li>
+<li><code>0.0E1</code></li>
+<li><code>.0e1</code></li>
+<li><code>.0E1</code></li>
+<li><code>0xfff</code></li>
+<li><code>0Xfff</code></li>
+<li><code>0o777</code></li>
+<li><code>0O777</code></li>
+<li><code>0b111</code></li>
+<li><code>0B111</code></li>
+</ul>
+</li>
+<li><code>Punct</code> - <code>enum Punct</code>
+<ul>
+<li><code>And</code> - <code>&amp;</code></li>
+<li><code>Assign</code> - <code>=</code></li>
+<li><code>Asterisk</code> - <code>*</code></li>
+<li><code>BitwiseNot</code> - <code>~</code></li>
+<li><code>Caret</code> - <code>^</code></li>
+<li><code>CloseBrace</code> - <code>}</code></li>
+<li><code>CloseBracket</code> - <code>]</code></li>
+<li><code>CloseParen</code> - <code>)</code></li>
+<li><code>Colon</code> - <code>:</code></li>
+<li><code>Comma</code> - <code>,</code></li>
+<li><code>ForwardSlash</code> - <code>/</code></li>
+<li><code>GreaterThan</code> - <code>&gt;</code></li>
+<li><code>LessThan</code> - <code>&lt;</code></li>
+<li><code>Minus</code> - <code>-</code></li>
+<li><code>Modulo</code> - <code>%</code></li>
+<li><code>Not</code> - <code>!</code></li>
+<li><code>OpenBrace</code> - <code>{</code></li>
+<li><code>OpenBracket</code> - <code>[</code></li>
+<li><code>OpenParen</code> - <code>(</code></li>
+<li><code>Period</code> - <code>.</code></li>
+<li><code>Pipe</code> - <code>|</code></li>
+<li><code>Plus</code> - <code>+</code></li>
+<li><code>QuestionMark</code> - <code>?</code></li>
+<li><code>SemiColon</code> - <code>;</code></li>
+<li><code>Spread</code> - <code>...</code></li>
+<li><code>UnsignedRightShiftAssign</code> - <code>&gt;&gt;&gt;=</code></li>
+<li><code>StrictEquals</code> - <code>===</code></li>
+<li><code>StrictNotEquals</code> - <code>!==</code></li>
+<li><code>UnsignedRightShift</code> - <code>&gt;&gt;&gt;</code></li>
+<li><code>LeftShiftAssign</code> - <code>&lt;&lt;=</code></li>
+<li><code>RightShiftAssign</code> - <code>&gt;&gt;=</code></li>
+<li><code>ExponentAssign</code> - <code>**=</code></li>
+<li><code>LogicalAnd</code> - <code>&amp;&amp;</code></li>
+<li><code>LogicalOr</code> - <code>||</code></li>
+<li><code>Equal</code> - <code>==</code></li>
+<li><code>NotEqual</code> - <code>!=</code></li>
+<li><code>AddAssign</code> - <code>+=</code></li>
+<li><code>SubtractAssign</code> - <code>-=</code></li>
+<li><code>MultiplyAssign</code> - <code>*=</code></li>
+<li><code>DivideAssign</code> - <code>/=</code></li>
+<li><code>Increment</code> - <code>++</code></li>
+<li><code>Decrement</code> - <code>--</code></li>
+<li><code>LeftShift</code> - <code>&lt;&lt;</code></li>
+<li><code>RightShift</code> - <code>&gt;&gt;</code></li>
+<li><code>BitwiseAndAssign</code> - <code>&amp;=</code></li>
+<li><code>BitwiseOrAssign</code> - <code>|=</code></li>
+<li><code>BitwiseXOrAssign</code> - <code>^=</code></li>
+<li><code>ModuloAssign</code> - <code>%=</code></li>
+<li><code>FatArrow</code> - <code>=&gt;</code></li>
+<li><code>GreaterThanEqual</code> - <code>&gt;=</code></li>
+<li><code>LessThanEqual</code> - `&lt;=</li>
+<li><code>Exponent</code> - <code>**</code></li>
+</ul>
+</li>
+<li><code>String</code> - <code>enum StringLit</code>
+<ul>
+<li><code>Single(String)</code></li>
+<li><code>Double(String)</code></li>
+</ul>
+</li>
+<li><code>Regex</code> - <code>struct Regex</code>
+<ul>
+<li><code>body</code> - <code>String</code></li>
+<li><code>flags</code> - <code>Option&lt;String&gt;</code></li>
+</ul>
+</li>
+<li><code>Template</code> - <code>enum Template</code>,
+<ul>
+<li><code>NoSub(String)</code></li>
+<li><code>Head(String)</code></li>
+<li><code>Middle(String)</code></li>
+<li><code>Tail(String)</code></li>
+</ul>
+</li>
+<li><code>Comment</code> - <code>struct Comment</code>
+<ul>
+<li><code>kind</code> - <code>enum Kind</code>
+<ul>
+<li><code>Single</code> - <code>//comment</code></li>
+<li><code>Multi</code> - <code>/* comment */</code></li>
+<li><code>Html</code> - <code>&lt;!-- comment --&gt; trailing content</code></li>
+</ul>
+</li>
+<li><code>content</code> - <code>String</code></li>
+<li><code>tail_content</code> - <code>Option&lt;String&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script>
                     </main>
 
@@ -151,7 +319,7 @@
                         
 
                         
-                            <a rel="next" href="../a.appendix/ast.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="../a.appendix/ie-8-banned.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -169,7 +337,7 @@
                 
 
                 
-                    <a href="../a.appendix/ast.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="../a.appendix/ie-8-banned.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

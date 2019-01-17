@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html" class="active"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">6.2.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">6.3.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">6.4.</strong> Projects</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html" class="active"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Finishing a Debug Helper</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="../a.appendix/ie-8-banned.html"><strong aria-hidden="true">6.2.</strong> Banned Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">6.3.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">6.4.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">6.5.</strong> Projects</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -140,20 +140,622 @@
 </style>
 <a class="header" href="#resw" id="resw"><h1>RESW</h1></a>
 <!--web-only-->
-<p>While <code>ress</code> and <code>ressa</code> consume text and generate data structures, <code>resw</code> is going to consume data structures and write out text. This is going to make solving the problem that our debug logging project has left us with trivial. However instead of just sweeping that under the rug, we are going to go over how <code>resw</code> works because the nature of JavaScript, <code>resw</code> makes some style decisions that might not work for everyone. By going over the project in detail the hope is that other's will feel enabled to either contribute a configuration option into <code>resw</code> or ever implement their own project that consumes <code>ressa</code>'s AST and generates text.</p>
-<p>If you are not interested just seeing how we are going to finish the project from the last chapter, feel free to skip this chapter.</p>
-<p>Similar to the structure of <code>ressa</code>, <code>resw</code> exposes a struct that will keep track of the context for us called <code>Writer</code>. There are 2 methods for constructing a <code>Writer</code>, the first is with the <code>::new</code> method the second <code>::builder</code> utilizes the <em>builder</em> pattern to customize some options. Those options include</p>
+<p>While <code>ress</code> and <code>ressa</code> consume text and generate data structures, <code>resw</code> is going to consume data structures and write out text. This means it can do the heavy lifting when solving the problem our debug logging project left us with. However instead of just sweeping that under the rug, we are going to go over how <code>resw</code> works. Because the nature of JavaScript, <code>resw</code> makes some style decisions that might not work for everyone, by going over the project in detail the hope is that other's will feel enabled to either contribute a configuration option into <code>resw</code> or even implement their own project that consumes <code>ressa</code>'s AST and generates text.</p>
+<p>If you are just interested in seeing how we are going to finish the project from the last chapter, feel free to skip this chapter.</p>
+<p>Similar to the structure of <code>ressa</code>, <code>resw</code> exposes a struct that will keep track of the context for us called <code>Writer</code>. There are 2 methods for constructing a <code>Writer</code>, the first is the <code>::new</code> method the second is the <code>::builder</code> method that utilizes the <em>builder</em> pattern to customize some options. Those options include</p>
 <ul>
 <li>New line character (default <code>\n</code>)</li>
-<li>Quote (default to use origin symbol)
+<li>Quote (default to use origin quotation mark)
 <ul>
-<li>Setting this to any value will for all of the string literals in the provided JavaScript to be re-written with the provided quotes.</li>
+<li>Setting this to any value will force all of the string literals in the provided JavaScript to be re-written with the provided quotes</li>
 </ul>
 </li>
 <li>Indent (default 4 spaces)</li>
 </ul>
-<p>Either method you are going to need to provide the destination which can be anything that implements the <code>std::io::Write</code> trait. For testing purposes the crate provides an implementor of <code>Write</code> in <code>WriteString</code>, we are not going to cover that here but a more detailed explaination can be found in the <a href="./a.appendix/string.writer.html">appendix</a>.</p>
-<p>Once a <code>Writer</code> is constructed, it provides a</p>
+<p>Either method you are going to need to provide the destination, this can be anything that implements the <code>std::io::Write</code> trait. For testing purposes the crate provides an implementor of <code>Write</code> in <code>WriteString</code>, we are not going to cover that here but a more detailed explanation can be found in the <a href="./a.appendix/string.writer.html">appendix</a>.</p>
+<p>Once a <code>Writer</code> is constructed, it provides an API surface that should cover most of the <code>ressa</code> AST. The primary entry-point for most uses is either <code>write_program</code> or <code>write_part</code>. For the most part, the primary role of the writer is going to be incrementally move down the AST until we find something that we are confident in exactly what to write. Let's take the following js as an example.</p>
+<pre><code class="language-js">function Thing(stuff) {
+    this.stuff = stuff;
+}
+let thing = new Thing('argument');
+</code></pre>
+<p>If we run that that through the <code>ressa::Parser</code>, we would see the following AST.</p>
+<pre><code class="language-ron">Decl(
+    Function(
+        Function {
+            id: Some(
+                &quot;Thing&quot;
+            ),
+            params: [
+                Pattern(
+                    Identifier(
+                        &quot;stuff&quot;
+                    )
+                )
+            ],
+            body: [
+                Statement(
+                    Expr(
+                        Assignment(
+                            AssignmentExpression {
+                                operator: Equal,
+                                left: Expr(
+                                    Member(
+                                        MemberExpression {
+                                            object: ThisExpression,
+                                            property: Ident(
+                                                &quot;stuff&quot;
+                                            ),
+                                            computed: false
+                                        }
+                                    )
+                                ),
+                                right: Ident(
+                                    &quot;stuff&quot;
+                                )
+                            }
+                        )
+                    )
+                )
+            ],
+            generator: false,
+            is_async: false
+        }
+    )
+)
+Decl(
+    Variable(
+        Let,
+        [
+            VariableDecl {
+                id: Identifier(
+                    &quot;thing&quot;
+                ),
+                init: Some(
+                    New(
+                        NewExpression {
+                            callee: Ident(
+                                &quot;Thing&quot;
+                            ),
+                            arguments: [
+                                Literal(
+                                    String(
+                                        &quot;\'argument\'&quot;
+                                    )
+                                )
+                            ]
+                        }
+                    )
+                )
+            }
+        ]
+    )
+)
+</code></pre>
+<p>With that, let's how <code>resw</code> would generate the text to represent our AST. First we would enter at <code>write_part</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_part(&amp;mut self, part: &amp;ProgramPart) -&gt; Res {
+    trace!(&quot;write_part: {:#?}&quot;, part);
+    self.at_top_level = true;
+    self._write_part(part)?;
+    self.write_new_line()?;
+    Ok(())
+}
+#}</code></pre></pre>
+<p>Interestingly enough, <code>write_part</code> is really more concerned with maintaining a context flag for if we are at the top level or not, this becomes important when dealing with top level expressions, though we won't cover that here. Almost all of the work is going to be passed off to an internal private function <code>_write_part</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn _write_part(&amp;mut self, part: &amp;ProgramPart) -&gt; Res {
+    trace!(&quot;_write_part&quot;);
+    self.write_leading_whitespace()?;
+    match part {
+        ProgramPart::Decl(decl) =&gt; self.write_decl(decl)?,
+        ProgramPart::Directive(dir) =&gt; self.write_directive(dir)?,
+        ProgramPart::Statement(stmt) =&gt; self.write_stmt(stmt)?,
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>The first thing we want to do is make sure that any leading whitespace is included with <code>write_leading_whitespace</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_leading_whitespace(&amp;mut self) -&gt; Res {
+    trace!(&quot;write_leading_whitespace&quot;);
+    self.write(&amp;self.indent.repeat(self.current_indent))?;
+    Ok(())
+}
+#}</code></pre></pre>
+<p>This is achieved by looking at the <code>current_indent</code> and writing the <code>indent</code> string to the destination repeated the for our current indent level. Internally the <code>write</code> method just writes a single <code>&amp;str</code> to the destination. After we write our leading whitespace, we can start to descend the AST, we do that by matching on the part. You can see that there is a branch for each of the possible enum variants, looking back at the ast, we know the next step would be to head to <code>write_decl</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_decl(&amp;mut self, decl: &amp;Declaration) -&gt; Res {
+    trace!(&quot;write_decl&quot;);
+    match decl {
+        Declaration::Variable(ref kind, ref decls) =&gt; self.write_variable_decls(kind, decls),
+        Declaration::Class(ref class) =&gt; {
+            self.at_top_level = false;
+            self.write_class(class)?;
+            self.write_new_line()
+        },
+        Declaration::Function(ref func) =&gt; {
+            self.at_top_level = false;
+            self.write_function(func)?;
+            self.write_new_line()
+        },
+        Declaration::Export(ref exp) =&gt; self.write_export_decl(exp),
+        Declaration::Import(ref imp) =&gt; self.write_import_decl(imp),
+    }?;
+    Ok(())
+}
+#}</code></pre></pre>
+<p>Moving further down we simply match on the the declaration handling each variant as needed. For our example we would move into the <code>Declaration:Function</code> branch, The first step in that branch is to set the context flag <code>at_top_level</code> to <code>false</code> and then move into the <code>write_function</code> method.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_function(&amp;mut self, func: &amp;Function) -&gt; Res {
+    trace!(&quot;write_function&quot;);
+    if func.is_async {
+        self.write(&quot;async &quot;)?;
+    }
+    self.write(&quot;function&quot;)?;
+    if let Some(ref id) = func.id {
+        self.write(&quot; &quot;)?;
+        if func.generator {
+            self.write(&quot;*&quot;)?;
+        }
+        self.write(id)?;
+    } else if func.generator {
+        self.write(&quot;*&quot;)?;
+    }
+    self.write_function_args(&amp;func.params)?;
+    self.write_function_body(&amp;func.body)
+}
+#}</code></pre></pre>
+<p>Here we are going to actually start writing some information out to our destination. First is we check the flag on <code>Function</code> to see if we need to write the <code>async</code> keyword, next we write the keyword <code>function</code> followed by a check to see if the id is <code>Some</code>. If so we need to check the flag on <code>Function</code> to see if that function is a generator, if it is we need to add a <code>*</code> before the id, and Lastly we write the <code>id</code></p>
+<p>Now that we have gotten though that we can start to look at the parameters and body. First we are going to pass off the parameters to <code>write_function_args</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Write the arguments of a function or method definition
+/// ```js
+/// function(arg1, arg2) {
+/// }
+/// ```
+pub fn write_function_args(&amp;mut self, args: &amp;[FunctionArg]) -&gt; Res {
+    trace!(&quot;write_function_args&quot;);
+    self.write(&quot;(&quot;)?;
+    let mut after_first = false;
+    for ref arg in args {
+        if after_first {
+            self.write(&quot;, &quot;)?;
+        } else {
+            after_first = true;
+        }
+        self.write_function_arg(arg)?;
+    }
+    self.write(&quot;) &quot;)?;
+    Ok(())
+}
+#}</code></pre></pre>
+<p>The first step here is to write the open parenthesis, next we are going to use a flag <code>after_first</code> to help with handing if a comma should be written before the argument. This is the first place that we have seen where <code>resw</code> is making a style choice, all function parameters will not include a trailing comma. Ideally style choices will be configurable in the future but currently this one is not. Now that we have handled the comma situation we can pass the argument off to <code>write_function_arg</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Write a single function arg
+pub fn write_function_arg(&amp;mut self, arg: &amp;FunctionArg) -&gt; Res {
+    trace!(&quot;write_function_arg&quot;);
+    match arg {
+        FunctionArg::Expr(ref ex) =&gt; self.write_expr(ex)?,
+        FunctionArg::Pattern(ref pa) =&gt; self.write_pattern(pa)?,
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>Here we see another function that simple move us further down the AST. Function arguments can be either expressions or patterns so we need to handle both. For our example we are going to head down the <code>Pattern</code> branch with <code>write_patern</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Write the contents of a pattern
+pub fn write_pattern(&amp;mut self, pattern: &amp;Pattern) -&gt; Res {
+    trace!(&quot;write_pattern&quot;);
+    match pattern {
+        Pattern::Identifier(ref i) =&gt; self.write(i),
+        Pattern::Object(ref o) =&gt; self.write_object_pattern(o),
+        Pattern::Array(ref a) =&gt; self.write_array_pattern(a),
+        Pattern::RestElement(ref r) =&gt; self.write_rest_element(r),
+        Pattern::Assignment(ref a) =&gt; self.write_assignment_pattern(a),
+    }
+}
+#}</code></pre></pre>
+<p>Most of the options here are simply going to continue branching down our AST, however for our example we are going to head down the first match arm with <code>Pattern::Identifer</code> and just write that string out to our destination.</p>
+<p>Moving back up we only had one parameter for our function signature so we finish out <code>write_function_args</code> with a closing parenthesis. That then leads us to <code>write_function_body</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Write the block statement that makes up a function's body
+pub fn write_function_body(&amp;mut self, body: &amp;FunctionBody) -&gt; Res {
+    trace!(&quot;write_function_body&quot;);
+    if body.len() == 0 {
+        self.write(&quot;{ &quot;)?;
+    } else {
+        self.write_open_brace()?;
+        self.write_new_line()?;
+    }
+    for ref part in body {
+        self._write_part(part)?;
+    }
+    if body.len() == 0 {
+        self.write(&quot;}&quot;)?;
+    } else {
+        self.write_close_brace()?;
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>The first thing we need to do is take a look at the <code>&amp;FunctionBody</code> which is a type alias for <code>Vec&lt;ProgramPart&gt;</code>. We check to see if this function has any body, if not we just write a single open curly brace, if it does we want to write the curly brace using <code>write_open_brace</code>, this is a convenience method for writing the character and also incrementing the <code>current_indent</code>, lastly we write a new line. Now we loop over each of the <code>ProgramPart</code>s in <code>body</code> and pass that off to <code>_write_body</code>. For our example there is only going to be one part. This part is a <code>ProgramPart::Statement</code> which would be handled by <code>write_stmt</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Attempts to write the contents of a `Statement`
+pub fn write_stmt(&amp;mut self, stmt: &amp;Statement) -&gt; Res {
+    trace!(&quot;write_stmt&quot;);
+    let mut semi = true;
+    let mut new_line = true;
+    let cached_state = self.at_top_level;
+    match stmt {
+        Statement::Empty =&gt; (),
+        Statement::Debugger =&gt; self.write_debugger_stmt()?,
+        Statement::Expr(ref stmt) =&gt; self.write_expr(stmt)?,
+        Statement::Block(ref stmt) =&gt; {
+            self.at_top_level = false;
+            self.write_block_stmt(stmt)?;
+            semi = false;
+            new_line = false;
+            self.at_top_level = cached_state;
+        },
+        Statement::With(ref stmt) =&gt; {
+            self.write_with_stmt(stmt)?;
+            semi = false;
+        },
+        Statement::Return(ref stmt) =&gt; self.write_return_stmt(stmt)?,
+        Statement::Labeled(ref stmt) =&gt; {
+            self.write_labeled_stmt(stmt)?;
+            semi = false;
+        },
+        Statement::Break(ref stmt) =&gt; self.write_break_stmt(stmt)?,
+        Statement::Continue(ref stmt) =&gt; self.write_continue_stmt(stmt)?,
+        Statement::If(ref stmt) =&gt; {
+            self.write_if_stmt(stmt)?;
+            semi = false;
+        },
+        Statement::Switch(ref stmt) =&gt; {
+            self.at_top_level = false;
+            self.write_switch_stmt(stmt)?;
+            semi = false;
+            self.at_top_level = cached_state;
+        },
+        Statement::Throw(ref stmt) =&gt; self.write_throw_stmt(stmt)?,
+        Statement::Try(ref stmt) =&gt; {
+            self.write_try_stmt(stmt)?;
+            semi = false;
+        },
+        Statement::While(ref stmt) =&gt; {
+            new_line = self.write_while_stmt(stmt)?;
+            semi = false;
+        },
+        Statement::DoWhile(ref stmt) =&gt; self.write_do_while_stmt(stmt)?,
+        Statement::For(ref stmt) =&gt; {
+            self.at_top_level = false;
+            new_line = self.write_for_stmt(stmt)?;
+            semi = false;
+            self.at_top_level = cached_state;
+        },
+        Statement::ForIn(ref stmt) =&gt; {
+            self.at_top_level = false;
+            new_line = self.write_for_in_stmt(stmt)?;
+            semi = false;
+            self.at_top_level = cached_state;
+        },
+        Statement::ForOf(ref stmt) =&gt; {
+            self.at_top_level = false;
+            new_line = self.write_for_of_stmt(stmt)?;
+            semi = false;
+            self.at_top_level = cached_state;
+        },
+        Statement::Var(ref stmt) =&gt; self.write_var_stmt(stmt)?,
+    };
+    if semi {
+        self.write_empty_stmt()?;
+    }
+    if new_line {
+        self.write_new_line()?;
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>That is a pretty big match statement! Looking at our example, we would enter the <code>Statement::Expr</code> branch which passes all its work off to <code>write_expr</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_expr(&amp;mut self, expr: &amp;Expression) -&gt; Res {
+    trace!(&quot;write_expr&quot;);
+    let cached_state = self.at_top_level;
+    match expr {
+        Expression::Literal(ref expr) =&gt; self.write_literal(expr)?,
+        Expression::ThisExpression =&gt; self.write_this_expr()?,
+        Expression::SuperExpression =&gt; self.write_super_expr()?,
+        Expression::Array(ref expr) =&gt; self.write_array_expr(expr)?,
+        Expression::Object(ref expr) =&gt; self.write_object_expr(expr)?,
+        Expression::Function(ref expr) =&gt; {
+            self.at_top_level = false;
+            self.write_function(expr)?;
+            self.at_top_level = cached_state;
+        },
+        Expression::Unary(ref expr) =&gt; self.write_unary_expr(expr)?,
+        Expression::Update(ref expr) =&gt; self.write_update_expr(expr)?,
+        Expression::Binary(ref expr) =&gt; self.write_binary_expr(expr)?,
+        Expression::Assignment(ref expr) =&gt; self.write_assignment_expr(expr)?,
+        Expression::Logical(ref expr) =&gt; self.write_logical_expr(expr)?,
+        Expression::Member(ref expr) =&gt; self.write_member_expr(expr)?,
+        Expression::Conditional(ref expr) =&gt; self.write_conditional_expr(expr)?,
+        Expression::Call(ref expr) =&gt; self.write_call_expr(expr)?,
+        Expression::New(ref expr) =&gt; self.write_new_expr(expr)?,
+        Expression::Sequence(ref expr) =&gt; self.write_sequence_expr(expr)?,
+        Expression::Spread(ref expr) =&gt; self.write_spread_expr(expr)?,
+        Expression::ArrowFunction(ref expr) =&gt; {
+            self.at_top_level = false;
+            self.write_arrow_function_expr(expr)?;
+            self.at_top_level = cached_state;
+        },
+        Expression::Yield(ref expr) =&gt; self.write_yield_expr(expr)?,
+        Expression::Class(ref expr) =&gt; {
+            self.at_top_level = false;
+            self.write_class(expr)?;
+            self.at_top_level = cached_state;
+        },
+        Expression::MetaProperty(ref expr) =&gt; self.write_meta_property(expr)?,
+        Expression::Await(ref expr) =&gt; self.write_await_expr(expr)?,
+        Expression::Ident(ref expr) =&gt; self.write_ident(expr)?,
+        Expression::TaggedTemplate(ref expr) =&gt; self.write_tagged_template(expr)?,
+        _ =&gt; unreachable!(),
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>The first step here is to keep a copy of the previous <code>at_top_level</code> flag so that we can revert back to it when writing some of the options. next we enter another very large match statement. Our example would take the <code>Expression::Assignment</code> arm, passing further work off to <code>write_assignment_expr</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Write an assignment expression
+/// ```js
+/// a = b
+/// b += 8
+/// q **= 100
+/// ```
+pub fn write_assignment_expr(&amp;mut self, assignment: &amp;AssignmentExpression) -&gt; Res {
+    trace!(&quot;write_assignment_expr&quot;);
+    match &amp;assignment.left {
+        AssignmentLeft::Expr(ref e) =&gt; self.write_expr(e)?,
+        AssignmentLeft::Pattern(ref p) =&gt; self.write_pattern(p)?,
+    }
+    self.write(&quot; &quot;)?;
+    self.write_assignment_operator(&amp;assignment.operator)?;
+    self.write(&quot; &quot;)?;
+    self.write_expr(&amp;assignment.right)?;
+    Ok(())
+}
+#}</code></pre></pre>
+<p>Here we are first testing the <code>assignment.left</code> property since it can be either an <code>Expression</code> or a <code>Pattern</code>, our example would take us back to the <code>write_expr</code> method. This time we would pass into the <code>Expression::Member</code> arm which passes its work off to <code>write_member_expr</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Writes a member expression
+/// ```js
+/// console.log
+/// console['log']
+/// ```
+pub fn write_member_expr(&amp;mut self, member: &amp;MemberExpression) -&gt; Res {
+    trace!(&quot;write_member_expr&quot;);
+    if let Expression::Assignment(_) = &amp;*member.object {
+        self.write_wrapped_expr(&amp;member.object)?;
+    } else {
+        self.write_expr(&amp;member.object)?;
+    };
+    if member.computed {
+        self.write(&quot;[&quot;)?;
+    } else {
+        self.write(&quot;.&quot;)?;
+    }
+    self.write_expr(&amp;member.property)?;
+    if member.computed {
+        self.write(&quot;]&quot;)?;
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>Here we first check to see if the <code>object</code> property is itself an <code>Expression::Assignment</code>, if so we need to wrap that in parentheses, for us though we just want to pass that again to <code>write_expr</code>. This time though there we are going to end up at <code>Expression::ThisExpression</code> which just writes out the literal word <code>this</code>. Next we are going to look at the flag on <code>MemberExpression</code> &quot;computed&quot; to see if this was written originally with the bracket notation or the dot notation, writing the appropriate character. Next we are again going to pass some work back to <code>write_expr</code>, this time with the <code>property</code> property. This would end on the branch for <code>Expression::Ident</code> which just writes that value to the destination. If the member expression was computed we would need to write the <code>]</code> but for our example it is not.</p>
+<p>At this point we are back up at <code>write_assignment_expr</code> where we are going to write a single space and then pass the <code>assignment.operator</code> off to <code>write_assignment_operator</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_assignment_operator(&amp;mut self, op: &amp;AssignmentOperator) -&gt; Res {
+    let s = match op {
+        AssignmentOperator::AndEqual =&gt; &quot;&amp;=&quot;,
+        AssignmentOperator::DivEqual =&gt; &quot;/=&quot;,
+        AssignmentOperator::Equal =&gt; &quot;=&quot;,
+        AssignmentOperator::LeftShiftEqual =&gt; &quot;&lt;&lt;=&quot;,
+        AssignmentOperator::MinusEqual =&gt; &quot;-=&quot;,
+        AssignmentOperator::ModEqual =&gt; &quot;%=&quot;,
+        AssignmentOperator::OrEqual =&gt; &quot;|=&quot;,
+        AssignmentOperator::PlusEqual =&gt; &quot;+=&quot;,
+        AssignmentOperator::PowerOfEqual =&gt; &quot;**=&quot;,
+        AssignmentOperator::RightShiftEqual =&gt; &quot;&gt;&gt;=&quot;,
+        AssignmentOperator::TimesEqual =&gt; &quot;*=&quot;,
+        AssignmentOperator::UnsignedRightShiftEqual =&gt; &quot;&gt;&gt;&gt;=&quot;,
+        AssignmentOperator::XOrEqual =&gt; &quot;^=&quot;,
+    };
+    self.write(s)?;
+    Ok(())
+}
+#}</code></pre></pre>
+<p>This is a relatively straight forward process of looking at which operator was provided and then writing out the text that represents that operator. For our example it would be <code>=</code>, we then need to write a single space. The last step in <code>write_assignment_expr</code> is to handle the <code>assignment.right</code> which is also an <code>Expression</code> so we pass that off to <code>write_expr</code>. Our example will head to the <code>Expression::Ident</code> match arm and then just write to the destination. With that we have now reached the last step in <code>write_function_body</code> which is to <code>write_close_brace</code> similar to <code>write_open_brace</code> here we are decrementing the <code>current_indent</code> context property. That also brings us to the end of <code>write_function</code>, <code>write_decl</code>, and <code>_write_part</code>. The last thing we do in <code>write_part</code> is to add a trailing new line, another style choice.</p>
+<p>As our example continues we would then start again at <code>write_part</code> with the next part. This is going to move though <code>_write_part</code> the same way our last part did, however when we get to <code>write_decl</code> we have a new branch to head down. This is the <code>Decl::Variable</code> arm which passes its work off to <code>write_variable_decls</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Attempt to write a `Declaration::Variable`'s contents to the `impl Write`
+/// ```js
+/// let a, b, c, d, e = &quot;thing&quot;;
+/// const f = &quot;stuff&quot;;
+/// var g, h, i, j = &quot;places&quot;;
+/// ```
+pub fn write_variable_decls(&amp;mut self, kind: &amp;VariableKind, decls: &amp;[VariableDecl]) -&gt; Res {
+    trace!(&quot;write_variable_decls&quot;);
+    self.write_variable_kind(kind)?;
+    let mut after_first = false;
+    let mut write_semi = true;
+    for decl in decls {
+        if after_first {
+            self.write(&quot;, &quot;)?;
+        } else {
+            after_first = true;
+        }
+        write_semi = self.write_variable_decl(decl)?;
+    }
+    if write_semi {
+        self.write_empty_stmt()?;
+    }
+    self.write_new_line()
+}
+#}</code></pre></pre>
+<p>As you might expect the first thing we want to do is to write the variable kind. We pass off the <code>kind</code> variable to <code>write_variable_kind</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+/// Attempts to write the variable keyword (`var`/`let`/`const`)
+pub fn write_variable_kind(&amp;mut self, kind: &amp;VariableKind) -&gt; Res {
+    trace!(&quot;write_variable_kind&quot;);
+    let s = match kind {
+        VariableKind::Const =&gt; &quot;const &quot;,
+        VariableKind::Let =&gt; &quot;let &quot;,
+        VariableKind::Var =&gt; &quot;var &quot;,
+    };
+    self.write(s)
+}
+#}</code></pre></pre>
+<p>Similar to our examination of <code>write_assignment_operator</code> we are going to simply look at which keyword was used and then write that out, with a trailing space.</p>
+<p>Next we need to keep track of two flags <code>after_first</code> and <code>write_semi</code>, the first of which should be familiar from <code>write_function_args</code> the second is to help us deal with the end of a variable declaration. In our loop, we pass of each of the declarations to <code>write_variable_decl</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_variable_decl(&amp;mut self, decl: &amp;VariableDecl) -&gt; Result&lt;bool, IoError&gt; {
+    trace!(&quot;write_variable_decl&quot;);
+    self.write_pattern(&amp;decl.id)?;
+    let mut ret = true;
+    if let Some(ref init) = decl.init {
+        self.write(&quot; = &quot;)?;
+        self.write_expr(init)?;
+        ret = match init {
+            Expression::Function(_)
+            | Expression::Class(_) =&gt; false,
+            _ =&gt; true,
+        }
+    }
+    Ok(ret)
+}
+#}</code></pre></pre>
+<p>Here we first write out the id of this variable by passing it off to <code>write_pattern</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_pattern(&amp;mut self, pattern: &amp;Pattern) -&gt; Res {
+    trace!(&quot;write_pattern&quot;);
+    match pattern {
+        Pattern::Identifier(ref i) =&gt; self.write(i),
+        Pattern::Object(ref o) =&gt; self.write_object_pattern(o),
+        Pattern::Array(ref a) =&gt; self.write_array_pattern(a),
+        Pattern::RestElement(ref r) =&gt; self.write_rest_element(r),
+        Pattern::Assignment(ref a) =&gt; self.write_assignment_pattern(a),
+    }
+}
+#}</code></pre></pre>
+<p>Thankfully our example is pretty simple so we are again going to take that first branch for <code>Pattern::Ident</code> and write the identifer to our destination. After that we want to check if this variable is initialized, ours is, and if so we would write the &quot; = &quot; and then write the expression by passing that off to <code>write_expr</code>. For this pass through <code>write_expr</code> we are going to travel down the <code>Expression::New</code> arm which passes its work off to <code>write_new_expr</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_new_expr(&amp;mut self, new: &amp;NewExpression) -&gt; Res {
+    trace!(&quot;write_new_expr&quot;);
+    self.write(&quot;new &quot;)?;
+    self.write_expr(&amp;new.callee)?;
+    self.write(&quot;(&quot;)?;
+    self.write_sequence_expr(&amp;new.arguments)?;
+    self.write(&quot;)&quot;)?;
+    Ok(())
+}
+#}</code></pre></pre>
+<p>At this point we want to first write the <code>new</code> keyword followed by a space. Next we want to write out what the <code>new.callee</code> is which would again bring us to <code>write_expr</code>. Our example would travel to the <code>Expression::Ident</code> arm which just writes that out. Next we need to write an open parenthesis followed by the provided arguments. This time we are going to use the <code>write_sequence_expr</code> method to do that.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_sequence_expr(&amp;mut self, sequence: &amp;[Expression]) -&gt; Res {
+    trace!(&quot;write_sequence_expr&quot;);
+    let mut after_first = false;
+    for ref e in sequence {
+        if after_first {
+            self.write(&quot;, &quot;)?;
+        }
+        self.write_expr(e)?;
+        after_first = true;
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>At this point the structure of this function's body should look familiar, we are going to loop over the provide expressions and write them out with a comma and space before all but the first one. For our example we are going only hit this once so no comma, then we are going to pass that off to <code>write_expr</code>. This time as we pass through the match in <code>write_expr</code> we are going to hit the <code>Expression::Literal</code> arm which passes its work off to <code>write_literal</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_literal(&amp;mut self, lit: &amp;Literal) -&gt; Res {
+    trace!(&quot;write_literal&quot;);
+    match lit {
+        Literal::Boolean(b) =&gt; self.write_bool(*b),
+        Literal::Null =&gt; self.write(&quot;null&quot;),
+        Literal::Number(n) =&gt; self.write(&amp;n),
+        Literal::String(s) =&gt; self.write_string(s),
+        Literal::RegEx(r) =&gt; self.write_regex(r),
+        Literal::Template(t) =&gt; self.write_template(t),
+    }
+}
+#}</code></pre></pre>
+<p>Here we see another match statement, our example will take us down the <code>Literal::String</code> arm which passes off work to <code>write_string</code>. You may be wondering why that is, since writing strings is all we have really been doing. The answer is that this is one of the few style preferences that is currently configurable as you'll see.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+pub fn write_string(&amp;mut self, s: &amp;str) -&gt; Res {
+    trace!(&quot;write_string&quot;);
+    if let Some(c) = self.quote {
+        self.re_write_string(s, c)?;
+    } else {
+        self.write(s)?;
+    }
+    Ok(())
+}
+#}</code></pre></pre>
+<p>As you can see we first check to see if the <code>self.quote</code> property has been set, this would indicate that the user has a quote preference. If it is set then we want to re-write the string to use this quote, this involves re-writing any internal escaped quotes for the old quote and escaping the new quote that might appear in the contents. If that property is <code>None</code> then we would just write it out normally as the <code>ressa::node::Literal::String</code> preserves the original quotation mark.</p>
+<p>After that we are again back at <code>write_new_expr</code> where the last thing to do is write the closing parenthesis. After which we can move back to <code>write_variable_decl</code>, the next step for this function is to determine the value of <code>ret</code> which will be true unless the <code>init</code> is an <code>Expression::Function</code> or <code>Expression::Class</code>. When we move up again to the <code>write_variable_decls</code> we see that <code>write_semi</code> gets overwritten with this value at the bottom of each loop. This means that we would only not write a semi-colon if the last declaration was initialized to a function or class. Here examples of each option.</p>
+<pre><code class="language-js">// semi-colon
+let x, y, b = 'things';
+// no semi-colon
+let x, y, b = function() { 
+    return 'things';
+}
+</code></pre>
+<p>This brings us to the bottom of <code>write_decl</code>, <code>_write_part</code>, and <code>write_part</code>, it also brings us to the end of our example JavaScript. While we didn't touch every part of how <code>resw</code> works, there is a lot of surface area to cover. For more information you can check out the <a href="https://docs.rs/ressa/"><code>ressa</code> docs</a> and the <a href="https://docs.rs/resw/"><code>resw</code> docs</a>.</p>
+<p>Up next we are going to see how you would use <code>resw</code> to complete our debug log helper.</p>
 <!--web-only-end-->
 <!--slides-only-->
 <ul>

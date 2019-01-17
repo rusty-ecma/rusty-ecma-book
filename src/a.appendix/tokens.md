@@ -1,1 +1,137 @@
 # Tokens
+Here is a list of all of the possible tokens `ress` provides
+- `Token`
+    - `EoF`
+    - `Boolean` - `enum BooleanLiteral`
+        - `True`
+        - `False`
+    - `Ident` - `struct Ident(String)`
+    - `Keyword` - `enum Keyword`
+        - `Await`
+        - `Break`
+        - `Case`
+        - `Catch`
+        - `Class`
+        - `Const`
+        - `Continue`
+        - `Debugger`
+        - `Default`
+        - `Delete`
+        - `Do`
+        - `Else`
+        - `Enum`
+        - `Export`
+        - `Finally`
+        - `For`
+        - `Function`
+        - `If`
+        - `Implements`
+        - `Import`
+        - `In`
+        - `InstanceOf`
+        - `Interface`
+        - `Let`
+        - `New`
+        - `Package`
+        - `Private`
+        - `Protected`
+        - `Public`
+        - `Return`
+        - `Static`
+        - `Super`
+        - `Switch`
+        - `This`
+        - `Throw`
+        - `Try`
+        - `TypeOf`
+        - `Var`
+        - `Void`
+        - `While`
+        - `With`
+        - `Yield`
+    - `Null`
+    - `Numeric` - `struct Number(String)`
+        - `0`
+        - `.0`
+        - `0.0`
+        - `0.0e1`
+        - `0.0E1`
+        - `.0e1`
+        - `.0E1`
+        - `0xfff`
+        - `0Xfff`
+        - `0o777`
+        - `0O777`
+        - `0b111`
+        - `0B111`
+    - `Punct` - `enum Punct`
+        - `And` - `&`
+        - `Assign` - `=`
+        - `Asterisk` - `*`
+        - `BitwiseNot` - `~`
+        - `Caret` - `^`
+        - `CloseBrace` - `}`
+        - `CloseBracket` - `]`
+        - `CloseParen` - `)`
+        - `Colon` - `:`
+        - `Comma` - `,`
+        - `ForwardSlash` - `/`
+        - `GreaterThan` - `>`
+        - `LessThan` - `<`
+        - `Minus` - `-`
+        - `Modulo` - `%`
+        - `Not` - `!`
+        - `OpenBrace` - `{`
+        - `OpenBracket` - `[`
+        - `OpenParen` - `(`
+        - `Period` - `.`
+        - `Pipe` - `|`
+        - `Plus` - `+`
+        - `QuestionMark` - `?`
+        - `SemiColon` - `;`
+        - `Spread` - `...`
+        - `UnsignedRightShiftAssign` - `>>>=`
+        - `StrictEquals` - `===`
+        - `StrictNotEquals` - `!==`
+        - `UnsignedRightShift` - `>>>`
+        - `LeftShiftAssign` - `<<=`
+        - `RightShiftAssign` - `>>=`
+        - `ExponentAssign` - `**=`
+        - `LogicalAnd` - `&&`
+        - `LogicalOr` - `||`
+        - `Equal` - `==`
+        - `NotEqual` - `!=`
+        - `AddAssign` - `+=`
+        - `SubtractAssign` - `-=`
+        - `MultiplyAssign` - `*=`
+        - `DivideAssign` - `/=`
+        - `Increment` - `++`
+        - `Decrement` - `--`
+        - `LeftShift` - `<<`
+        - `RightShift` - `>>`
+        - `BitwiseAndAssign` - `&=`
+        - `BitwiseOrAssign` - `|=`
+        - `BitwiseXOrAssign` - `^=`
+        - `ModuloAssign` - `%=`
+        - `FatArrow` - `=>`
+        - `GreaterThanEqual` - `>=`
+        - `LessThanEqual` - `<=
+        - `Exponent` - `**`
+    - `String` - `enum StringLit`
+        - `Single(String)`
+        - `Double(String)`
+    - `Regex` - `struct Regex`
+        - `body` - `String`
+        - `flags` - `Option<String>`
+    - `Template` - `enum Template`,
+        - `NoSub(String)`
+        - `Head(String)`
+        - `Middle(String)`
+        - `Tail(String)`
+    - `Comment` - `struct Comment`
+        - `kind` - `enum Kind`
+            - `Single` - `//comment`
+            - `Multi` - `/* comment */`
+            - `Html` - `<!-- comment --> trailing content`
+        - `content` - `String`
+        - `tail_content` - `Option<String>`

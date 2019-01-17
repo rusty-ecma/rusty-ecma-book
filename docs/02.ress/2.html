@@ -72,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html" class="active"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Building a Writer</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">6.2.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">6.3.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">6.4.</strong> Projects</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="../01.overview/1.html"><strong aria-hidden="true">1.</strong> An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">2.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html" class="active"><strong aria-hidden="true">2.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">3.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">3.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">4.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html"><strong aria-hidden="true">4.1.</strong> Finishing a Debug Helper</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">5.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">6.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">6.1.</strong> Tokens</a></li><li><a href="../a.appendix/ie-8-banned.html"><strong aria-hidden="true">6.2.</strong> Banned Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">6.3.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">6.4.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">6.5.</strong> Projects</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -141,9 +141,6 @@
 <a class="header" href="#building-an-ie8-linter" id="building-an-ie8-linter"><h1>Building an IE8 Linter</h1></a>
 <!--web-only-->
 <p>To get started we need to add <code>ress</code> to our dependencies. This project is also going to need <code>serde</code>, <code>serde_derive</code> and <code>toml</code> because it will rely on a <code>.toml</code> file to make the list of unavailable tokens configurable.</p>
-<blockquote>
-<p>Cargo.toml</p>
-</blockquote>
 <pre><code class="language-toml">[package]
 name = &quot;lint-ie8&quot;
 version = &quot;0.1.0&quot;
@@ -180,7 +177,7 @@ struct BannedTokens {
     strings: Vec&lt;String&gt;,
 }
 #}</code></pre></pre>
-<p>The toml file we are going to use is pretty big so it doesn't make sense list it here. If you want to see what it looks like you can check it out <a href="https://github.com/FreeMasen/rusty-ecma-book/blob/master/lint-ie8/banned_tokens.toml">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
+<p>The toml file we are going to use is pretty big so it doesn't make sense list it here. If you want to see what it looks like you can check it out <a href="../a.appendix/ie-8-banned.html">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
 <p>To start we need to deserialize that file, we can do that with the <code>std::fs::read_to_string</code> and <code>toml::from_str</code> functions.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -192,6 +189,7 @@ struct BannedTokens {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
+fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
     let mut cmd_args = args();
     let _ = cmd_args.next(); //discard bin name
     let js = if let Some(file_name) = cmd_args.next() {
@@ -228,7 +226,7 @@ struct BannedTokens {
     let finder = BannedFinder::new(&amp;js, banned);
     for item in finder {
 #}</code></pre></pre>
-<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message, how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -251,6 +249,7 @@ struct BannedFinder {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
+#[derive(Debug)]
 pub struct BannedError(String, usize, usize);
 
 impl ::std::error::Error for BannedError {
@@ -263,7 +262,7 @@ impl ::std::fmt::Display for BannedError {
     }
 }
 #}</code></pre></pre>
-<p>The last thing we need to do is create a way to map from a byte index to a column/row pair. Thankfully the <code>Scanner</code> exposes the original text as a property <code>stream</code> so we can use that to figure out what line and column any index means. The first thing we need to do that is the ability to tell when any given character is a new line character. JavaScript allows for 5 new line sequences (<code>\r</code>,<code>\n</code>, <code>\r\n</code>, <code>\u{2028}</code>, and <code>\u{2029}</code>) so a function that would test for that might look like this.</p>
+<p>The last thing we need to do is create a way to map from a byte index to a column/row pair. Thankfully the <code>Scanner</code> exposes the original text as a property <code>stream</code> so we can use that to figure out what line and column any index means. The first thing we need is the ability to tell when any given character is a new line character. JavaScript allows for 5 new line sequences (<code>\r</code>,<code>\n</code>, <code>\r\n</code>, <code>\u{2028}</code>, and <code>\u{2029}</code>) so a function that would test for that might look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -303,7 +302,7 @@ impl BannedFinder {
 }
 #}</code></pre></pre>
 <p>The first step there is to figure out what row we are on. We can do that by using <code>chars</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over the <code>char</code>s in the string. We then <code>fold</code> that iterator into a single number, starting with 1, if the current character is a new line we add one to the accumulator, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines.</p>
-<p>After we have counted the new lines, we can move on to the column. First we need to figure out where this line starts. We do that by using the <code>char_indices</code> method on <code>&amp;str</code>, this like <code>chars</code> will give us an iterator but this is over a <code>(usize, char)</code> pair, we are again going to use fold as a way to covert the iterator into a single number. In this case we are going to start with 0 and, and only update that accumulator if we found a new line character (adding 1 because out line starts at the next <code>char</code>). This will ensure that the last new line found will be the start of this token's line. If the <code>line_start</code> is 0 that means we didn't find anything so we can just assume it is the first line, meaning the index is the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
+<p>After we have counted the new lines, we can move on to the column. First we need to figure out where this line starts. We do that by using the <code>char_indices</code> method on <code>&amp;str</code>, this like <code>chars</code> will give us an iterator but this is over a <code>(usize, char)</code> pair, we are again going to use fold as a way to convert the iterator into a single number. In this case we are going to start with 0 and, and only update that accumulator if we found a new line character (adding 1 because out line starts at the next <code>char</code>). This will ensure that the last new line found will be the start of this token's line. If the <code>line_start</code> is 0 that means we didn't find anything so we can just assume it is the first line, meaning the index is the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
 <p>Ok, now for the exciting part; we are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -359,12 +358,12 @@ impl Iterator for BannedFinder {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
+    for item in finder {
         match item {
             Ok(_) =&gt; (),
             Err(msg) =&gt; println!(&quot;{}&quot;, msg),
         }
     }
-}
 #}</code></pre></pre>
 <p>That is pretty much it. If you wanted to see the full project you can find it in the <a href="https://github.com/FreeMasen/rusty-ecma-book/tree/master/lint-ie8">lint-ie8</a> folder of this book's github repository.</p>
 <!--web-only-end-->
