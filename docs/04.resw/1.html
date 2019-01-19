@@ -349,7 +349,7 @@ pub fn write_function_arg(&amp;mut self, arg: &amp;FunctionArg) -&gt; Res {
     Ok(())
 }
 #}</code></pre></pre>
-<p>Here we see another function that simply move us further down the AST. Function arguments can be either expressions or patterns so we need to handle both. For our example we are going to head down the <code>Pattern</code> branch with <code>write_patern</code>.</p>
+<p>Here we see another function that simply move us further down the AST. Function arguments can be either expressions or patterns so we need to handle both. For our example we are going to head down the <code>Pattern</code> branch with <code>write_pattern</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {

@@ -139,7 +139,7 @@
                         <style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#stringwriter" id="stringwriter"><h1>StringWriter</h1></a>
-<p>When building <code>resw</code> it became clear that the only way to validate the output would be to write a bunch of files to disk and then read them back which didn't seem like the correct options. Because of this <code>resw</code> includes an public module called <code>write_str</code>. In it you will find two structs <code>WriteString</code> and <code>ChildWriter</code>. The basic idea here is that you can use this to simply write the values to a buffer that the <code>resw::Writer</code> hasn't taken ownership over and then read them back after the <code>Writer</code> is done. Below is an example of how you might use that.</p>
+<p>When building <code>resw</code> it became clear that the only way to validate the output would be to write a bunch of files to disk and then read them back which didn't seem like the correct option. Because of this <code>resw</code> includes an public module called <code>write_str</code>. In it you will find two structs <code>WriteString</code> and <code>ChildWriter</code>. The basic idea here is that you can use this to simply write the values to a buffer that the <code>resw::Writer</code> hasn't taken ownership over and then read them back after the <code>Writer</code> is done. Below is an example of how you might use that.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
