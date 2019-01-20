@@ -224,7 +224,7 @@ fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
         }
     };
 #}</code></pre></pre>
-<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means no argument was provided but the program was not pipped any text. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -263,6 +263,16 @@ impl ::std::fmt::Display for BannedError {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
+fn is_js_new_line(c: char) -&gt; bool {
+    c == '\n'
+    || c == '\u{2028}'
+    || c == '\u{2029}'
+}
+#}</code></pre></pre>
+<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
 impl BannedFinder {
     fn get_position(&amp;self, idx: usize) -&gt; (usize, usize) {
         let (row, line_start) = self.scanner.stream[..idx]
@@ -281,18 +291,7 @@ impl BannedFinder {
     }
 }
 #}</code></pre></pre>
-<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-fn is_js_new_line(c: char) -&gt; bool {
-    c == '\n'
-    || c == '\u{2028}'
-    || c == '\u{2029}'
-}
-#}</code></pre></pre>
-<p>The first step there is to figure out what row we are on. We can do that by using <code>chars</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over the <code>char</code>s in the string. We then <code>fold</code> that iterator into a single number, starting with 1, if the current character is a new line we add one to the accumulator, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines.</p>
-<p>After we have counted the new lines, we can move on to the column. First we need to figure out where this line starts. We do that by using the <code>char_indices</code> method on <code>&amp;str</code>, this like <code>chars</code> will give us an iterator but this is over a <code>(usize, char)</code> pair, we are again going to use fold as a way to convert the iterator into a single number. In this case we are going to start with 0 and, and only update that accumulator if we found a new line character (adding 1 because out line starts at the next <code>char</code>). This will ensure that the last new line found will be the start of this token's line. If the <code>line_start</code> is 0 that means we didn't find anything so we can just assume it is the first line, meaning the index is the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
+<p>We need to capture two pieces of information, the first step what row we are on the second is the index that row started at. We can get both pieces of information by using the <code>char_indices</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over tuples  the indices and <code>char</code>s in the string. We then <code>fold</code> that iterator into a single value, the row will start at 1 and the index will start at 0. If the current character is a new line we add one to the row and replace any previous index value, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines. Now that we have the row number we need to calculate the column, if the <code>line_start</code> is 0 that means we didn't find new lines so we can just assume it is the first line, meaning the index is already the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
 <p>Ok, now for the exciting part; we are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]

@@ -588,7 +588,7 @@ fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
         }
     };
 #}</code></pre></pre>
-<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means no argument was provided but the program was not pipped any text. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -627,6 +627,16 @@ impl ::std::fmt::Display for BannedError {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
+fn is_js_new_line(c: char) -&gt; bool {
+    c == '\n'
+    || c == '\u{2028}'
+    || c == '\u{2029}'
+}
+#}</code></pre></pre>
+<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
 impl BannedFinder {
     fn get_position(&amp;self, idx: usize) -&gt; (usize, usize) {
         let (row, line_start) = self.scanner.stream[..idx]
@@ -645,18 +655,7 @@ impl BannedFinder {
     }
 }
 #}</code></pre></pre>
-<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-fn is_js_new_line(c: char) -&gt; bool {
-    c == '\n'
-    || c == '\u{2028}'
-    || c == '\u{2029}'
-}
-#}</code></pre></pre>
-<p>The first step there is to figure out what row we are on. We can do that by using <code>chars</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over the <code>char</code>s in the string. We then <code>fold</code> that iterator into a single number, starting with 1, if the current character is a new line we add one to the accumulator, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines.</p>
-<p>After we have counted the new lines, we can move on to the column. First we need to figure out where this line starts. We do that by using the <code>char_indices</code> method on <code>&amp;str</code>, this like <code>chars</code> will give us an iterator but this is over a <code>(usize, char)</code> pair, we are again going to use fold as a way to convert the iterator into a single number. In this case we are going to start with 0 and, and only update that accumulator if we found a new line character (adding 1 because out line starts at the next <code>char</code>). This will ensure that the last new line found will be the start of this token's line. If the <code>line_start</code> is 0 that means we didn't find anything so we can just assume it is the first line, meaning the index is the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
+<p>We need to capture two pieces of information, the first step what row we are on the second is the index that row started at. We can get both pieces of information by using the <code>char_indices</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over tuples  the indices and <code>char</code>s in the string. We then <code>fold</code> that iterator into a single value, the row will start at 1 and the index will start at 0. If the current character is a new line we add one to the row and replace any previous index value, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines. Now that we have the row number we need to calculate the column, if the <code>line_start</code> is 0 that means we didn't find new lines so we can just assume it is the first line, meaning the index is already the column, otherwise we need to subtract the <code>line_start</code> from the index.</p>
 <p>Ok, now for the exciting part; we are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -970,7 +969,6 @@ use std::{
 <p>This will make sure that all of the items we will need from <code>ressa</code> are in scope. Now we can start defining our method for inserting the debug logging into any functions that we find. To start we are going to create a function that will generate a new <code>ProgramPart::Statement</code> that will represent our call to <code>console.log</code> which might look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
-
 #fn main() {
 fn console_log(args: Vec&lt;Expression&gt;) -&gt; ProgramPart {
     ProgramPart::Statement(
@@ -1186,7 +1184,7 @@ fn map_class_prop(prefix: &amp;str, prop: &amp;Property) -&gt; Property {
     prop
 #}</code></pre></pre>
 <p>Here we have two functions, the first pulls out the id from the provided class or uses an empty string of it doesn't exist. We then just pass that off to <code>map_class_prop</code> which will handle all of the different types of properties a class can have. The first thing this does is map the <code>prefix</code> into the right format, so a call to <code>new Thing()</code> would print <code>new Thing</code>, or a get method would print <code>Thing get</code> before the method name. Next we take a look at the <code>property.key</code>, this will provide us with the name of our function, but according to the specification a class property key can be an identifier, a literal value, or a pattern, so we need to figure out what the name of this method is by digging into that value. First in the case that it is an ident we want to add it to the args, unless it is the value <code>constructor</code> because we already put the <code>new</code> keyword in that one. Next we can pull out the literal values and add those as they appear. Lastly we will only handle the pattern case when it is a <code>Pattern::Identifier</code> otherwise we will just skip it. Now to get the parameter names from the method definition we need to look at the <code>property.value</code> which should always be an <code>Expression::Function</code>. Once we match on that we simply repeat the process of <code>map_function</code> pulling the args out but only when they are <code>Ident</code>s and then passing that along to <code>console_log</code> and inserting that <code>Expression</code> at the top of the function body.</p>
-<p>At this point we have successfully updated our AST to include a call to <code>console.log</code> at the top of each function and method in our code. Now the big question is how do we write that out to a file. This problem is not a small one, in the next section we are going to cover an experimental crate <code>resw</code> that we can use to finish this project.</p>
+<p>At this point we have successfully updated our AST to include a call to <code>console.log</code> at the top of each function and method in our code. Now the big question is how do we write that out to a file. This problem is not a small one, in the next section we are going to cover a third crate <code>resw</code> that we can use to finish this project.</p>
 <!--web-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
