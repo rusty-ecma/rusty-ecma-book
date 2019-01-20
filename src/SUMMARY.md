@@ -1,6 +1,5 @@
 # Summary
-
-- [An Overview](./01.overview/1.md)
+[An Overview](./01.overview/1.md)
 - [RESS](./02.ress/1.md)
   - [Building a Linter](./02.ress/2.md)
 - [RESSA](./03.ressa/1.md)
