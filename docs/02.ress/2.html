@@ -177,7 +177,7 @@ struct BannedTokens {
     strings: Vec&lt;String&gt;,
 }
 #}</code></pre></pre>
-<p>The toml file we are going to use is pretty big so it doesn't make sense list it here. If you want to see what it looks like you can check it out <a href="../a.appendix/ie-8-banned.html">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
+<p>The toml file we are going to use is pretty big so but if you want to see what it looks like you can check it out <a href="../a.appendix/ie-8-banned.html">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
 <p>To start we need to deserialize that file, we can do that with the <code>std::fs::read_to_string</code> and <code>toml::from_str</code> functions.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -201,7 +201,7 @@ fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
         if atty::is(atty::Stream::Stdin) {
             return Ok(ret)
         }
-        std_in.read_to_string(&amp;mut ret);
+        std_in.read_to_string(&amp;mut ret)?;
         ret
     };
     Ok(js)
@@ -218,13 +218,11 @@ fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
         } else {
             js
         },
-        Err(e) =&gt; {
+        Err(_) =&gt; {
             print_usage();
             std::process::exit(1);
         }
     };
-    let finder = BannedFinder::new(&amp;js, banned);
-    for item in finder {
 #}</code></pre></pre>
 <p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means we were able to read from stdin but it was empty. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -238,7 +236,6 @@ cat &lt;path/to/file&gt; | banned_tokens&quot;);
 <p>With that out of the way, we now can get into how we are going to solve the actual problem of finding these tokens in a javascript file. There are many ways to make this work but for this example we are going to wrap the <code>Scanner</code> in another struct that implements <code>Iterator</code>. First here is what that struct is going to look like.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
-
 #fn main() {
 struct BannedFinder {
     scanner: Scanner,
@@ -266,32 +263,15 @@ impl ::std::fmt::Display for BannedError {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-fn is_js_new_line(c: char) -&gt; bool {
-    c == '\n'
-    || c == '\u{2028}'
-    || c == '\u{2029}'
-}
-#}</code></pre></pre>
-<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
 impl BannedFinder {
     fn get_position(&amp;self, idx: usize) -&gt; (usize, usize) {
-        let row = self.scanner.stream[..idx]
-            .chars()
-            .fold(1, |acc, c| if is_js_new_line(c) {
-                acc + 1
+        let (row, line_start) = self.scanner.stream[..idx]
+            .char_indices()
+            .fold((1, 0), |(row, line_start), (i, c)| if is_js_new_line(c) {
+                (row + 1, i)
             } else {
-                acc
+                (row, line_start)
             });
-        let line_start = self.scanner.stream[..idx]
-                            .char_indices()
-                            .fold(0, |acc, (i, c)| if is_js_new_line(c) {
-                                i.saturating_add(1)
-                            } else {
-                                acc
-                            });
         let col = if line_start == 0 {
             idx
         } else {
@@ -299,6 +279,16 @@ impl BannedFinder {
         };
         (row, col)
     }
+}
+#}</code></pre></pre>
+<p>Notice that we aren't testing for <code>\r</code>, this <em>could</em> come back to bite us but for this example the <code>\n</code> should be enough to catch <code>\r\n</code> and for simplicity's sake we can just say that your team does not support the <code>\r</code> new line. Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn is_js_new_line(c: char) -&gt; bool {
+    c == '\n'
+    || c == '\u{2028}'
+    || c == '\u{2029}'
 }
 #}</code></pre></pre>
 <p>The first step there is to figure out what row we are on. We can do that by using <code>chars</code> method on <code>&amp;str</code> which will give us an <code>Iterator</code> over the <code>char</code>s in the string. We then <code>fold</code> that iterator into a single number, starting with 1, if the current character is a new line we add one to the accumulator, otherwise we move on. We are only counting the new lines from the start until the provided index, this will make sure we don't count any extra new lines.</p>

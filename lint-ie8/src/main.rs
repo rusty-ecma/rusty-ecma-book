@@ -29,7 +29,7 @@ fn main() {
         } else {
             js
         },
-        Err(e) => {
+        Err(_) => {
             print_usage();
             std::process::exit(1);
         }
@@ -55,7 +55,7 @@ fn get_js() -> Result<String, ::std::io::Error> {
         if atty::is(atty::Stream::Stdin) {
             return Ok(ret)
         }
-        std_in.read_to_string(&mut ret);
+        std_in.read_to_string(&mut ret)?;
         ret
     };
     Ok(js)
@@ -141,20 +141,13 @@ cat <path/to/file> | banned_tokens");
 
 impl BannedFinder {
     fn get_position(&self, idx: usize) -> (usize, usize) {
-        let row = self.scanner.stream[..idx]
-            .chars()
-            .fold(1, |acc, c| if is_js_new_line(c) {
-                acc + 1
+        let (row, line_start) = self.scanner.stream[..idx]
+            .char_indices()
+            .fold((1, 0), |(row, line_start), (i, c)| if is_js_new_line(c) {
+                (row + 1, i)
             } else {
-                acc
+                (row, line_start)
             });
-        let line_start = self.scanner.stream[..idx]
-                            .char_indices()
-                            .fold(0, |acc, (i, c)| if is_js_new_line(c) {
-                                i.saturating_add(1)
-                            } else {
-                                acc
-                            });
         let col = if line_start == 0 {
             idx
         } else {
