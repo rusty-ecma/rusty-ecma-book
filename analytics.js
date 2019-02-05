@@ -97,10 +97,10 @@
 
 exports.__esModule = true;
 var moment = __webpack_require__(/*! moment */ "../analytics/node_modules/moment/moment.js");
-var now = moment();
+var NOW = moment();
 var COOKIE_KEY = 'pizzalitics';
 var VISIT_KEY = 'slice';
-var method = 'POST';
+var METHOD = 'POST';
 var exit_link;
 var notification_1 = __webpack_require__(/*! ./notification */ "../analytics/notification.ts");
 exports.notificationNeeded = notification_1.notificationNeeded;
@@ -131,7 +131,7 @@ function sendInfo(url, info) {
     if (url === void 0) { url = '/analytics/landing'; }
     if (info === void 0) { info = new LandingInfo(); }
     var reqInit = {
-        method: method,
+        method: METHOD,
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -194,7 +194,7 @@ function sendExiting(url, info) {
     if (url === void 0) { url = '/analytics/exiting'; }
     if (info === void 0) { info = new ExitingInfo(); }
     var xhr = new XMLHttpRequest();
-    xhr.open(method, url, false);
+    xhr.open(METHOD, url, false);
     xhr.setRequestHeader('Accept', 'application/json');
     xhr.setRequestHeader('Content-Type', 'application/json');
     var body = JSON.stringify(info);
@@ -208,7 +208,7 @@ exports.sendExiting = sendExiting;
 var ExitingInfo = /** @class */ (function () {
     function ExitingInfo(visit, time, link_clicked) {
         if (visit === void 0) { visit = safeString(localStorage.getItem(VISIT_KEY)); }
-        if (time === void 0) { time = moment.duration(moment.utc().diff(now)); }
+        if (time === void 0) { time = moment.duration(moment.utc().diff(NOW)); }
         if (link_clicked === void 0) { link_clicked = exit_link; }
         this.visit = visit;
         this.time = time;
@@ -17632,9 +17632,9 @@ exports.__esModule = true;
 var analytics_1 = __webpack_require__(/*! ../analytics/analytics */ "../analytics/analytics.ts");
 window.addEventListener('DOMContentLoaded', function () {
     analytics_1.setup_click_watcher();
-    if (analytics_1.notificationNeeded()) {
-        analytics_1.notifyUser();
-    }
+    // if (notificationNeeded()) {
+    //     notifyUser();
+    // }
 });
 window.addEventListener('beforeunload', function () {
     analytics_1.sendExiting();

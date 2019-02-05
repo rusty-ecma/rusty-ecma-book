@@ -2,9 +2,9 @@ import { sendExiting, sendInfo, initialResponseHandler,setup_click_watcher, noti
 
 window.addEventListener('DOMContentLoaded', () => {
     setup_click_watcher();
-    if (notificationNeeded()) {
-        notifyUser();
-    }
+    // if (notificationNeeded()) {
+    //     notifyUser();
+    // }
 
 });
 window.addEventListener('beforeunload', () => {
