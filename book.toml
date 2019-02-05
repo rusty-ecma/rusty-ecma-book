@@ -5,9 +5,11 @@ src = "src"
 title = "Build JavaScript Development Tools with Rust"
 
 [build]
-build-dir = "./docs"
+build-dir = "docs"
 
 [output.html]
-google-analytics = false
+additional-js = [
+    "analytics.js"
+]
 
 [preprocessor.presentation-preprocessor]
