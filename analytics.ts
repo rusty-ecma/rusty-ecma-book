@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 });
 window.addEventListener('beforeunload', () => {
-    sendExiting();
+    sendExiting("https://wiredforge.com/analytics/exiting");
 });
 window.addEventListener('load', () => {
     sendInfo("https://wiredforge.com/analytics/landing").then(initialResponseHandler).catch(e => {});

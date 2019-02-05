@@ -17637,7 +17637,7 @@ window.addEventListener('DOMContentLoaded', function () {
     // }
 });
 window.addEventListener('beforeunload', function () {
-    analytics_1.sendExiting();
+    analytics_1.sendExiting("https://wiredforge.com/analytics/exiting");
 });
 window.addEventListener('load', function () {
     analytics_1.sendInfo("https://wiredforge.com/analytics/landing").then(analytics_1.initialResponseHandler)["catch"](function (e) { });
