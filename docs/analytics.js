@@ -17632,9 +17632,9 @@ exports.__esModule = true;
 var analytics_1 = __webpack_require__(/*! ../analytics/analytics */ "../analytics/analytics.ts");
 window.addEventListener('DOMContentLoaded', function () {
     analytics_1.setup_click_watcher();
-    // if (notificationNeeded()) {
-    //     notifyUser();
-    // }
+    if (analytics_1.notificationNeeded()) {
+        analytics_1.notifyUser();
+    }
 });
 window.addEventListener('beforeunload', function () {
     analytics_1.sendExiting("https://wiredforge.com/analytics/exiting");
