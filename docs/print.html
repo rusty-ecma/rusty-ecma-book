@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="01.overview/1.html">An Overview</a></li><li><a href="02.ress/1.html"><strong aria-hidden="true">1.</strong> RESS</a></li><li><ol class="section"><li><a href="02.ress/2.html"><strong aria-hidden="true">1.1.</strong> Building a Linter</a></li></ol></li><li><a href="03.ressa/1.html"><strong aria-hidden="true">2.</strong> RESSA</a></li><li><ol class="section"><li><a href="03.ressa/2.html"><strong aria-hidden="true">2.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="04.resw/1.html"><strong aria-hidden="true">3.</strong> RESW</a></li><li><ol class="section"><li><a href="04.resw/2.html"><strong aria-hidden="true">3.1.</strong> Finishing a Debug Helper</a></li></ol></li><li><a href="05.conclusion/1.html"><strong aria-hidden="true">4.</strong> Conclusion</a></li><li><a href="a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="a.appendix/ie-8-banned.html"><strong aria-hidden="true">5.2.</strong> Banned Tokens</a></li><li><a href="a.appendix/ast.html"><strong aria-hidden="true">5.3.</strong> AST</a></li><li><a href="a.appendix/string.writer.html"><strong aria-hidden="true">5.4.</strong> StringWriter</a></li><li><a href="a.appendix/projects.html"><strong aria-hidden="true">5.5.</strong> Projects</a></li></ol></li></ol>
+            <ol class="chapter"><li class="affix"><a href="01.overview/1.html">An Overview</a></li><li><a href="02.ress/1.html"><strong aria-hidden="true">1.</strong> RESS</a></li><li><ol class="section"><li><a href="02.ress/2.html"><strong aria-hidden="true">1.1.</strong> Building a Linter</a></li></ol></li><li><a href="03.ressa/1.html"><strong aria-hidden="true">2.</strong> RESSA</a></li><li><ol class="section"><li><a href="03.ressa/2.html"><strong aria-hidden="true">2.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="04.resw/1.html"><strong aria-hidden="true">3.</strong> RESW</a></li><li><ol class="section"><li><a href="04.resw/2.html"><strong aria-hidden="true">3.1.</strong> Finishing a Debug Helper</a></li></ol></li><li><a href="05.conclusion/1.html"><strong aria-hidden="true">4.</strong> Conclusion</a></li><li><a href="a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="a.appendix/ie-8-banned.html"><strong aria-hidden="true">5.2.</strong> Banned Tokens</a></li><li><a href="a.appendix/ast.html"><strong aria-hidden="true">5.3.</strong> AST</a></li><li><a href="a.appendix/string.writer.html"><strong aria-hidden="true">5.4.</strong> StringWriter</a></li><li><a href="a.appendix/projects.html"><strong aria-hidden="true">5.5.</strong> Projects</a></li><li><a href="a.appendix/scanners.html"><strong aria-hidden="true">5.6.</strong> Ress Scanners</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -377,7 +377,7 @@
 </svg>
 </div>
 <!--web-only-->
-<p>To get started building development tools using the Rust programming language, we are going to be utilizing 2 crates. The first is a crate called <a href="https://github.com/FreeMasen/RESS"><code>ress</code></a> or Rusty ECMAScript Scanner, this crate is used to convert JavaScript text into a series of <code>Token</code>s. Next is <a href="https://github.com/FreeMasen/RESSA"><code>ressa</code></a> or Rusty ECMAScript Syntax Analyzer, this crate will take that series of <code>Token</code>s and build an Abstract Syntax Tree or AST. Either of these tools will be useful for building development tools however since the output of <code>ress</code> is essentially flat it means we can only build a much simpler kind of tool. Over the course of this book we will cover the basics of how to build a development tool with either of these crates.</p>
+<p>To get started building development tools using the Rust programming language, we are going to be utilizing 2 crates. The first is a crate called <a href="https://github.com/FreeMasen/RESS"><code>ress</code></a> or Rusty ECMAScript Scanner, this crate is used to convert JavaScript text into a series of <code>Token</code>s. Next is <a href="https://github.com/FreeMasen/RESSA"><code>ressa</code></a> or Rusty ECMAScript Syntax Analyzer, this crate will take that series of <code>Token</code>s and build an Abstract Syntax Tree or AST. This AST is provided by <a href="https://github.com/FreeMasen/resast"><code>resast</code></a>. Either of these tools will be useful for building development tools however since the output of <code>ress</code> is essentially flat it means we can only build a much simpler kind of tool. Over the course of this book we will cover the basics of how to build a development tool with either of these crates.</p>
 <!--web-only-end-->
 <!--slides-only-->
 <ul>
@@ -411,7 +411,7 @@
 </ul>
 <!--slides-only-end-->
 <!--web-only-->
-<p>Before we start on any examples let's dig a little into what <code>ress</code> does. The job of a <strong>scanner</strong> or <strong>tokenizer</strong> in the parsing process is to convert raw text or bytes into logically separated parts called <em>tokens</em> and <code>ress</code> does just that. It reads your JavaScript text and then tells you what a given word or symbol might represent. It does this through the <code>Scanner</code> interface, to construct a scanner you pass it the text you would like it to tokenize.</p>
+<p>Before we start on any examples let's dig a little into what <code>ress</code> does. The job of a <strong>scanner</strong> or <strong>tokenizer</strong> in the parsing process is to convert raw text or bytes into logically separated parts called <em>tokens</em> and <code>ress</code> does just that. It reads your JavaScript text and then tells you what a given word or symbol might represent. It does this through the <a href="02.ress/../a.appendix/scanners.html"><code>Scanner</code> interface</a>, to construct a scanner you pass it the text you would like it to tokenize.</p>
 <!--web-only-end-->
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -516,10 +516,10 @@ authors = [&quot;Robert Masen &lt;r@robertmasen.pizza&gt;&quot;]
 edition = &quot;2018&quot;
 
 [dependencies]
-ress = &quot;0.5&quot;
+ress = &quot;0.6&quot;
 serde = &quot;1&quot;
 serde_derive = &quot;1&quot;
-toml = &quot;0.4&quot;
+toml = &quot;0.5&quot;
 atty = &quot;0.2&quot;
 </code></pre>
 <p>Next we want to use the <code>Scanner</code> and <code>Token</code> from <code>ress</code>.</p>
@@ -750,8 +750,8 @@ impl Iterator for BannedFinder {
 <li><code>Export</code> - An ES Module export statement</li>
 </ul>
 </li>
-<li><code>Directive</code> - pretty much just 'use strict'</li>
-<li><code>Statement</code> - A catch all for everything else
+<li><code>Dir</code> - A script directive, pretty much just 'use strict'</li>
+<li><code>Stmt</code> - A catch all for all other statements
 <ul>
 <li><code>Block</code> - A collection of statements wrapped in curly braces</li>
 <li><code>Break</code> - A break statement will exit a loop or labeled statement early</li>
@@ -775,7 +775,7 @@ impl Iterator for BannedFinder {
 </ul>
 </li>
 </ul>
-<p><code>Statement</code> being the real work-horse of the group, while a top level function definition would be a <code>Decl</code>, a non-top level function definition would be a <code>Statement</code>. Both <code>Decl</code> and <code>Statement</code> themselves are enums representing the different possible variations. Looking further into the <code>Statement</code> variants, you may notice there is another <em>catch all</em> in the <code>Expr</code> variant which contains an <code>Expression</code> enum which defines an even more granular set of program parts.</p>
+<p><code>Stmt</code> being the real work-horse of the group, while a top level function definition would be a <code>Decl</code>, a non-top level function definition would be a <code>Statement</code>. Both <code>Decl</code> and <code>Statement</code> themselves are enums representing the different possible variations. Looking further into the <code>Statement</code> variants, you may notice there is another <em>catch all</em> in the <code>Expr</code> variant which contains an <code>Expr</code> (expression) enum which defines an even more granular set of program parts.</p>
 <ul>
 <li><code>Expression</code>
 <ul>
@@ -805,7 +805,7 @@ impl Iterator for BannedFinder {
 </ul>
 </li>
 </ul>
-<p>Most of the <code>Expression</code>, <code>Statement</code>, and <code>Decl</code> variants have associated values, to see more information about them check out the <a href="https://docs.rs/ressa">documentation</a>. There should be an example and description provided for each of the possible combinations.</p>
+<p>Most of the <code>Expr</code>, <code>Stmt</code>, and <code>Decl</code> variants have associated values, to see more information about them check out the <a href="https://docs.rs/resast">documentation</a>. There should be an example and description provided for each of the possible combinations.</p>
 <p>With that long winded explanation of the <em>basic</em> structure we are working with let's take a look at how we would use the <code>Parser</code>.</p>
 <!--web-only-end-->
 <pre><pre class="playpen"><code class="language-rust">use ressa::*;
@@ -835,22 +835,22 @@ fn main() {
                     &quot;Thing&quot;
                 ),
                 params: [
-                    Pattern(
+                    Pat(
                         Identifier(
                             &quot;stuff&quot;
                         )
                     )
                 ],
                 body: [
-                    Statement(
+                    Stmt(
                         Expr(
                             Assignment(
-                                AssignmentExpression {
+                                AssignmentExpr {
                                     operator: Equal,
                                     left: Expr(
                                         Member(
-                                            MemberExpression {
-                                                object: ThisExpression,
+                                            MemberExpr {
+                                                object: This,
                                                 property: Ident(
                                                     &quot;stuff&quot;
                                                 ),
@@ -877,31 +877,31 @@ fn main() {
 <p>If we walk through the output, we start by seeing that the</p>
 <ol>
 <li>This program consists of a single part which is a  <code>ProgramPart::Decl</code></li>
-<li>Inside of that is a <code>Declaration::Function</code></li>
+<li>Inside of that is a <code>Decl::Function</code></li>
 <li>Inside of that is a <code>Function</code>
 <ol>
 <li>It has an <code>id</code>, which is an optional <code>Identifier</code>, with the value of <code>Some(&quot;Thing&quot;)</code></li>
-<li>It has a one item vec of <code>Pattern</code>s in <code>params</code>
+<li>It has a one item vec of <code>Pat</code>s in <code>params</code>
 <ol>
-<li>Which is a <code>Pattern::Identifier</code></li>
+<li>Which is a <code>Pat::Identifier</code></li>
 <li>Inside of that is an <code>Identifier</code> with the value of &quot;stuff&quot;</li>
 </ol>
 </li>
 <li>It has a body that is a one item vec of <code>ProgramPart</code>s
 <ol>
-<li>The item is a <code>ProgramPart::Statement</code></li>
-<li>Which is a <code>Statement::Expr</code></li>
-<li>Inside of that is an <code>Expression::Assignment</code></li>
-<li>Inside of that is an <code>AssignmentExpression</code>
+<li>The item is a <code>ProgramPart::Stmt</code></li>
+<li>Which is a <code>Stmt::Expr</code></li>
+<li>Inside of that is an <code>Expr::Assignment</code></li>
+<li>Inside of that is an <code>AssignmentExpr</code>
 <ol>
 <li>Which has an <code>operator</code> of <code>Equal</code></li>
-<li>The <code>left</code> hand side is an <code>Expression::Member</code>
+<li>The <code>left</code> hand side is an <code>Expr::Member</code>
 <ol>
-<li>The <code>object</code> being <code>Expression::This</code></li>
-<li>The <code>property</code> being <code>Expression::Ident</code> with the value of &quot;stuff&quot;</li>
+<li>The <code>object</code> being <code>Expr::This</code></li>
+<li>The <code>property</code> being <code>Expr::Ident</code> with the value of &quot;stuff&quot;</li>
 </ol>
 </li>
-<li>The <code>right</code> hand side is an <code>Expression::Ident</code> with the value of &quot;stuff&quot;</li>
+<li>The <code>right</code> hand side is an <code>Expr::Ident</code> with the value of &quot;stuff&quot;</li>
 <li><code>computed</code> is false</li>
 </ol>
 </li>
@@ -912,7 +912,7 @@ fn main() {
 </ol>
 </li>
 </ol>
-<p>Phew! That is quite a lot of information! A big part of why we need to be that verbose is because of the &quot;you can do anything&quot; nature of JavaScript. Let's use the <code>MemberExpression</code> as an example, below are a collection of ways to write a <code>MemberExpression</code> in JavaScript.</p>
+<p>Phew! That is quite a lot of information! A big part of why we need to be that verbose is because of the &quot;you can do anything&quot; nature of JavaScript. Let's use the <code>MemberExpr</code> as an example, below are a collection of ways to write a <code>MemberExpr</code> in JavaScript.</p>
 <pre><code class="language-js">console.log;
 console['log'];
 const logVar = 'log';
@@ -935,7 +935,7 @@ function getConsole() {
 getConsole()[logFunc()];
 getConsole().log;
 </code></pre>
-<p>And with the way JavaScript has evolved this probably isn't an exhaustive list of ways to construct a <code>MemberExpression</code>. With the level of information <code>ressa</code> provides we have enough to truly understand the <em>syntactic</em> meaning of the text. This will enable us to build more powerful tools to analyze and/or manipulate any given JavaScript program. With the pervasiveness of <a href="https://en.wikipedia.org/wiki/Debugging#Techniques">print debugging</a>, wouldn't it be nice if we had a tool that would automatically insert a <code>console.log</code> at the top of every function and method in a program? We could make it print the name of that function and also each of the arguments, let's try and build one.</p>
+<p>And with the way JavaScript has evolved this probably isn't an exhaustive list of ways to construct a <code>MemberExpr</code>. With the level of information <code>ressa</code> provides we have enough to truly understand the <em>syntactic</em> meaning of the text. This will enable us to build more powerful tools to analyze and/or manipulate any given JavaScript program. With the pervasiveness of <a href="https://en.wikipedia.org/wiki/Debugging#Techniques">print debugging</a>, wouldn't it be nice if we had a tool that would automatically insert a <code>console.log</code> at the top of every function and method in a program? We could make it print the name of that function and also each of the arguments, let's try and build one.</p>
 <!--web-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
@@ -953,40 +953,41 @@ authors = [&quot;Robert Masen &lt;r@robertmasen.pizza&gt;&quot;]
 edition = &quot;2018&quot;
 
 [dependencies]
-ressa = &quot;0.2&quot;
+ressa = &quot;0.5&quot;
 atty = &quot;0.2&quot;
-resw = &quot;0.1&quot;
+resw = &quot;0.2&quot;
+resast = &quot;0.2&quot;
 </code></pre>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 use ressa::{
     Parser,
-    node::*,
 };
 use std::{
     io::Read,
     env::args,
     fs::read_to_string,
 };
+use resw::Writer;
 #}</code></pre></pre>
-<p>This will make sure that all of the items we will need from <code>ressa</code> are in scope. Now we can start defining our method for inserting the debug logging into any functions that we find. To start we are going to create a function that will generate a new <code>ProgramPart::Statement</code> that will represent our call to <code>console.log</code> which might look like this.</p>
+<p>This will make sure that all of the items we will need from <code>ressa</code> and <code>resast</code> are in scope. Now we can start defining our method for inserting the debug logging into any functions that we find. To start we are going to create a function that will generate a new <code>ProgramPart::Stmt</code> that will represent our call to <code>console.log</code> which might look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-fn console_log(args: Vec&lt;Expression&gt;) -&gt; ProgramPart {
-    ProgramPart::Statement(
-        Statement::Expr(
-            Expression::call(
-                Expression::member(
-                    Expression::ident(&quot;console&quot;),
-                    Expression::ident(&quot;log&quot;),
+        }
+    }
+    prop
+}
+
+fn console_log(args: Vec&lt;Expr&gt;) -&gt; ProgramPart {
+    ProgramPart::Stmt(
+        Stmt::Expr(
+            Expr::call(
+                Expr::member(
+                    Expr::ident(&quot;console&quot;),
+                    Expr::ident(&quot;log&quot;),
                     false,
-                ),
-                args,
-            )
-        )
-    )
 #}</code></pre></pre>
 <p>We need to make the arguments configurable so we can insert the context information for each instance of a function but otherwise it is a pretty straight forward. Now that we have that, we need to start digging into the <code>ProgramPart</code> to identify anything we want to modify. Since <code>Parser</code> implements <code>Iterator</code> and its <code>Item</code> is <code>Result&lt;ProgramPart, Error&gt;</code> we first need to use <code>filter_map</code> to extract the <code>ProgramPart</code> from the result. It would probably be good to handle the error case here but for the sake of simplicity we are going to skip any errors. Now that we have an <code>Iterator</code> over <code>ProgramPart</code>s we can use <code>map</code> to update each part.</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
@@ -1000,69 +1001,70 @@ fn console_log(args: Vec&lt;Expression&gt;) -&gt; ProgramPart {
 <p>With that in mind the entry point is going to be a function that takes a <code>ProgramPart</code> and returns a new <code>ProgramPart</code>. It might look like this</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
 fn map_part(part: ProgramPart) -&gt; ProgramPart {
     match part {
         ProgramPart::Decl(ref decl) =&gt; ProgramPart::Decl(map_decl(decl)),
-        ProgramPart::Statement(ref stmt) =&gt; ProgramPart::Statement(map_stmt(stmt)),
-        ProgramPart::Directive(_) =&gt; part,
+        ProgramPart::Stmt(ref stmt) =&gt; ProgramPart::Stmt(map_stmt(stmt)),
+        ProgramPart::Dir(_) =&gt; part,
     }
-}
 #}</code></pre></pre>
 <p>We are going to match on the part provided and either return that part if it is a <code>Directive</code> or if it isn't we need to investigate further to discover if it is a function or not. We do that in two places <code>map_decl</code> and <code>map_stmt</code> both of which are going to utilize similar method for digging further into the tree.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
-fn map_decl(decl: &amp;Declaration) -&gt; Declaration {
+fn map_decl(decl: &amp;Decl) -&gt; Decl {
     match decl {
-        Declaration::Function(ref f) =&gt; Declaration::Function(map_func(f)),
-        Declaration::Class(ref class) =&gt; Declaration::Class(map_class(class)),
+        Decl::Function(ref f) =&gt; Decl::Function(map_func(f)),
+        Decl::Class(ref class) =&gt; Decl::Class(map_class(class)),
         _ =&gt; decl.clone()
     }
 }
 
-fn map_stmt(stmt: &amp;Statement) -&gt; Statement {
+fn map_stmt(stmt: &amp;Stmt) -&gt; Stmt {
     match stmt {
-        Statement::Expr(ref expr) =&gt; Statement::Expr(map_expr(expr)),
+        Stmt::Expr(ref expr) =&gt; Stmt::Expr(map_expr(expr)),
         _ =&gt; stmt.clone(),
     }
-}
 #}</code></pre></pre>
-<p>There are two ways for a <code>Declaration</code> to resolve into a function or method and that is with the <code>Function</code> and <code>Class</code> variants while a <code>Statement</code> can end up there if it is an <code>Expr</code>. When we include <code>map_expr</code> we see that there are cases for both <code>Function</code> and <code>Class</code> in the <code>Expression</code> enum. That means once we get past those we will be handling the rest in the exact same way.</p>
+<p>There are two ways for a <code>Decl</code> to resolve into a function or method and that is with the <code>Function</code> and <code>Class</code> variants while a <code>Stmt</code> can end up there if it is an <code>Expr</code>. When we include <code>map_expr</code> we see that there are cases for both <code>Function</code> and <code>Class</code> in the <code>Expr</code> enum. That means once we get past those we will be handling the rest in the exact same way.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
-fn map_expr(expr: &amp;Expression) -&gt; Expression {
+fn map_expr(expr: &amp;Expr) -&gt; Expr {
     match expr {
-        Expression::Function(ref f) =&gt; Expression::Function(map_func(f)),
-        Expression::Class(ref c) =&gt; Expression::Class(map_class(c)),
+        Expr::Function(ref f) =&gt; Expr::Function(map_func(f)),
+        Expr::Class(ref c) =&gt; Expr::Class(map_class(c)),
         _ =&gt; expr.clone(),
     }
-}
 #}</code></pre></pre>
 <p>Finally we are going to start manipulating the AST in <code>map_func</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
+
 #fn main() {
 fn map_func(func: &amp;Function) -&gt; Function {
     let mut f = func.clone();
     let mut args = vec![];
     if let Some(ref name) = f.id {
         args.push(
-            Expression::string(&amp;format!(&quot;'{}'&quot;, name))
+            Expr::string(&amp;format!(&quot;'{}'&quot;, name))
         );
     }
     for arg in f.params.iter().filter_map(|a| match a {
         FunctionArg::Expr(e) =&gt; match e {
-            Expression::Ident(i)  =&gt; Some(i),
+            Expr::Ident(i)  =&gt; Some(i),
             _ =&gt; None,
         },
-        FunctionArg::Pattern(p) =&gt; match p {
-            Pattern::Identifier(i) =&gt; Some(i),
+        FunctionArg::Pat(p) =&gt; match p {
+            Pat::Identifier(i) =&gt; Some(i),
             _ =&gt; None,
         },
     }) {
-        args.push(Expression::ident(arg));
+        args.push(Expr::ident(arg));
     }
     f.body.insert(
         0,
@@ -1071,15 +1073,15 @@ fn map_func(func: &amp;Function) -&gt; Function {
     f.body = f.body.into_iter().map(map_part).collect();
     f
 }
-
 #}</code></pre></pre>
-<p>The first thing we are going to do is to clone the <code>func</code> to give us a mutable version. Next we are going to check if the <code>id</code> is <code>Some</code>, if it is we can add that name to our <code>console.log</code> arguments. Now function arguments can be pretty complicated, to try and keep things simple we are going to only worry about the ones that are either <code>Expression::Ident</code> or <code>Pattern::Identifier</code>. To build something more robust it might be good to include destructured arguments or arguments with default values but for this example we are just going to keep it simple.</p>
-<p>First we are going to <code>filter_map</code> the <code>func.params</code> to only get the items that ultimately resolve to <code>Identifer</code>s, at that point we can wrap all of these identifiers in an <code>Expression::Ident</code> and add them to the <code>console.log</code> args. Now we can simply insert the result of passing those args to <code>console_log</code> at the first position of the <code>func.body</code>. Because functions can appear in the body of other functions we also want to map all of the <code>func.body</code> program parts. Once that has completed we can return the updated <code>func</code> to the caller.</p>
+<p>The first thing we are going to do is to clone the <code>func</code> to give us a mutable version. Next we are going to check if the <code>id</code> is <code>Some</code>, if it is we can add that name to our <code>console.log</code> arguments. Now function arguments can be pretty complicated, to try and keep things simple we are going to only worry about the ones that are either <code>Expr::Ident</code> or <code>Pat::Identifier</code>. To build something more robust it might be good to include destructured arguments or arguments with default values but for this example we are just going to keep it simple.</p>
+<p>First we are going to <code>filter_map</code> the <code>func.params</code> to only get the items that ultimately resolve to <code>Identifer</code>s, at that point we can wrap all of these identifiers in an <code>Expr::Ident</code> and add them to the <code>console.log</code> args. Now we can simply insert the result of passing those args to <code>console_log</code> at the first position of the <code>func.body</code>. Because functions can appear in the body of other functions we also want to map all of the <code>func.body</code> program parts. Once that has completed we can return the updated <code>func</code> to the caller.</p>
 <p>The next thing we are going to want to deal with is <code>Class</code>, we want to insert console.log into the top of each method on a class. This is a bit unique because we also want to provide the name of that class (if it exists) as the first argument to console.log. That might look like this.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
-
 #fn main() {
+}
+
 fn map_class(class: &amp;Class) -&gt; Class {
     let mut class = class.clone();
     let prefix =  if let Some(ref id) = class.id {
@@ -1099,59 +1101,63 @@ fn map_class_prop(prefix: &amp;str, prop: &amp;Property) -&gt; Property {
     let mut prop = prop.clone();
     let mut args = match prop.kind {
         PropertyKind::Ctor =&gt; {
-            vec![Expression::string(&amp;format!(&quot;'new {}'&quot;, prefix))]
+            vec![Expr::string(&amp;format!(&quot;'new {}'&quot;, prefix))]
         },
         PropertyKind::Get =&gt; {
             vec![
-                Expression::string(&amp;format!(&quot;'{}'&quot;, prefix)),
-                Expression::string(&quot;get&quot;),
+                Expr::string(&amp;format!(&quot;'{}'&quot;, prefix)),
+                Expr::string(&quot;get&quot;),
             ]
         },
         PropertyKind::Set =&gt; {
             vec![
-                Expression::string(&amp;format!(&quot;'{}'&quot;, prefix)),
-                Expression::string(&quot;set&quot;),
+                Expr::string(&amp;format!(&quot;'{}'&quot;, prefix)),
+                Expr::string(&quot;set&quot;),
             ]
         },
         PropertyKind::Method =&gt; {
             vec![
-                Expression::string(&amp;format!(&quot;'{}'&quot;, prefix)),
+                Expr::string(&amp;format!(&quot;'{}'&quot;, prefix)),
             ]
         },
         _ =&gt; vec![],
     };
     match &amp;prop.key {
-        PropertyKey::Ident(ref i) =&gt; {
-            if i != &quot;constructor&quot; {
-                args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, i)));
+        PropertyKey::Expr(ref e) =&gt; {
+            match e {
+                Expr::Ident(i) =&gt; if i != &quot;constructor&quot; {
+                    args.push(Expr::string(&amp;format!(&quot;'{}'&quot;, i)));
+                },
+                _ =&gt; (),
             }
+            
         },
         PropertyKey::Literal(ref l) =&gt; {
             match l {
                 Literal::Boolean(ref b) =&gt; {
-                    args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, b)));
+                    args.push(Expr::string(&amp;format!(&quot;'{}'&quot;, b)));
                 },
                 Literal::Null =&gt; {
-                    args.push(Expression::string(&quot;'null'&quot;));
+                    args.push(Expr::string(&quot;'null'&quot;));
                 },
                 Literal::Number(ref n) =&gt; {
-                    args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, n)));
+                    args.push(Expr::string(&amp;format!(&quot;'{}'&quot;, n)));
                 }
                 Literal::RegEx(ref r) =&gt; {
-                    args.push(Expression::string(&amp;format!(&quot;'/{}/{}'&quot;, r.pattern, r.flags)));
+                    args.push(Expr::string(&amp;format!(&quot;'/{}/{}'&quot;, r.pattern, r.flags)));
                 },
                 Literal::String(ref s) =&gt; {
                     if s != &quot;constructor&quot; {
-                        args.push(Expression::string(s));
+                        args.push(Expr::string(s));
                     }
                 },
                 _ =&gt; (),
             }
         },
-        PropertyKey::Pattern(ref p) =&gt; {
+        PropertyKey::Pat(ref p) =&gt; {
             match p {
-                Pattern::Identifier(ref i) =&gt; {
-                    args.push(Expression::string(&amp;format!(&quot;'{}'&quot;, i)));
+                Pat::Identifier(ref i) =&gt; {
+                    args.push(Expr::string(&amp;format!(&quot;'{}'&quot;, i)));
                 },
                 _ =&gt; (),
             }
@@ -1159,19 +1165,19 @@ fn map_class_prop(prefix: &amp;str, prop: &amp;Property) -&gt; Property {
     }
     if let PropertyValue::Expr(ref mut expr) = prop.value {
         match expr {
-            Expression::Function(ref mut f) =&gt; {
+            Expr::Function(ref mut f) =&gt; {
                 for ref arg in &amp;f.params {
                     match arg {
                         FunctionArg::Expr(ref expr) =&gt; {
                             match expr {
-                                Expression::Ident(_) =&gt; args.push(expr.clone()),
+                                Expr::Ident(_) =&gt; args.push(expr.clone()),
                                 _ =&gt; (),
                             }
                         },
-                        FunctionArg::Pattern(ref pat) =&gt; {
+                        FunctionArg::Pat(ref pat) =&gt; {
                             match pat {
-                                Pattern::Identifier(ref ident) =&gt; {
-                                    args.push(Expression::ident(ident))
+                                Pat::Identifier(ref ident) =&gt; {
+                                    args.push(Expr::ident(ident))
                                 },
                                 _ =&gt; {},
                             }
@@ -1181,13 +1187,8 @@ fn map_class_prop(prefix: &amp;str, prop: &amp;Property) -&gt; Property {
                 f.body.insert(0,
                     console_log(args)
                 )
-            },
-            _ =&gt; (),
-        }
-    }
-    prop
 #}</code></pre></pre>
-<p>Here we have two functions, the first pulls out the id from the provided class or uses an empty string of it doesn't exist. We then just pass that off to <code>map_class_prop</code> which will handle all of the different types of properties a class can have. The first thing this does is map the <code>prefix</code> into the right format, so a call to <code>new Thing()</code> would print <code>new Thing</code>, or a get method would print <code>Thing get</code> before the method name. Next we take a look at the <code>property.key</code>, this will provide us with the name of our function, but according to the specification a class property key can be an identifier, a literal value, or a pattern, so we need to figure out what the name of this method is by digging into that value. First in the case that it is an ident we want to add it to the args, unless it is the value <code>constructor</code> because we already put the <code>new</code> keyword in that one. Next we can pull out the literal values and add those as they appear. Lastly we will only handle the pattern case when it is a <code>Pattern::Identifier</code> otherwise we will just skip it. Now to get the parameter names from the method definition we need to look at the <code>property.value</code> which should always be an <code>Expression::Function</code>. Once we match on that we simply repeat the process of <code>map_function</code> pulling the args out but only when they are <code>Ident</code>s and then passing that along to <code>console_log</code> and inserting that <code>Expression</code> at the top of the function body.</p>
+<p>Here we have two functions, the first pulls out the id from the provided class or uses an empty string of it doesn't exist. We then just pass that off to <code>map_class_prop</code> which will handle all of the different types of properties a class can have. The first thing this does is map the <code>prefix</code> into the right format, so a call to <code>new Thing()</code> would print <code>new Thing</code>, or a get method would print <code>Thing get</code> before the method name. Next we take a look at the <code>property.key</code>, this will provide us with the name of our function, but according to the specification a class property key can be an identifier, a literal value, or a pattern, so we need to figure out what the name of this method is by digging into that value. First in the case that it is an ident we want to add it to the args, unless it is the value <code>constructor</code> because we already put the <code>new</code> keyword in that one. Next we can pull out the literal values and add those as they appear. Lastly we will only handle the pattern case when it is a <code>Pat::Identifier</code> otherwise we will just skip it. Now to get the parameter names from the method definition we need to look at the <code>property.value</code> which should always be an <code>Expr::Function</code>. Once we match on that we simply repeat the process of <code>map_function</code> pulling the args out but only when they are <code>Ident</code>s and then passing that along to <code>console_log</code> and inserting that <code>Expr</code> at the top of the function body.</p>
 <p>At this point we have successfully updated our AST to include a call to <code>console.log</code> at the top of each function and method in our code. Now the big question is how do we write that out to a file. This problem is not a small one, in the next section we are going to cover a third crate <code>resw</code> that we can use to finish this project.</p>
 <!--web-only-end-->
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
@@ -1221,22 +1222,22 @@ let thing = new Thing('argument');
                 &quot;Thing&quot;
             ),
             params: [
-                Pattern(
+                Pat(
                     Identifier(
                         &quot;stuff&quot;
                     )
                 )
             ],
             body: [
-                Statement(
+                Stmt(
                     Expr(
                         Assignment(
-                            AssignmentExpression {
+                            AssignmentExpr {
                                 operator: Equal,
                                 left: Expr(
                                     Member(
-                                        MemberExpression {
-                                            object: ThisExpression,
+                                        MemberExpr {
+                                            object: ThisExpr,
                                             property: Ident(
                                                 &quot;stuff&quot;
                                             ),
@@ -1267,7 +1268,7 @@ Decl(
                 ),
                 init: Some(
                     New(
-                        NewExpression {
+                        NewExpr {
                             callee: Ident(
                                 &quot;Thing&quot;
                             ),
@@ -1305,8 +1306,8 @@ fn _write_part(&amp;mut self, part: &amp;ProgramPart) -&gt; Res {
     self.write_leading_whitespace()?;
     match part {
         ProgramPart::Decl(decl) =&gt; self.write_decl(decl)?,
-        ProgramPart::Directive(dir) =&gt; self.write_directive(dir)?,
-        ProgramPart::Statement(stmt) =&gt; self.write_stmt(stmt)?,
+        ProgramPart::Dir(dir) =&gt; self.write_directive(dir)?,
+        ProgramPart::Stmt(stmt) =&gt; self.write_stmt(stmt)?,
     }
     Ok(())
 }
@@ -1324,26 +1325,26 @@ pub fn write_leading_whitespace(&amp;mut self) -&gt; Res {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_decl(&amp;mut self, decl: &amp;Declaration) -&gt; Res {
+pub fn write_decl(&amp;mut self, decl: &amp;Decl) -&gt; Res {
     match decl {
-        Declaration::Variable(ref kind, ref decls) =&gt; self.write_variable_decls(kind, decls)?,
-        Declaration::Class(ref class) =&gt; {
+        Decl::Variable(ref kind, ref decls) =&gt; self.write_variable_decls(kind, decls)?,
+        Decl::Class(ref class) =&gt; {
             self.at_top_level = false;
             self.write_class(class)?;
             self.write_new_line()?;
         },
-        Declaration::Function(ref func) =&gt; {
+        Decl::Function(ref func) =&gt; {
             self.at_top_level = false;
             self.write_function(func)?;
             self.write_new_line()?;
         },
-        Declaration::Export(ref exp) =&gt; self.write_export_decl(exp)?,
-        Declaration::Import(ref imp) =&gt; self.write_import_decl(imp)?,
+        Decl::Export(ref exp) =&gt; self.write_export_decl(exp)?,
+        Decl::Import(ref imp) =&gt; self.write_import_decl(imp)?,
     };
     Ok(())
 }
 #}</code></pre></pre>
-<p>Moving further down we simply match on the the declaration handling each variant as needed. For our example we would move into the <code>Declaration::Function</code> branch. The first step in that branch is to set the context flag <code>at_top_level</code> to <code>false</code> and then move into the <code>write_function</code> method.</p>
+<p>Moving further down we simply match on the the declaration handling each variant as needed. For our example we would move into the <code>Decl::Function</code> branch. The first step in that branch is to set the context flag <code>at_top_level</code> to <code>false</code> and then move into the <code>write_function</code> method.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -1398,26 +1399,26 @@ pub fn write_function_args(&amp;mut self, args: &amp;[FunctionArg]) -&gt; Res {
 pub fn write_function_arg(&amp;mut self, arg: &amp;FunctionArg) -&gt; Res {
     match arg {
         FunctionArg::Expr(ref ex) =&gt; self.write_expr(ex)?,
-        FunctionArg::Pattern(ref pa) =&gt; self.write_pattern(pa)?,
+        FunctionArg::Pat(ref pa) =&gt; self.write_pattern(pa)?,
     }
     Ok(())
 }
 #}</code></pre></pre>
-<p>Here we see another function that simply move us further down the AST. Function arguments can be either expressions or patterns so we need to handle both. For our example we are going to head down the <code>Pattern</code> branch with <code>write_pattern</code>.</p>
+<p>Here we see another function that simply move us further down the AST. Function arguments can be either expressions or patterns so we need to handle both. For our example we are going to head down the <code>Pat</code> branch with <code>write_pattern</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_pattern(&amp;mut self, pattern: &amp;Pattern) -&gt; Res {
+pub fn write_pattern(&amp;mut self, pattern: &amp;Pat) -&gt; Res {
     match pattern {
-        Pattern::Identifier(ref i) =&gt; self.write(i),
-        Pattern::Object(ref o) =&gt; self.write_object_pattern(o),
-        Pattern::Array(ref a) =&gt; self.write_array_pattern(a.as_slice()),
-        Pattern::RestElement(ref r) =&gt; self.write_rest_element(r),
-        Pattern::Assignment(ref a) =&gt; self.write_assignment_pattern(a),
+        Pat::Identifier(ref i) =&gt; self.write(i),
+        Pat::Object(ref o) =&gt; self.write_object_pattern(o),
+        Pat::Array(ref a) =&gt; self.write_array_pattern(a.as_slice()),
+        Pat::RestElement(ref r) =&gt; self.write_rest_element(r),
+        Pat::Assignment(ref a) =&gt; self.write_assignment_pattern(a),
     }
 }
 #}</code></pre></pre>
-<p>Most of the options here are simply going to continue branching down our AST, however for our example we are going to head down the first match arm with <code>Pattern::Identifer</code> and just write that string out to our destination.</p>
+<p>Most of the options here are simply going to continue branching down our AST, however for our example we are going to head down the first match arm with <code>Pat::Identifer</code> and just write that string out to our destination.</p>
 <p>Moving back up we only had one parameter for our function signature so we finish out <code>write_function_args</code> with a closing parenthesis. That then leads us to <code>write_function_body</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -1440,25 +1441,25 @@ pub fn write_function_body(&amp;mut self, body: &amp;FunctionBody) -&gt; Res {
     Ok(())
 }
 #}</code></pre></pre>
-<p>The first thing we need to do is take a look at the <code>&amp;FunctionBody</code> which is a type alias for <code>Vec&lt;ProgramPart&gt;</code>. We check to see if this function has any body, if not we just write a single open curly brace, if it does we want to write the curly brace using <code>write_open_brace</code>, this is a convenience method for writing the character and also incrementing the <code>current_indent</code>, lastly we write a new line. Now we loop over each of the <code>ProgramPart</code>s in <code>body</code> and pass that off to <code>_write_body</code>. For our example there is only going to be one part. This part is a <code>ProgramPart::Statement</code> which would be handled by <code>write_stmt</code>.</p>
+<p>The first thing we need to do is take a look at the <code>&amp;FunctionBody</code> which is a type alias for <code>Vec&lt;ProgramPart&gt;</code>. We check to see if this function has any body, if not we just write a single open curly brace, if it does we want to write the curly brace using <code>write_open_brace</code>, this is a convenience method for writing the character and also incrementing the <code>current_indent</code>, lastly we write a new line. Now we loop over each of the <code>ProgramPart</code>s in <code>body</code> and pass that off to <code>_write_body</code>. For our example there is only going to be one part. This part is a <code>ProgramPart::Stmt</code> which would be handled by <code>write_stmt</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_stmt(&amp;mut self, stmt: &amp;Statement) -&gt; Res {
+pub fn write_stmt(&amp;mut self, stmt: &amp;Stmt) -&gt; Res {
     let mut semi = true;
     let mut new_line = true;
     let cached_state = self.at_top_level;
     match stmt {
-        Statement::Empty =&gt; {
+        Stmt::Empty =&gt; {
             new_line = false;
         },
-        Statement::Debugger =&gt; self.write_debugger_stmt()?,
-        Statement::Expr(ref stmt) =&gt; {
+        Stmt::Debugger =&gt; self.write_debugger_stmt()?,
+        Stmt::Expr(ref stmt) =&gt; {
             let wrap = match stmt {
-                Expression::Literal(_)
-                | Expression::Object(_)
-                | Expression::Function(_) 
-                | Expression::Binary(_) =&gt; true,
+                Expr::Literal(_)
+                | Expr::Object(_)
+                | Expr::Function(_) 
+                | Expr::Binary(_) =&gt; true,
                 _ =&gt; false,
             };
             if wrap {
@@ -1467,59 +1468,59 @@ pub fn write_stmt(&amp;mut self, stmt: &amp;Statement) -&gt; Res {
                 self.write_expr(stmt)?
             }
         },
-        Statement::Block(ref stmt) =&gt; {
+        Stmt::Block(ref stmt) =&gt; {
             self.at_top_level = false;
             self.write_block_stmt(stmt)?;
             semi = false;
             new_line = false;
             self.at_top_level = cached_state;
         }
-        Statement::With(ref stmt) =&gt; {
+        Stmt::With(ref stmt) =&gt; {
             self.write_with_stmt(stmt)?;
             semi = false;
         }
-        Statement::Return(ref stmt) =&gt; self.write_return_stmt(stmt)?,
-        Statement::Labeled(ref stmt) =&gt; {
+        Stmt::Return(ref stmt) =&gt; self.write_return_stmt(stmt)?,
+        Stmt::Labeled(ref stmt) =&gt; {
             self.write_labeled_stmt(stmt)?;
             semi = false;
         }
-        Statement::Break(ref stmt) =&gt; self.write_break_stmt(stmt)?,
-        Statement::Continue(ref stmt) =&gt; self.write_continue_stmt(stmt)?,
-        Statement::If(ref stmt) =&gt; {
+        Stmt::Break(ref stmt) =&gt; self.write_break_stmt(stmt)?,
+        Stmt::Continue(ref stmt) =&gt; self.write_continue_stmt(stmt)?,
+        Stmt::If(ref stmt) =&gt; {
             self.write_if_stmt(stmt)?;
             semi = false;
         }
-        Statement::Switch(ref stmt) =&gt; {
+        Stmt::Switch(ref stmt) =&gt; {
             self.at_top_level = false;
             self.write_switch_stmt(stmt)?;
             semi = false;
         }
-        Statement::Throw(ref stmt) =&gt; self.write_throw_stmt(stmt)?,
-        Statement::Try(ref stmt) =&gt; {
+        Stmt::Throw(ref stmt) =&gt; self.write_throw_stmt(stmt)?,
+        Stmt::Try(ref stmt) =&gt; {
             self.write_try_stmt(stmt)?;
             semi = false;
         }
-        Statement::While(ref stmt) =&gt; {
+        Stmt::While(ref stmt) =&gt; {
             new_line = self.write_while_stmt(stmt)?;
             semi = false;
         }
-        Statement::DoWhile(ref stmt) =&gt; self.write_do_while_stmt(stmt)?,
-        Statement::For(ref stmt) =&gt; {
+        Stmt::DoWhile(ref stmt) =&gt; self.write_do_while_stmt(stmt)?,
+        Stmt::For(ref stmt) =&gt; {
             self.at_top_level = false;
             new_line = self.write_for_stmt(stmt)?;
             semi = false;
         }
-        Statement::ForIn(ref stmt) =&gt; {
+        Stmt::ForIn(ref stmt) =&gt; {
             self.at_top_level = false;
             new_line = self.write_for_in_stmt(stmt)?;
             semi = false;
         }
-        Statement::ForOf(ref stmt) =&gt; {
+        Stmt::ForOf(ref stmt) =&gt; {
             self.at_top_level = false;
             new_line = self.write_for_of_stmt(stmt)?;
             semi = false;
         }
-        Statement::Var(ref stmt) =&gt; self.write_var_stmt(stmt)?,
+        Stmt::Var(ref stmt) =&gt; self.write_var_stmt(stmt)?,
     };
     if semi {
         self.write_empty_stmt()?;
@@ -1531,71 +1532,71 @@ pub fn write_stmt(&amp;mut self, stmt: &amp;Statement) -&gt; Res {
     Ok(())
 }
 #}</code></pre></pre>
-<p>That is a pretty big match statement! Before we enter that we have a couple of context flags to help us with formatting <code>write_semi</code> and <code>new_line</code>, both with a default value of <code>true</code>. Looking at our example, we would enter the <code>Statement::Expr</code> arm of the match which handles handles the possible requirement that this statement be wrapped in parentheses. Primitive literals, object literals, functions, and binary operations would require parentheses when not part of a larger statement. There is a convenience method called <code>write_wrapped_expr</code> that just writes parentheses around a call to <code>write_expr</code>.</p>
+<p>That is a pretty big match statement! Before we enter that we have a couple of context flags to help us with formatting <code>write_semi</code> and <code>new_line</code>, both with a default value of <code>true</code>. Looking at our example, we would enter the <code>Stmt::Expr</code> arm of the match which handles handles the possible requirement that this statement be wrapped in parentheses. Primitive literals, object literals, functions, and binary operations would require parentheses when not part of a larger statement. There is a convenience method called <code>write_wrapped_expr</code> that just writes parentheses around a call to <code>write_expr</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_expr(&amp;mut self, expr: &amp;Expression) -&gt; Res {
+pub fn write_expr(&amp;mut self, expr: &amp;Expr) -&gt; Res {
     let cached_state = self.at_top_level;
     match expr {
-        Expression::Literal(ref expr) =&gt; self.write_literal(expr)?,
-        Expression::ThisExpression =&gt; self.write_this_expr()?,
-        Expression::SuperExpression =&gt; self.write_super_expr()?,
-        Expression::Array(ref expr) =&gt; self.write_array_expr(expr)?,
-        Expression::Object(ref expr) =&gt; self.write_object_expr(expr)?,
-        Expression::Function(ref expr) =&gt; {
+        Expr::Literal(ref expr) =&gt; self.write_literal(expr)?,
+        Expr::This =&gt; self.write_this_expr()?,
+        Expr::Super =&gt; self.write_super_expr()?,
+        Expr::Array(ref expr) =&gt; self.write_array_expr(expr)?,
+        Expr::Object(ref expr) =&gt; self.write_object_expr(expr)?,
+        Expr::Function(ref expr) =&gt; {
             self.at_top_level = false;
             self.write_function(expr)?;
             self.at_top_level = cached_state;
         }
-        Expression::Unary(ref expr) =&gt; self.write_unary_expr(expr)?,
-        Expression::Update(ref expr) =&gt; self.write_update_expr(expr)?,
-        Expression::Binary(ref expr) =&gt; self.write_binary_expr(expr)?,
-        Expression::Assignment(ref expr) =&gt; {
+        Expr::Unary(ref expr) =&gt; self.write_unary_expr(expr)?,
+        Expr::Update(ref expr) =&gt; self.write_update_expr(expr)?,
+        Expr::Binary(ref expr) =&gt; self.write_binary_expr(expr)?,
+        Expr::Assignment(ref expr) =&gt; {
             self.at_top_level = false;
             self.write_assignment_expr(expr)?
         },
-        Expression::Logical(ref expr) =&gt; self.write_logical_expr(expr)?,
-        Expression::Member(ref expr) =&gt; self.write_member_expr(expr)?,
-        Expression::Conditional(ref expr) =&gt; self.write_conditional_expr(expr)?,
-        Expression::Call(ref expr) =&gt; self.write_call_expr(expr)?,
-        Expression::New(ref expr) =&gt; self.write_new_expr(expr)?,
-        Expression::Sequence(ref expr) =&gt; self.write_sequence_expr(expr)?,
-        Expression::Spread(ref expr) =&gt; self.write_spread_expr(expr)?,
-        Expression::ArrowFunction(ref expr) =&gt; {
+        Expr::Logical(ref expr) =&gt; self.write_logical_expr(expr)?,
+        Expr::Member(ref expr) =&gt; self.write_member_expr(expr)?,
+        Expr::Conditional(ref expr) =&gt; self.write_conditional_expr(expr)?,
+        Expr::Call(ref expr) =&gt; self.write_call_expr(expr)?,
+        Expr::New(ref expr) =&gt; self.write_new_expr(expr)?,
+        Expr::Sequence(ref expr) =&gt; self.write_sequence_expr(expr)?,
+        Expr::Spread(ref expr) =&gt; self.write_spread_expr(expr)?,
+        Expr::ArrowFunction(ref expr) =&gt; {
             self.at_top_level = false;
             self.write_arrow_function_expr(expr)?;
             self.at_top_level = cached_state;
         }
-        Expression::Yield(ref expr) =&gt; self.write_yield_expr(expr)?,
-        Expression::Class(ref expr) =&gt; {
+        Expr::Yield(ref expr) =&gt; self.write_yield_expr(expr)?,
+        Expr::Class(ref expr) =&gt; {
             self.at_top_level = false;
             self.write_class(expr)?;
             self.at_top_level = cached_state;
         }
-        Expression::MetaProperty(ref expr) =&gt; self.write_meta_property(expr)?,
-        Expression::Await(ref expr) =&gt; self.write_await_expr(expr)?,
-        Expression::Ident(ref expr) =&gt; self.write_ident(expr)?,
-        Expression::TaggedTemplate(ref expr) =&gt; self.write_tagged_template(expr)?,
+        Expr::MetaProperty(ref expr) =&gt; self.write_meta_property(expr)?,
+        Expr::Await(ref expr) =&gt; self.write_await_expr(expr)?,
+        Expr::Ident(ref expr) =&gt; self.write_ident(expr)?,
+        Expr::TaggedTemplate(ref expr) =&gt; self.write_tagged_template(expr)?,
         _ =&gt; unreachable!(),
     }
     Ok(())
 }
 #}</code></pre></pre>
-<p>The first step here is to keep a copy of the previous <code>at_top_level</code> flag so that we can revert back to it after writing, some of the arms are going to change it. Next we enter another very large match statement. Our example would take the <code>Expression::Assignment</code> arm, passing further work off to <code>write_assignment_expr</code>.</p>
+<p>The first step here is to keep a copy of the previous <code>at_top_level</code> flag so that we can revert back to it after writing, some of the arms are going to change it. Next we enter another very large match statement. Our example would take the <code>Expr::Assignment</code> arm, passing further work off to <code>write_assignment_expr</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_assignment_expr(&amp;mut self, assignment: &amp;AssignmentExpression) -&gt; Res {
+pub fn write_assignment_expr(&amp;mut self, assignment: &amp;AssignmentExpr) -&gt; Res {
     let wrap_self = match &amp;assignment.left {
         AssignmentLeft::Expr(ref e) =&gt; match &amp;**e {
-            Expression::Object(_) 
-            | Expression::Array(_) =&gt; true,
+            Expr::Object(_) 
+            | Expr::Array(_) =&gt; true,
             _ =&gt; false,
         }, 
-        AssignmentLeft::Pattern(ref p) =&gt; match p {
-            Pattern::Array(_) =&gt; true,
-            Pattern::Object(_) =&gt; true,
+        AssignmentLeft::Pat(ref p) =&gt; match p {
+            Pat::Array(_) =&gt; true,
+            Pat::Object(_) =&gt; true,
             _ =&gt; false,
         }
     };
@@ -1604,7 +1605,7 @@ pub fn write_assignment_expr(&amp;mut self, assignment: &amp;AssignmentExpressio
     }
     match &amp;assignment.left {
         AssignmentLeft::Expr(ref e) =&gt; self.write_expr(e)?,
-        AssignmentLeft::Pattern(ref p) =&gt; self.write_pattern(p)?,
+        AssignmentLeft::Pat(ref p) =&gt; self.write_pattern(p)?,
     }
     self.write(&quot; &quot;)?;
     self.write_assignment_operator(&amp;assignment.operator)?;
@@ -1616,22 +1617,22 @@ pub fn write_assignment_expr(&amp;mut self, assignment: &amp;AssignmentExpressio
     Ok(())
 }
 #}</code></pre></pre>
-<p>Here we are first we need to determine if the whole assignment expression needs to be wrapped in parentheses which would only be true if the left hand side was an object or array literal. Next we test the <code>assignment.left</code> property since it can be either an <code>Expression</code> or a <code>Pattern</code>, our example would take us back to the <code>write_expr</code> method. This would take us back up through <code>write_expr</code> but this time we would pass into the <code>Expression::Member</code> arm which passes its work off to <code>write_member_expr</code>.</p>
+<p>Here we are first we need to determine if the whole assignment expression needs to be wrapped in parentheses which would only be true if the left hand side was an object or array literal. Next we test the <code>assignment.left</code> property since it can be either an <code>Expr</code> or a <code>Pat</code>, our example would take us back to the <code>write_expr</code> method. This would take us back up through <code>write_expr</code> but this time we would pass into the <code>Expr::Member</code> arm which passes its work off to <code>write_member_expr</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_member_expr(&amp;mut self, member: &amp;MemberExpression) -&gt; Res {
+pub fn write_member_expr(&amp;mut self, member: &amp;MemberExpr) -&gt; Res {
     match &amp;*member.object {
-        Expression::Assignment(_) 
-        | Expression::Literal(Literal::Number(_))
-        | Expression::Conditional(_)
-        | Expression::Logical(_) 
-        | Expression::Function(_)
-        | Expression::ArrowFunction(_)
-        | Expression::Object(_)
-        | Expression::Binary(_) 
-        | Expression::Unary(_)
-        | Expression::Update(_) =&gt; self.write_wrapped_expr(&amp;member.object)?,
+        Expr::Assignment(_) 
+        | Expr::Literal(Literal::Number(_))
+        | Expr::Conditional(_)
+        | Expr::Logical(_) 
+        | Expr::Function(_)
+        | Expr::ArrowFunction(_)
+        | Expr::Object(_)
+        | Expr::Binary(_) 
+        | Expr::Unary(_)
+        | Expr::Update(_) =&gt; self.write_wrapped_expr(&amp;member.object)?,
         _ =&gt; self.write_expr(&amp;member.object)?,
     }
     if member.computed {
@@ -1646,7 +1647,7 @@ pub fn write_member_expr(&amp;mut self, member: &amp;MemberExpression) -&gt; Res
     Ok(())
 }
 #}</code></pre></pre>
-<p>Here we first check to see if the <code>object</code> property is required to be wrapped in parentheses for us though we just want to pass that along to <code>write_expr</code>. This time though there we are going to end up at <code>Expression::ThisExpression</code> which just writes out the literal word <code>this</code>. Next we are going to look at the flag on <code>MemberExpression</code> &quot;computed&quot; to see if this was written originally with the bracket notation (<code>this['stuff']</code>) or the dot notation (<code>this.stuff</code>), writing the appropriate character. Now we are again going to pass some work back to <code>write_expr</code>, this time with the <code>property</code> property. This would end on the branch for <code>Expression::Ident</code> which just writes that value to the destination. If the member expression was computed we would need to write the <code>]</code> but for our example it is not.</p>
+<p>Here we first check to see if the <code>object</code> property is required to be wrapped in parentheses for us though we just want to pass that along to <code>write_expr</code>. This time though there we are going to end up at <code>Expr::ThisExpr</code> which just writes out the literal word <code>this</code>. Next we are going to look at the flag on <code>MemberExpr</code> &quot;computed&quot; to see if this was written originally with the bracket notation (<code>this['stuff']</code>) or the dot notation (<code>this.stuff</code>), writing the appropriate character. Now we are again going to pass some work back to <code>write_expr</code>, this time with the <code>property</code> property. This would end on the branch for <code>Expr::Ident</code> which just writes that value to the destination. If the member expression was computed we would need to write the <code>]</code> but for our example it is not.</p>
 <p>At this point we are back up at <code>write_assignment_expr</code> where we are going to write a single space and then pass the <code>assignment.operator</code> off to <code>write_assignment_operator</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -1671,7 +1672,7 @@ pub fn write_assignment_operator(&amp;mut self, op: &amp;AssignmentOperator) -&g
     Ok(())
 }
 #}</code></pre></pre>
-<p>This is a relatively straight forward process of looking at which operator was provided and then writing out the text that represents that operator. For our example it would be <code>=</code>, we then need to write a single space. The last step in <code>write_assignment_expr</code> is to handle the <code>assignment.right</code> which is also an <code>Expression</code> so we pass that off to <code>write_expr</code>. Our example will head to the <code>Expression::Ident</code> match arm and then just write to the destination. With that we have now reached the last step in <code>write_function_body</code> which is to <code>write_close_brace</code> similar to <code>write_open_brace</code> here we are decrementing the <code>current_indent</code> context property. That also brings us to the end of <code>write_function</code>, <code>write_decl</code>, and <code>_write_part</code>. The last thing we do in <code>write_part</code> is to add a trailing new line, another style choice.</p>
+<p>This is a relatively straight forward process of looking at which operator was provided and then writing out the text that represents that operator. For our example it would be <code>=</code>, we then need to write a single space. The last step in <code>write_assignment_expr</code> is to handle the <code>assignment.right</code> which is also an <code>Expr</code> so we pass that off to <code>write_expr</code>. Our example will head to the <code>Expr::Ident</code> match arm and then just write to the destination. With that we have now reached the last step in <code>write_function_body</code> which is to <code>write_close_brace</code> similar to <code>write_open_brace</code> here we are decrementing the <code>current_indent</code> context property. That also brings us to the end of <code>write_function</code>, <code>write_decl</code>, and <code>_write_part</code>. The last thing we do in <code>write_part</code> is to add a trailing new line, another style choice.</p>
 <p>As our example continues we would then start again at <code>write_part</code> with the next part. This is going to move though <code>_write_part</code> the same as before, however when we get to <code>write_decl</code> we have a new branch to head down. This is the <code>Decl::Variable</code> arm which passes its work off to <code>write_variable_decls</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -1718,26 +1719,26 @@ pub fn write_variable_decl(&amp;mut self, decl: &amp;VariableDecl) -&gt; Res {
     Ok(())
 }
 #}</code></pre></pre>
-<p>Here we first write out the id of this variable by passing it off to <code>write_pattern</code>. Thankfully our example is pretty simple so we are again going to take that first branch for <code>Pattern::Ident</code> and write the identifer to our destination. After that we want to check if this variable is initialized, ours is, and if so we would write the &quot; = &quot; and then write the expression by passing that off to <code>write_expr</code>. For this pass through <code>write_expr</code> we are going to travel down the <code>Expression::New</code> arm which passes its work off to <code>write_new_expr</code>.</p>
+<p>Here we first write out the id of this variable by passing it off to <code>write_pattern</code>. Thankfully our example is pretty simple so we are again going to take that first branch for <code>Pat::Ident</code> and write the identifer to our destination. After that we want to check if this variable is initialized, ours is, and if so we would write the &quot; = &quot; and then write the expression by passing that off to <code>write_expr</code>. For this pass through <code>write_expr</code> we are going to travel down the <code>Expr::New</code> arm which passes its work off to <code>write_new_expr</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_new_expr(&amp;mut self, new: &amp;NewExpression) -&gt; Res {
+pub fn write_new_expr(&amp;mut self, new: &amp;NewExpr) -&gt; Res {
     self.write(&quot;new &quot;)?;
     match &amp;*new.callee {
-        Expression::Assignment(_) 
-        | Expression::Call(_) =&gt; self.write_wrapped_expr(&amp;new.callee)?,
+        Expr::Assignment(_) 
+        | Expr::Call(_) =&gt; self.write_wrapped_expr(&amp;new.callee)?,
         _ =&gt; self.write_expr(&amp;new.callee)?,
     }
     self.write_sequence_expr(&amp;new.arguments)?;
     Ok(())
 }
 #}</code></pre></pre>
-<p>At this point we want to first write the <code>new</code> keyword followed by a space. Next we want to write out what the <code>new.callee</code> is which would again bring us to <code>write_expr</code>. Our example would travel to the <code>Expression::Ident</code> arm which just writes that out. Next we need to write an open parenthesis followed by the provided arguments. This time we are going to use the <code>write_sequence_expr</code> method to do that.</p>
+<p>At this point we want to first write the <code>new</code> keyword followed by a space. Next we want to write out what the <code>new.callee</code> is which would again bring us to <code>write_expr</code>. Our example would travel to the <code>Expr::Ident</code> arm which just writes that out. Next we need to write an open parenthesis followed by the provided arguments. This time we are going to use the <code>write_sequence_expr</code> method to do that.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-pub fn write_sequence_expr(&amp;mut self, sequence: &amp;[Expression]) -&gt; Res {
+pub fn write_sequence_expr(&amp;mut self, sequence: &amp;[Expr]) -&gt; Res {
     let mut after_first = false;
     self.write(&quot;(&quot;)?;
     for ref e in sequence {
@@ -1751,7 +1752,7 @@ pub fn write_sequence_expr(&amp;mut self, sequence: &amp;[Expression]) -&gt; Res
     Ok(())
 }
 #}</code></pre></pre>
-<p>At this point the structure of this function's body should look familiar, we are going to loop over the provide expressions and write them out with a comma and space before all but the first one. For our example we are going only hit this once so no comma, then we are going to pass that off to <code>write_expr</code>. This time as we pass through the match in <code>write_expr</code> we are going to hit the <code>Expression::Literal</code> arm which passes its work off to <code>write_literal</code>.</p>
+<p>At this point the structure of this function's body should look familiar, we are going to loop over the provide expressions and write them out with a comma and space before all but the first one. For our example we are going only hit this once so no comma, then we are going to pass that off to <code>write_expr</code>. This time as we pass through the match in <code>write_expr</code> we are going to hit the <code>Expr::Literal</code> arm which passes its work off to <code>write_literal</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -1795,7 +1796,8 @@ pub fn write_string(&amp;mut self, s: &amp;str) -&gt; Res {
 <a class="header" href="#building-a-writer" id="building-a-writer"><h1>Building a Writer</h1></a>
 <!--web-only-->
 <p>Thankfully because of the existence of <code>resw</code> completing the <code>console.log</code> debugging tool is going to be trivial. The primary entry point for <code>resw</code> is the <code>Writer</code> struct, which has a method <code>write_part</code> that will take a <code>&amp;mut self</code> and <code>&amp;ProgramPart</code>, so we can use that in our for loop to write out the parts as they are parsed. That might look like this.</p>
-<pre><pre class="playpen"><code class="language-rust">use resw::Writer;
+<pre><pre class="playpen"><code class="language-rust">use resast::prelude::*;
+
 fn main() {
     let js = get_js().expect(&quot;Unable to get JavaScript&quot;);
     let parser = Parser::new(&amp;js).expect(&quot;Unable to construct parser&quot;);
@@ -1803,7 +1805,6 @@ fn main() {
     for part in parser.filter_map(|p| p.ok()).map(map_part) {
         writer.write_part(&amp;part).expect(&quot;Failed to write part&quot;);
     }
-}
 </code></pre></pre>
 <p>With that complete we can see how well it works for us. Let's use the following example JavaScript.</p>
 <pre><code class="language-js">function Thing(stuff) {
@@ -1847,12 +1848,15 @@ Thing argument
 <li><a href="https://github.com/FreeMasen/RESS/issues"><code>ress</code> issues</a></li>
 <li><a href="https://github.com/FreeMasen/RESSA/issues"><code>ressa</code> issues</a></li>
 <li><a href="https://github.com/FreeMasen/RESW/issues"><code>resw</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/resast/issues"><code>resast</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/rusty-ecma-book"><code>book</code> issues</a></li>
 </ul>
 <p>If you want to get involved, there are probably a few open issues that could use some help. Each project does provide contributing guidelines.</p>
 <ul>
 <li><a href="https://github.com/FreeMasen/RESSA/blob/master/CONTRIBUTING.md"><code>ress</code> contributions</a></li>
 <li><a href="https://github.com/FreeMasen/RESSA/blob/master/CONTRIBUTING.md"><code>ressa</code> contributions</a></li>
 <li><a href="https://github.com/FreeMasen/RESW#contributing"><code>resw</code> contributions</a></li>
+<li><a href="https://github.com/Freemasen/resast#contributing"><code>resast</code> contributions</a></li>
 </ul>
 <!--web-only-end-->
 <!--slides-only-->
@@ -2144,7 +2148,7 @@ strings = [
 </style>
 <a class="header" href="#ast" id="ast"><h1>AST</h1></a>
 <p>While it may be a bit of a cop-out, it seems silly to duplicate the AST docs provided by cargo-doc. In the future this page may include some more introspective information but for now please refer to the link below.</p>
-<p><a href="https://docs.rs/ressa/"><code>ressa</code> docs</a></p>
+<p><a href="https://docs.rs/resast/"><code>resast</code> docs</a></p>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
 </style>
 <a class="header" href="#stringwriter" id="stringwriter"><h1>StringWriter</h1></a>
@@ -2171,6 +2175,76 @@ fn test_round_trip() {
 <tr><td> console_logger </td><td> A utility that will insert <code>console.log</code> to the top of all of your function bodies                </td><td> <a href="https://github.com/freemasen/rusty-ecma-book">repo</a> </td></tr>
 <tr><td> lint-ie8       </td><td> A utility that will check for any javascript that would fail when executed by Internet Explorer 8 </td><td> <a href="https://github.com/freemasen/rusty-ecma-book">repo</a> </td></tr>
 </tbody></table>
+<script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script><style>.presentation-only.not-presenting{display:none}.article-content.presenting{display:none}
+</style>
+<a class="header" href="#ress-scanners" id="ress-scanners"><h1><code>RESS</code> Scanners</h1></a>
+<p>In the initial implementation of the <code>ress</code> scanner, it was more important to get something working correctly than to have something blazing fast. To that end, the original <code>Scanner</code> performs a significant amount of memory allocation, which slows everything down quite a bit. To improve upon that <code>ress</code> offers a section option the <code>RefScanner</code>, which is a bit unfortunately named as it doesn't actually use any references. The <code>RefScanner</code> provides almost the same information as the <code>Scanner</code> but it does so without making any copies from the original javascript string, it the has the option to request the <code>String</code> for any <code>Item</code> giving the control to the user. Here is an example of the two approaches.</p>
+<a class="header" href="#example-js" id="example-js"><h2>Example JS</h2></a>
+<pre><code class="language-js">function things() {
+    return [1,2,3,4];
+}
+</code></pre>
+<a class="header" href="#example-rust" id="example-rust"><h2>Example Rust</h2></a>
+<pre><pre class="playpen"><code class="language-rust">use ress::{
+    Scanner,
+    refs::RefScanner,
+};
+fn main() {
+    let js = include_str!(&quot;../example.js&quot;);
+    let scanner = Scanner::new(js);
+    let ref_scanner = RefScanner::new(js);
+    for (i, (item, ref_item) )in scanner.zip(ref_scanner).enumerate() {
+        let prefix = if i &lt; 10 {
+            format!(&quot; {}&quot;, i)
+        } else {
+            format!(&quot;{}&quot;, i)
+        };
+        println!(&quot;{} token: {:?}&quot;, prefix, item.token);
+        println!(&quot;     ref: {:?}&quot;, ref_item.token);
+    }
+}
+
+</code></pre></pre>
+<a class="header" href="#output" id="output"><h2>Output</h2></a>
+<pre><code> 0 token: Keyword(Function)
+     ref: Keyword(Function)
+ 1 token: Ident(Ident(&quot;things&quot;))
+     ref: Ident
+ 2 token: Punct(OpenParen)
+     ref: Punct(OpenParen)
+ 3 token: Punct(CloseParen)
+     ref: Punct(CloseParen)
+ 4 token: Punct(OpenBrace)
+     ref: Punct(OpenBrace)
+ 5 token: Keyword(Return)
+     ref: Keyword(Return)
+ 6 token: Punct(OpenBracket)
+     ref: Punct(OpenBracket)
+ 7 token: Numeric(Number(&quot;1&quot;))
+     ref: Numeric(Dec)
+ 8 token: Punct(Comma)
+     ref: Punct(Comma)
+ 9 token: Numeric(Number(&quot;2&quot;))
+     ref: Numeric(Dec)
+10 token: Punct(Comma)
+     ref: Punct(Comma)
+11 token: Numeric(Number(&quot;3&quot;))
+     ref: Numeric(Dec)
+12 token: Punct(Comma)
+     ref: Punct(Comma)
+13 token: Numeric(Number(&quot;4&quot;))
+     ref: Numeric(Dec)
+14 token: Punct(CloseBracket)
+     ref: Punct(CloseBracket)
+15 token: Punct(SemiColon)
+     ref: Punct(SemiColon)
+16 token: Punct(CloseBrace)
+     ref: Punct(CloseBrace)
+17 token: EoF
+     ref: EoF
+
+</code></pre>
+<p>Let's look at token 7, the original token is <code>Token::Numeric(Number(String::From(&quot;1&quot;)))</code> while the ref token is <code>Token::Numeric(Number::Dec)</code>, both give similar information but the ref token doesn't allocate a new string for the text being represented, instead just informing the user that it is a decimal number. If you wanted to know what that string was, you could use the <code>RefScanner::string_for</code> method by passing it <code>RefItem.span</code>, this will return an <code>Option&lt;String&gt;</code> and so long as your span doesn't overflow the length of the js provided, it will have the value you are looking for.</p>
 <script>var PresentationMode;!function(e){e[e.Slides=0]="Slides",e[e.Web=1]="Web"}(PresentationMode||(PresentationMode={}));var PresentationModeHider=function(){function e(){var t=this;(this.queryKey="presentation_mode",this.webClass="article-content",this.preClass="presentation-only",this.mode=this.getMode(),this.setMode(),this.assignClassesViaComments(),this.mode!==PresentationMode.Slides||""!==location.pathname&&"/"!==location.pathname)||document.querySelector(".sidebar > .chapter").firstChild.firstChild.click();window.addEventListener("keyup",function(e){e.altKey&&("p"!=e.key&&"P"!=e.key&&"KeyP"!=e.code||t.toggle())})}return e.prototype.assignClassesViaComments=function(){for(var e,t=document.createNodeIterator(document.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT,null),n=this.mode===PresentationMode.Web?"not-presenting":"presenting",o=null;e=t.nextNode();)if(8===e.nodeType){var s=e.nodeValue.trim();o="web-only"===s?this.webClass:"slides-only"===s?this.preClass:null}else 1===e.nodeType&&null!==o&&e.classList.add(o,n)},e.prototype.getMode=function(){var t=localStorage.getItem(this.queryKey);if(null===t)return PresentationMode.Web;try{var e=parseInt(t);return 1<e||e<0?(console.error("presentation_mode was out of range",e),PresentationMode.Web):e}catch(e){return console.error("presentation_mode present in localStorage but value is not an integer",t,e),PresentationMode.Web}},e.prototype.setMode=function(){localStorage.setItem(this.queryKey,this.mode.toString())},e.prototype.updatePage=function(){this.updateElements(document.querySelectorAll(".presentation-only")),this.updateElements(document.querySelectorAll(".article-content"))},e.prototype.updateElements=function(e){for(var t=0;t<e.length;t++){var n=e[t];this.mode===PresentationMode.Slides?n.classList.replace("not-presenting","presenting"):n.classList.replace("presenting","not-presenting")}},e.prototype.toggle=function(){switch(this.mode){case PresentationMode.Slides:this.mode=PresentationMode.Web;break;case PresentationMode.Web:this.mode=PresentationMode.Slides}this.setMode(),this.updatePage()},e}(),___presentationModeHider=new PresentationModeHider;</script>
                     </main>
 

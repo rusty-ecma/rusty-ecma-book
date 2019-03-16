@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="../01.overview/1.html">An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">1.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">1.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">2.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">2.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">3.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html" class="active"><strong aria-hidden="true">3.1.</strong> Finishing a Debug Helper</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">4.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="../a.appendix/ie-8-banned.html"><strong aria-hidden="true">5.2.</strong> Banned Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">5.3.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">5.4.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">5.5.</strong> Projects</a></li></ol></li></ol>
+            <ol class="chapter"><li class="affix"><a href="../01.overview/1.html">An Overview</a></li><li><a href="../02.ress/1.html"><strong aria-hidden="true">1.</strong> RESS</a></li><li><ol class="section"><li><a href="../02.ress/2.html"><strong aria-hidden="true">1.1.</strong> Building a Linter</a></li></ol></li><li><a href="../03.ressa/1.html"><strong aria-hidden="true">2.</strong> RESSA</a></li><li><ol class="section"><li><a href="../03.ressa/2.html"><strong aria-hidden="true">2.1.</strong> Building a Debug Helper</a></li></ol></li><li><a href="../04.resw/1.html"><strong aria-hidden="true">3.</strong> RESW</a></li><li><ol class="section"><li><a href="../04.resw/2.html" class="active"><strong aria-hidden="true">3.1.</strong> Finishing a Debug Helper</a></li></ol></li><li><a href="../05.conclusion/1.html"><strong aria-hidden="true">4.</strong> Conclusion</a></li><li><a href="../a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li><a href="../a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li><a href="../a.appendix/ie-8-banned.html"><strong aria-hidden="true">5.2.</strong> Banned Tokens</a></li><li><a href="../a.appendix/ast.html"><strong aria-hidden="true">5.3.</strong> AST</a></li><li><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">5.4.</strong> StringWriter</a></li><li><a href="../a.appendix/projects.html"><strong aria-hidden="true">5.5.</strong> Projects</a></li><li><a href="../a.appendix/scanners.html"><strong aria-hidden="true">5.6.</strong> Ress Scanners</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -145,7 +145,8 @@
 <a class="header" href="#building-a-writer" id="building-a-writer"><h1>Building a Writer</h1></a>
 <!--web-only-->
 <p>Thankfully because of the existence of <code>resw</code> completing the <code>console.log</code> debugging tool is going to be trivial. The primary entry point for <code>resw</code> is the <code>Writer</code> struct, which has a method <code>write_part</code> that will take a <code>&amp;mut self</code> and <code>&amp;ProgramPart</code>, so we can use that in our for loop to write out the parts as they are parsed. That might look like this.</p>
-<pre><pre class="playpen"><code class="language-rust">use resw::Writer;
+<pre><pre class="playpen"><code class="language-rust">use resast::prelude::*;
+
 fn main() {
     let js = get_js().expect(&quot;Unable to get JavaScript&quot;);
     let parser = Parser::new(&amp;js).expect(&quot;Unable to construct parser&quot;);
@@ -153,7 +154,6 @@ fn main() {
     for part in parser.filter_map(|p| p.ok()).map(map_part) {
         writer.write_part(&amp;part).expect(&quot;Failed to write part&quot;);
     }
-}
 </code></pre></pre>
 <p>With that complete we can see how well it works for us. Let's use the following example JavaScript.</p>
 <pre><code class="language-js">function Thing(stuff) {

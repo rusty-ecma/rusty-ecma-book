@@ -5,8 +5,8 @@ authors = ["Robert Masen <r@robertmasen.pizza>"]
 edition = "2018"
 
 [dependencies]
-ress = "0.5"
+ress = "0.6"
 serde = "1"
 serde_derive = "1"
-toml = "0.4"
+toml = "0.5"
 atty = "0.2"

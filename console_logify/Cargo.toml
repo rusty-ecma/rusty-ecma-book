@@ -5,6 +5,7 @@ authors = ["Robert Masen <r@robertmasen.pizza>"]
 edition = "2018"
 
 [dependencies]
-ressa = "0.2"
+ressa = "0.5"
 atty = "0.2"
-resw = "0.1"
+resw = "0.2"
+resast = "0.2"
