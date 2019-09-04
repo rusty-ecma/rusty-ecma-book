@@ -5,7 +5,7 @@ authors = ["Robert Masen <r@robertmasen.pizza>"]
 edition = "2018"
 
 [dependencies]
-ressa = "0.5"
+ressa = "0.7.0-beta-7"
 atty = "0.2"
-resw = "0.2"
-resast = "0.2"
+resw = "0.4.0-beta-1"
+resast = "0.4"
