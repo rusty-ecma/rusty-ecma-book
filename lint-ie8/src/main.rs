@@ -1,9 +1,6 @@
 #[macro_use]
 extern crate serde_derive;
-use ress::{
-    Scanner,
-    Token,
-};
+use ress::prelude::*;
 use toml::from_str;
 use std::{
     env::args,
@@ -61,13 +58,13 @@ fn get_js() -> Result<String, ::std::io::Error> {
     Ok(js)
 }
 
-struct BannedFinder {
-    scanner: Scanner,
+struct BannedFinder<'a> {
+    scanner: Scanner<'a>,
     banned: BannedTokens,
 }
 
-impl BannedFinder {
-    pub fn new(js: &str, banned: BannedTokens) -> Self {
+impl<'a> BannedFinder<'a> {
+    pub fn new(js: &'a str, banned: BannedTokens) -> Self {
         Self {
             scanner: Scanner::new(js),
             banned,
@@ -75,46 +72,54 @@ impl BannedFinder {
     }
 }
 
-impl Iterator for BannedFinder {
+impl<'a> Iterator for BannedFinder<'a> {
     type Item = Result<(), BannedError>;
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(item) = self.scanner.next() {
-            Some(match &item.token {
-                Token::Ident(ref id) => {
-                    let id = id.to_string();
-                    if self.banned.idents.contains(&id) {
-                        let (row, column) = self.get_position(item.span.start);
-                        Err(BannedError(format!("identifier {}", id), row, column))
-                    } else {
-                        Ok(())
-                    }
+            match item {
+                Ok(item) => {
+                    Some(match &item.token {
+                        Token::Ident(ref id) => {
+                            let id = id.to_string();
+                            if self.banned.idents.contains(&id) {
+                                Err(BannedError(format!("identifier {}", id), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::Keyword(ref key) => {
+                            if self.banned.keywords.contains(&key.to_string()) {
+                                Err(BannedError(format!("keyword {}", key.to_string()), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::Punct(ref punct) => {
+                            if self.banned.puncts.contains(&punct.to_string()) {
+                                Err(BannedError(format!("punct {}", punct.to_string()), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::String(ref lit) => {
+                            match lit {
+                                StringLit::Double(inner)
+                                | StringLit::Single(inner) => {
+                                    if self.banned.strings.contains(&inner.to_string()) {
+                                        Err(BannedError(format!("string {}", lit.to_string()), item.location.start.line, item.location.start.column))
+                                    } else {
+                                        Ok(())
+                                    }
+                                }
+                            }
+                        },
+                        _ => Ok(()),
+                    })
                 },
-                Token::Keyword(ref key) => {
-                    if self.banned.keywords.contains(&key.to_string()) {
-                        let (row, column) = self.get_position(item.span.start);
-                        Err(BannedError(format!("keyword {}", key.to_string()), row, column))
-                    } else {
-                        Ok(())
-                    }
-                },
-                Token::Punct(ref punct) => {
-                    if self.banned.puncts.contains(&punct.to_string()) {
-                        let (row, column) = self.get_position(item.span.start);
-                        Err(BannedError(format!("punct {}", punct.to_string()), row, column))
-                    } else {
-                        Ok(())
-                    }
-                },
-                Token::String(ref lit) => {
-                    if self.banned.strings.contains(&lit.no_quote()) {
-                        let (row, column) = self.get_position(item.span.start);
-                        Err(BannedError(format!("string {}", lit.to_string()), row, column))
-                    } else {
-                        Ok(())
-                    }
-                },
-                _ => Ok(()),
-            })
+                Err(_) => {
+                    None
+                }
+            }
         } else {
             None
         }
@@ -137,28 +142,4 @@ impl ::std::fmt::Display for BannedError {
 fn print_usage() {
     println!("banned_tokens <infile>
 cat <path/to/file> | banned_tokens");
-}
-
-impl BannedFinder {
-    fn get_position(&self, idx: usize) -> (usize, usize) {
-        let (row, line_start) = self.scanner.stream[..idx]
-            .char_indices()
-            .fold((1, 0), |(row, line_start), (i, c)| if is_js_new_line(c) {
-                (row + 1, i)
-            } else {
-                (row, line_start)
-            });
-        let col = if line_start == 0 {
-            idx
-        } else {
-            idx.saturating_sub(line_start)
-        };
-        (row, col)
-    }
-}
-
-fn is_js_new_line(c: char) -> bool {
-    c == '\n'
-    || c == '\u{2028}'
-    || c == '\u{2029}'
 }

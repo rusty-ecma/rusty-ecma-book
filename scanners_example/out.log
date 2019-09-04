@@ -1,36 +1,59 @@
- 0 token: Keyword(Function)
-     ref: Keyword(Function)
- 1 token: Ident(Ident("things"))
-     ref: Ident
- 2 token: Punct(OpenParen)
-     ref: Punct(OpenParen)
- 3 token: Punct(CloseParen)
-     ref: Punct(CloseParen)
- 4 token: Punct(OpenBrace)
-     ref: Punct(OpenBrace)
- 5 token: Keyword(Return)
-     ref: Keyword(Return)
- 6 token: Punct(OpenBracket)
-     ref: Punct(OpenBracket)
- 7 token: Numeric(Number("1"))
-     ref: Numeric(Dec)
- 8 token: Punct(Comma)
-     ref: Punct(Comma)
- 9 token: Numeric(Number("2"))
-     ref: Numeric(Dec)
-10 token: Punct(Comma)
-     ref: Punct(Comma)
-11 token: Numeric(Number("3"))
-     ref: Numeric(Dec)
-12 token: Punct(Comma)
-     ref: Punct(Comma)
-13 token: Numeric(Number("4"))
-     ref: Numeric(Dec)
-14 token: Punct(CloseBracket)
-     ref: Punct(CloseBracket)
-15 token: Punct(SemiColon)
-     ref: Punct(SemiColon)
-16 token: Punct(CloseBrace)
-     ref: Punct(CloseBrace)
-17 token: EoF
-     ref: EoF
+
+running 1 test
+Decl(
+    Func(
+        Func {
+            id: Some(
+                Ident {
+                    name: "Thing",
+                },
+            ),
+            params: [
+                Pat(
+                    Ident(
+                        Ident {
+                            name: "stuff",
+                        },
+                    ),
+                ),
+            ],
+            body: FuncBody(
+                [
+                    Stmt(
+                        Expr(
+                            Assign(
+                                AssignExpr {
+                                    operator: Equal,
+                                    left: Expr(
+                                        Member(
+                                            MemberExpr {
+                                                object: This,
+                                                property: Ident(
+                                                    Ident {
+                                                        name: "stuff",
+                                                    },
+                                                ),
+                                                computed: false,
+                                            },
+                                        ),
+                                    ),
+                                    right: Ident(
+                                        Ident {
+                                            name: "stuff",
+                                        },
+                                    ),
+                                },
+                            ),
+                        ),
+                    ),
+                ],
+            ),
+            generator: false,
+            is_async: false,
+        },
+    ),
+)
+test test::ressa_ex1 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out
+
