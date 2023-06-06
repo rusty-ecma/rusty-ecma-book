@@ -1,0 +1,679 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Building a Debug Helper - Build JavaScript Development Tools with Rust</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../01.overview/1.html">An Overview</a></li><li class="chapter-item expanded "><a href="../02.ress/1.html"><strong aria-hidden="true">1.</strong> RESS</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02.ress/2.html"><strong aria-hidden="true">1.1.</strong> Building a Linter</a></li></ol></li><li class="chapter-item expanded "><a href="../03.ressa/1.html"><strong aria-hidden="true">2.</strong> RESSA</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../03.ressa/2.html" class="active"><strong aria-hidden="true">2.1.</strong> Building a Debug Helper</a></li></ol></li><li class="chapter-item expanded "><a href="../04.resw/1.html"><strong aria-hidden="true">3.</strong> RESW</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04.resw/2.html"><strong aria-hidden="true">3.1.</strong> Finishing a Debug Helper</a></li></ol></li><li class="chapter-item expanded "><a href="../05.conclusion/1.html"><strong aria-hidden="true">4.</strong> Conclusion</a></li><li class="chapter-item expanded "><a href="../a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li class="chapter-item expanded "><a href="../a.appendix/ie-8-banned.html"><strong aria-hidden="true">5.2.</strong> Banned Tokens</a></li><li class="chapter-item expanded "><a href="../a.appendix/ast.html"><strong aria-hidden="true">5.3.</strong> AST</a></li><li class="chapter-item expanded "><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">5.4.</strong> StringWriter</a></li><li class="chapter-item expanded "><a href="../a.appendix/projects.html"><strong aria-hidden="true">5.5.</strong> Projects</a></li><li class="chapter-item expanded "><a href="../a.appendix/scanners.html"><strong aria-hidden="true">5.6.</strong> Ress Scanners</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Build JavaScript Development Tools with Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="building-a-debug-helper"><a class="header" href="#building-a-debug-helper">Building a Debug Helper</a></h1>
+<p>$slides-only$</p>
+<h2 id="demo"><a class="header" href="#demo">Demo</a></h2>
+<p>$slides-only-end$
+$web-only$
+To simplify things, we are just going to lift the technique for getting the JavaScript text from the <a href="../02.ress/2.html">ress example</a>, so we won't be covering that again.</p>
+<p>With that out of the way let's take a look at the <code>Cargo.toml</code> and <code>use</code> statements for our program.</p>
+<pre><code class="language-toml">[package]
+name = &quot;console_logify&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Robert Masen &lt;r@robertmasen.pizza&gt;&quot;]
+edition = &quot;2018&quot;
+
+[dependencies]
+ressa = &quot;0.7.0-beta-7&quot;
+atty = &quot;0.2&quot;
+resw = &quot;0.4.0-beta-1&quot;
+resast = &quot;0.4&quot;
+</code></pre>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use ressa::Parser;
+use resw::Writer;
+use resast::prelude::*;
+<span class="boring">}
+</span></code></pre></pre>
+<p>This will make sure that all of the items we will need from <code>ressa</code> and <code>resast</code> are in scope. Now we can start defining our method for inserting the debug logging into any functions that we find. To start we are going to create a function that will generate a new <code>ProgramPart::Stmt</code> that will represent our call to <code>console.log</code> which might look like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn console_log&lt;'a&gt;(args: Vec&lt;Expr&lt;'a&gt;&gt;) -&gt; ProgramPart&lt;'a&gt; {
+    ProgramPart::Stmt(Stmt::Expr(Expr::Call(
+        CallExpr {
+            callee: Box::new(Expr::Member(
+                MemberExpr {
+                    computed: false,
+                    object: Box::new(Expr::ident_from(&quot;console&quot;)),
+                    property: Box::new(Expr::ident_from(&quot;log&quot;)),
+                }
+            )),
+            arguments: args,
+        }
+    )))
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This signature might look a little intimidating with all the lifetime annotations, the reason they need to be there is that at the heart of every <code>resast</code> node is a <code>Cow</code> (Clone On Write) slice of the originally javascript string. By putting it in a <code>Cow</code> that makes it possible to more easily manipulate the tree without having to pay the cost of allocating a new string for every node at parse time. The lifetime annotations just tell the compiler that our argument and our return value will live the same lifetime, since our arguments are going to be embedded in our return value. We will end up using this pattern quite often in this example, now let's go over what is actually happening here. We will take in the <code>args</code> to supplu the arguments passed into <code>console.log</code> as our only argument. 
+Now we are going to build the tree that represents the javascript, which will look like this:</p>
+<ul>
+<li><code>ProgramPart</code>
+<ul>
+<li><code>Stmt</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>CallExpr</code>
+<ul>
+<li><code>callee</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>MemberExpr</code>
+<ul>
+<li><code>computed</code>: <code>false</code></li>
+<li><code>object</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>Ident</code>
+<ul>
+<li><code>name</code>: <code>&quot;console&quot;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>property</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>Ident</code>
+<ul>
+<li><code>name</code>: <code>&quot;log&quot;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>arguments</code>
+<ul>
+<li><code>Vec&lt;Expr&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>It might be easier to start from the inner most structure, the <code>MemberExpr</code>, this represents the <code>console.log</code> portion of the desired output. First, we want to set the <code>computed</code> property to false, this means we are using a <code>.</code> instead of <code>[]</code>, next we need to define the <code>object</code> which will be the identifier <code>console</code> and the <code>property</code> which will be the identifer <code>log</code>. We nest this inside of a <code>CallExpr</code> as the <code>callee</code>, this represents everything up to the opening parenthesis. The second property <code>arguments</code> will, as the name suggests, represent the the arguments, we'll simply assign that to the <code>args</code> provided by the caller. Moving up the tree we wrap the <code>CallExpr</code> in a <code>Expr</code>, and a <code>Stmt</code> and a <code>ProgramPart</code>.</p>
+<p>Next, let's work on a few more helper functions, first up is one that will insert a <code>ProgramPart</code> to the top of a <code>FuncBody</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn insert_expr_into_func_body&lt;'a&gt;(expr: ProgramPart&lt;'a&gt;, body: &amp;mut FuncBody&lt;'a&gt;) {
+    body.0.insert(0, expr);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This one is pretty straight forward, we take the part and a mutable reference to the body we are modifying. A <code>FuncBody</code> is a tuple struct that wraps a <code>Vec&lt;ProgrgramPart&gt;</code>, this means we can use the <code>insert</code> method on <code>Vec</code> to add the new item to the first position. </p>
+<p>Another useful utility would be a way to convert an <code>Ident</code> into a <code>StringLit</code>, it is something that we will be doing quite often. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn ident_to_string_lit&lt;'a&gt;(i: &amp;Ident&lt;'a&gt;) -&gt; Expr&lt;'a&gt; {
+    Expr::Lit(Lit::String(StringLit::Single(i.name.clone())))
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This one is also pretty straight forwrard, we take a reference to an <code>Ident</code> and clone the <code>name</code> property into a <code>StringLit::Single</code>, we want to wrap that up into an <code>Expr</code>, to do that we need to wrap it in a <code>Lit::String</code> first. </p>
+<p>To continue that theme, let's build another function that takes in an expression and returns that expression's representation as a <code>StringLit</code>. To start, let's build a function that converts an <code>Expr</code> into a rust <code>String</code>. The problem is that not all <code>Expr</code>s can be easily converted into a rust <code>String</code>. This will be a good opportunity to use the <code>Option</code> type to filter out any of the expressions we might not want to pass into <code>console.log</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn expr_to_string(expr: &amp;Expr) -&gt; Option&lt;String&gt; {
+    match expr {
+        Expr::Ident(ref ident) =&gt; Some(ident.name.to_string()),
+        Expr::This =&gt; Some(&quot;this&quot;.to_string()),
+        Expr::Member(ref mem) =&gt; {
+            let prefix = expr_to_string(&amp;mem.object)?;
+            let suffix = expr_to_string(&amp;mem.property)?;
+            Some(if mem.computed {
+                format!(&quot;{}[{}]&quot;, prefix, suffix)
+            } else {
+                format!(&quot;{}.{}&quot;, prefix, suffix)
+            })
+        },
+        Expr::Lit(lit) =&gt; {
+            match lit {
+                Lit::String(s) =&gt; Some(s.clone_inner().to_string()),
+                Lit::Number(n) =&gt; Some(n.to_string()),
+                Lit::Boolean(b) =&gt; Some(b.to_string()),
+                Lit::RegEx(r) =&gt; Some(format!(&quot;/{}/{}&quot;, r.pattern, r.flags)),
+                Lit::Null =&gt; Some(&quot;null&quot;.to_string()),
+                _ =&gt; None,
+            }
+        },
+        _ =&gt; None,
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This function is just a match expressions, the first case is the <code>Ident</code> that we simply make a copy of the the <code>name</code> property by calling <code>to_string</code>. Next is the <code>This</code> case, which we jsut create a new string and return that. for a member expression, we ant to return the <code>object</code> property converted to a string and the <code>property</code> property converted to a string seperated by a <code>.</code>, if either of these two can't be converted to a string, we just return <code>None</code>. The last case that we want to attempt to convert is the literal case, for that we simply extract the inner string in most cases. For the regex case, we reconstruct that by putting the <code>pattern</code> between two slashes and <code>flags</code> at the end. For the <code>null</code> case we just return that as a new string. The last case we might handle is <code>Template</code> which would be a little more complicated to re-construct for this example so we will just return <code>None</code> in that case. For any other expressions we want to return <code>None</code> as it would be far more complicated and pretty uncommon to come up in our use case.</p>
+<p>Now, we want to wrap the result of this new function into an <code>Expr</code> just like we did for our identifier.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn expr_to_string_lit&lt;'a&gt;(e: &amp;Expr&lt;'a&gt;) -&gt; Option&lt;Expr&lt;'a&gt;&gt; {
+    let inner = expr_to_string(e)?;
+    Some(Expr::Lit(Lit::String(StringLit::Single(::std::borrow::Cow::Owned(inner)))))
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Because modern javascript allows for patterns as function arguments, we are going to need a couple of helper's to handle these possiblities. Let's take this js as an example.</p>
+<pre><code class="language-js">function Thing({a, b = 0}, [c, d, e]) {
+
+}
+</code></pre>
+<p>Our goal would be to add a call to this function that looks like this.</p>
+<pre><code class="language-js">console.log('Thing', a, b, c, d, e);
+</code></pre>
+<p>Before we get into these pattern arguments, we want to have an easy way to clone an <code>Expr</code> but only when it is an <code>Ident</code>. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn clone_ident_from_expr&lt;'a&gt;(expr: &amp;Expr&lt;'a&gt;) -&gt; Option&lt;Expr&lt;'a&gt;&gt; {
+    if let Expr::Ident(_) = expr {
+        Some(expr.clone())
+    } else {
+        None
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we are just using an <code>if let</code> to test for the an <code>Ident</code> and cloning if there is a match. Now let's dig into the <code>Pat</code> argument conversion. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn extract_idents_from_pat&lt;'a&gt;(pat: &amp;Pat&lt;'a&gt;) -&gt; Vec&lt;Option&lt;Expr&lt;'a&gt;&gt;&gt; {
+    match pat {
+        Pat::Ident(i) =&gt; {
+            vec![Some(Expr::Ident(i.clone()))]
+        },
+        Pat::Obj(obj) =&gt; {
+            obj.iter().map(|part| {
+                match part {
+                    ObjPatPart::Rest(pat) =&gt; {
+                        extract_idents_from_pat(pat)
+                    },
+                    ObjPatPart::Assign(prop) =&gt; {
+                        match prop.key {
+                            PropKey::Pat(ref pat) =&gt; {
+                                extract_idents_from_pat(pat)
+                            },
+                            PropKey::Expr(ref expr) =&gt; {
+                                vec![clone_ident_from_expr(expr)]
+                            },
+                            PropKey::Lit(ref lit) =&gt; {
+                                vec![Some(Expr::Lit(lit.clone()))]
+                            }
+                        }
+                    },
+                }
+            }).flatten().collect()
+        },
+        Pat::Array(arr) =&gt; {
+            arr.iter().map(|p| {
+                match p {
+                    Some(ArrayPatPart::Expr(expr)) =&gt; {
+                        vec![clone_ident_from_expr(expr)]
+                    },
+                    Some(ArrayPatPart::Pat(pat)) =&gt; {
+                        extract_idents_from_pat(pat)
+                    },
+                    None =&gt; vec![],
+                }
+            }).flatten().collect()
+        },
+        Pat::RestElement(pat) =&gt; {
+            extract_idents_from_pat(pat)
+        },
+        Pat::Assign(assign) =&gt; {
+            extract_idents_from_pat(&amp;assign.left)
+        },
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Because pattern's like the object or array pattern can contain multiple arguments, in our example a and b would be in the same pattern, we want to return a <code>Vec</code> of the optional identifiers. First, let's cover the simplest pattern the <code>Ident</code> case. In this case we simply want to create a new <code>Vec</code> with a clone of the inner wrapped up in an <code>Expr</code> as its only contents. Next we get something a little more complicated the <code>Obj</code> case. Inside of a <code>Pat::Obj</code> is a <code>Vec</code> of an enum called <code>ObjPatPart</code> which has 2 cases the normal <code>Assign</code> and the <code>Rest</code> (preceded by <code>...</code>). The nice thing about the <code>Rest</code> case is that we can simply use recursion to get the ident's out of the inner <code>Pat</code>. The <code>Assign</code> case has a data scructure called <code>Prop</code>, in this situation we only really care about the <code>key</code> property, since that is where our identifier would live. A propety key can be either a <code>Pat</code>, <code>Expr</code> or <code>Lit</code>, in the first case we can use the same recursive call to get the identifiers it contains. For the expression case we are going to use that helper function we just wrote to get the ident out if it is an ident, finally we are going to just clone the liter into a new <code>Expr</code>. Since we need to do this for each of the <code>ObjPatPart</code>s in the object pattern we are going to use the <code>Iterator</code> trait's <code>map</code> to do the first step in the process, this will convert each element into a <code>Vec</code> of optional <code>Expr</code>s, to get that back down to a single <code>Vec</code> we can use the <code>flatten</code> method. Finally we will <code>collect</code> the iterator back together. Next we have the <code>Array</code>, this is going to look very similar. First we are going to map the inner <code>ArrayPatPart</code>s into our identifiers, this enum has 3 cases the <code>Expr</code> which we can pass off to our helper just like before, the <code>Pat</code> which we will use recursion for again and finally a <code>None</code> case which we can just return an empty <code>Vec</code>. The <code>RestElement</code> works just like the object pattern version, we just recurse with the inner value. Finally we have the <code>Assign</code> case, this one we want to use the same recursion method but only on the <code>left</code> property. Whew, that one was a bit of a doozy!</p>
+<p>We are just now starting to dig into the meat of this project, getting through this complicated mappings now is going to greatly simplify things for us later. Since we arre going to be primarily working with the <code>FuncArg</code>s in any given <code>Func</code> or <code>ArrowFunc</code>, we should have a function that maps any list of arguments to a new list of identifiers and literals.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn extract_idents_from_args&lt;'a&gt;(args: &amp;[FuncArg&lt;'a&gt;]) -&gt; Vec&lt;Expr&lt;'a&gt;&gt; {
+    let mut ret = vec![];
+    for arg in args {
+        match arg {
+            FuncArg::Expr(expr) =&gt; ret.push(clone_ident_from_expr(expr)),
+            FuncArg::Pat(pat) =&gt; ret.extend(extract_idents_from_pat(pat)),
+        }
+    }
+    ret.into_iter().filter_map(|e| e).collect()
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>In this function we are going to liberally use the last to helpers we put together. a <code>FuncArg</code> can be either a <code>Pat</code> or and <code>Expr</code>, in the former we are dealing with a possible list of many new elements but for the latter there would be only one. With that in mind we are going to use the <code>Vec</code> method <code>push</code> for one element and <code>extend</code> for possibly many. Once we have gone through each of the arguments provided we want to filter out any of the <code>None</code> cases by using the <code>filter_map</code> which will filter out any <code>None</code>s and unwrap and <code>Some</code>s for us automatically. We can then collect up the result to return.</p>
+<p>Last in our helper functions is going to be a way to go from an <code>AssignLeft</code> into an <code>Expr</code> with a <code>StringLit</code> inside. For this we are going to use the <code>expr_to_string_lit</code> helper in the <code>Expr</code> case and we are going to match on the <code>Pat</code> case, returning a call to the <code>ident_to_string_lit</code> helper. </p>
+<p>Armed with these helpers it is time to write our first mapping function. A pattern that will be true of all of our mapping functions is that they will always take a <code>Vec</code> of <code>Expr</code>s as the first argument. This how we are going to track the prefix of any log we want to write. We are going to start with the <code>Class</code>, which is primarily a collection of <code>Func</code>s wrapped up in <code>Prop</code>s so let's start at the property level.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn map_class_prop&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut prop: Prop&lt;'a&gt;) -&gt; Prop&lt;'a&gt; {
+    match prop.kind {
+        PropKind::Ctor =&gt; {
+            args.insert(args.len().saturating_sub(1), Expr::Lit(Lit::String(StringLit::single_from(&quot;new&quot;))));
+        },
+        PropKind::Get =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;get&quot;)))
+            );
+        },
+        PropKind::Set =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;set&quot;)))
+            );
+        },
+        _ =&gt; (),
+    };
+    match &amp;prop.key {
+        PropKey::Expr(ref expr) =&gt; match expr {
+            Expr::Ident(ref i) =&gt; {
+                if i.name != &quot;constructor&quot; {
+                    args.push(ident_to_string_lit(i));
+                }
+            }
+            _ =&gt; (),
+        },
+        PropKey::Lit(ref l) =&gt; match l {
+            Lit::Boolean(_)
+            | Lit::Number(_)
+            | Lit::RegEx(_)
+            | Lit::String(_) =&gt; {
+                args.push(Expr::Lit(l.clone()))
+            }
+            Lit::Null =&gt; {
+                args.push(Expr::Lit(Lit::String(StringLit::Single(::std::borrow::Cow::Owned(String::from(&quot;null&quot;))))));
+            }
+            _ =&gt; (),
+        },
+        PropKey::Pat(ref p) =&gt; {
+            match p {
+                Pat::Ident(ref i) =&gt; args.push(ident_to_string_lit(i)),
+                _ =&gt; args.extend(extract_idents_from_pat(p).into_iter().filter_map(|e| e)),
+            }
+        },
+    }
+    if let PropValue::Expr(expr) = prop.value {
+        prop.value = PropValue::Expr(map_expr(args, expr));
+    }
+    prop
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>To start, we want to look at the <code>kind</code> property, there are 3 kinds that are important for us here. The first is <code>Ctor</code> (short for constructor), if we find one of those we want to put the <code>new</code> just before the class name, which should be the last element in the args. To make sure we don't run into any big problems later we should use the <code>saturation_sub</code> method on <code>usize</code> to do the subtraction. Next are the <code>Get</code> and <code>Set</code> accessors, if we find one of those we just want to append this keyword to the end of the current args.</p>
+<p>Now that we have that, we need to start digging into the <code>ProgramPart</code> to identify anything we want to modify. Since <code>Parser</code> implements <code>Iterator</code> and its <code>Item</code> is <code>Result&lt;ProgramPart, Error&gt;</code> we first need to use <code>filter_map</code> to extract the <code>ProgramPart</code> from the result. It would probably be good to handle the error case here but for the sake of simplicity we are going to skip any errors. Now that we have an <code>Iterator</code> over <code>ProgramPart</code>s we can use <code>map</code> to update each part. </p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let js = get_js().expect(&quot;Unable to get JavaScript&quot;);
+    let parser = Parser::new(&amp;js).expect(&quot;Unable to construct parser&quot;);
+    for part in parser.filter_map(|p| p.ok()).map(map_part) {
+        //FIXME: Write updated program part to somewhere
+    }
+}
+</code></pre></pre>
+<p>With that in mind the entry point is going to be a function that takes a <code>ProgramPart</code> and returns a new <code>ProgramPart</code>. It might look like this</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn map_part&lt;'a&gt;(args: Vec&lt;Expr&lt;'a&gt;&gt;, part: ProgramPart&lt;'a&gt;) -&gt; ProgramPart&lt;'a&gt; {
+    match part {
+        ProgramPart::Decl(decl) =&gt; ProgramPart::Decl(map_decl(args, decl)),
+        ProgramPart::Stmt(stmt) =&gt; ProgramPart::Stmt(map_stmt(args, stmt)),
+        ProgramPart::Dir(_) =&gt; part,
+    }
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>We are going to match on the part provided and either return that part if it is a <code>Directive</code> or if it isn't we need to investigate further to discover if it is a function or not. We do that in two places <code>map_decl</code> and <code>map_stmt</code> both of which are going to utilize similar method for digging further into the tree.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn map_decl&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, decl: Decl&lt;'a&gt;) -&gt; Decl&lt;'a&gt; {
+    match decl {
+        Decl::Func(f) =&gt; Decl::Func(map_func(args, f)),
+        Decl::Class(class) =&gt; Decl::Class(map_class(args, class)),
+        Decl::Var(kind, del) =&gt; {
+            Decl::Var(kind, del.into_iter().map(|part| {
+                if let Pat::Ident(ref ident) = part.id {
+                    args.push(ident_to_string_lit(ident));
+                }
+                VarDecl {
+                    id: part.id,
+                    init: part.init.map(|e| map_expr(args.clone(), e))
+                }
+            }).collect())
+        }
+<span class="boring">}
+</span></code></pre></pre>
+<p>There are two ways for a <code>Decl</code> to resolve into a function or method and that is with the <code>Function</code> and <code>Class</code> variants while a <code>Stmt</code> can end up there if it is an <code>Expr</code>. When we include <code>map_expr</code> we see that there are cases for both <code>Function</code> and <code>Class</code> in the <code>Expr</code> enum. That means once we get past those we will be handling the rest in the exact same way.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>        _ =&gt; decl.clone(),
+    }
+}
+
+fn map_stmt&lt;'a&gt;(args: Vec&lt;Expr&lt;'a&gt;&gt;, stmt: Stmt&lt;'a&gt;) -&gt; Stmt&lt;'a&gt; {
+    match stmt {
+        Stmt::Expr(expr) =&gt; Stmt::Expr(map_expr(args, expr)),
+        _ =&gt; stmt.clone(),
+<span class="boring">}
+</span></code></pre></pre>
+<p>Finally we are going to start manipulating the AST in <code>map_func</code>.</p>
+<p>The first thing we are going to do is to clone the <code>func</code> to give us a mutable version. Next we are going to check if the <code>id</code> is <code>Some</code>, if it is we can add that name to our <code>console.log</code> arguments. Now function arguments can be pretty complicated, to try and keep things simple we are going to only worry about the ones that are either <code>Expr::Ident</code> or <code>Pat::Identifier</code>. To build something more robust it might be good to include destructured arguments or arguments with default values but for this example we are just going to keep it simple.</p>
+<p>First we are going to <code>filter_map</code> the <code>func.params</code> to only get the items that ultimately resolve to <code>Identifer</code>s, at that point we can wrap all of these identifiers in an <code>Expr::Ident</code> and add them to the <code>console.log</code> args. Now we can simply insert the result of passing those args to <code>console_log</code> at the first position of the <code>func.body</code>. Because functions can appear in the body of other functions we also want to map all of the <code>func.body</code> program parts. Once that has completed we can return the updated <code>func</code> to the caller.</p>
+<p>The next thing we are going to want to deal with is <code>Class</code>, we want to insert console.log into the top of each method on a class. This is a bit unique because we also want to provide the name of that class (if it exists) as the first argument to console.log. That might look like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span>
+<span class="boring">fn main() {
+</span>fn map_func&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut func: Func&lt;'a&gt;) -&gt; Func&lt;'a&gt; {
+    if let Some(ref id) = &amp;func.id {
+        args.push(ident_to_string_lit(id));
+    }
+    let local_args = extract_idents_from_args(&amp;func.params);
+    func.body = FuncBody(func.body.0.into_iter().map(|p| map_part(args.clone(), p)).collect());
+    insert_expr_into_func_body(console_log(args.clone().into_iter().chain(local_args.into_iter()).collect()), &amp;mut func.body);
+    func
+}
+
+fn map_arrow_func&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut f: ArrowFuncExpr&lt;'a&gt;) -&gt; ArrowFuncExpr&lt;'a&gt; {
+    args.extend(extract_idents_from_args(&amp;f.params));
+    match &amp;mut f.body {
+        ArrowFuncBody::FuncBody(ref mut body) =&gt; {
+            insert_expr_into_func_body(console_log(args), body)
+        },
+        ArrowFuncBody::Expr(expr) =&gt; {
+            f.body = ArrowFuncBody::FuncBody(FuncBody(vec![
+                console_log(args),
+                ProgramPart::Stmt(
+                    Stmt::Return(
+                        Some(*expr.clone())
+                    )
+                )
+            ]))
+        }
+    }
+    f
+}
+
+fn map_class&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut class: Class&lt;'a&gt;) -&gt; Class&lt;'a&gt; {
+    if let Some(ref id) = class.id {
+        args.push(ident_to_string_lit(id))
+    }
+    let mut new_body = vec![];
+    for item in class.body.0 {
+        new_body.push(map_class_prop(args.clone(), item))
+    }
+    class.body = ClassBody(new_body);
+    class
+}
+
+fn map_class_prop&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut prop: Prop&lt;'a&gt;) -&gt; Prop&lt;'a&gt; {
+    match prop.kind {
+        PropKind::Ctor =&gt; {
+            args.insert(args.len().saturating_sub(1), Expr::Lit(Lit::String(StringLit::single_from(&quot;new&quot;))));
+        },
+        PropKind::Get =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;get&quot;)))
+            );
+        },
+        PropKind::Set =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;set&quot;)))
+            );
+        },
+        _ =&gt; (),
+    };
+    match &amp;prop.key {
+        PropKey::Expr(ref expr) =&gt; match expr {
+            Expr::Ident(ref i) =&gt; {
+                if i.name != &quot;constructor&quot; {
+                    args.push(ident_to_string_lit(i));
+                }
+            }
+            _ =&gt; (),
+        },
+        PropKey::Lit(ref l) =&gt; match l {
+            Lit::Boolean(_)
+            | Lit::Number(_)
+            | Lit::RegEx(_)
+            | Lit::String(_) =&gt; {
+                args.push(Expr::Lit(l.clone()))
+            }
+            Lit::Null =&gt; {
+                args.push(Expr::Lit(Lit::String(StringLit::Single(::std::borrow::Cow::Owned(String::from(&quot;null&quot;))))));
+            }
+            _ =&gt; (),
+        },
+        PropKey::Pat(ref p) =&gt; {
+            match p {
+                Pat::Ident(ref i) =&gt; args.push(ident_to_string_lit(i)),
+                _ =&gt; args.extend(extract_idents_from_pat(p).into_iter().filter_map(|e| e)),
+            }
+        },
+    }
+    if let PropValue::Expr(expr) = prop.value {
+        prop.value = PropValue::Expr(map_expr(args, expr));
+    }
+    prop
+}
+
+fn assign_left_to_string_lit&lt;'a&gt;(left: &amp;AssignLeft&lt;'a&gt;) -&gt; Option&lt;Expr&lt;'a&gt;&gt; {
+    match left {
+        AssignLeft::Expr(expr) =&gt; expr_to_string_lit(expr),
+        AssignLeft::Pat(pat) =&gt; {
+            match pat {
+                Pat::Ident(ident) =&gt; Some(ident_to_string_lit(ident)),
+                _ =&gt; None,
+            }
+        }
+    }
+}
+
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we have two functions, the first pulls out the id from the provided class or uses an empty string of it doesn't exist. We then just pass that off to <code>map_class_prop</code> which will handle all of the different types of properties a class can have. The first thing this does is map the <code>prefix</code> into the right format, so a call to <code>new Thing()</code> would print <code>new Thing</code>, or a get method would print <code>Thing get</code> before the method name. Next we take a look at the <code>property.key</code>, this will provide us with the name of our function, but according to the specification a class property key can be an identifier, a literal value, or a pattern, so we need to figure out what the name of this method is by digging into that value. First in the case that it is an ident we want to add it to the args, unless it is the value <code>constructor</code> because we already put the <code>new</code> keyword in that one. Next we can pull out the literal values and add those as they appear. Lastly we will only handle the pattern case when it is a <code>Pat::Identifier</code> otherwise we will just skip it. Now to get the parameter names from the method definition we need to look at the <code>property.value</code> which should always be an <code>Expr::Function</code>. Once we match on that we simply repeat the process of <code>map_function</code> pulling the args out but only when they are <code>Ident</code>s and then passing that along to <code>console_log</code> and inserting that <code>Expr</code> at the top of the function body.</p>
+<p>At this point we have successfully updated our AST to include a call to <code>console.log</code> at the top of each function and method in our code. Now the big question is how do we write that out to a file. This problem is not a small one, in the next section we are going to cover a third crate <code>resw</code> that we can use to finish this project.
+$web-only-end$</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../03.ressa/1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../04.resw/1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../03.ressa/1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../04.resw/1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

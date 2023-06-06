@@ -1,0 +1,383 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Building a Linter - Build JavaScript Development Tools with Rust</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../01.overview/1.html">An Overview</a></li><li class="chapter-item expanded "><a href="../02.ress/1.html"><strong aria-hidden="true">1.</strong> RESS</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02.ress/2.html" class="active"><strong aria-hidden="true">1.1.</strong> Building a Linter</a></li></ol></li><li class="chapter-item expanded "><a href="../03.ressa/1.html"><strong aria-hidden="true">2.</strong> RESSA</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../03.ressa/2.html"><strong aria-hidden="true">2.1.</strong> Building a Debug Helper</a></li></ol></li><li class="chapter-item expanded "><a href="../04.resw/1.html"><strong aria-hidden="true">3.</strong> RESW</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04.resw/2.html"><strong aria-hidden="true">3.1.</strong> Finishing a Debug Helper</a></li></ol></li><li class="chapter-item expanded "><a href="../05.conclusion/1.html"><strong aria-hidden="true">4.</strong> Conclusion</a></li><li class="chapter-item expanded "><a href="../a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li class="chapter-item expanded "><a href="../a.appendix/ie-8-banned.html"><strong aria-hidden="true">5.2.</strong> Banned Tokens</a></li><li class="chapter-item expanded "><a href="../a.appendix/ast.html"><strong aria-hidden="true">5.3.</strong> AST</a></li><li class="chapter-item expanded "><a href="../a.appendix/string.writer.html"><strong aria-hidden="true">5.4.</strong> StringWriter</a></li><li class="chapter-item expanded "><a href="../a.appendix/projects.html"><strong aria-hidden="true">5.5.</strong> Projects</a></li><li class="chapter-item expanded "><a href="../a.appendix/scanners.html"><strong aria-hidden="true">5.6.</strong> Ress Scanners</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Build JavaScript Development Tools with Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="building-an-ie8-linter"><a class="header" href="#building-an-ie8-linter">Building an IE8 Linter</a></h1>
+<p>$web-only$
+To get started we need to add <code>ress</code> to our dependencies. This project is also going to need <code>serde</code>, <code>serde_derive</code> and <code>toml</code> because it will rely on a <code>.toml</code> file to make the list of unavailable tokens configurable.</p>
+<pre><code class="language-toml">[package]
+name = &quot;lint-ie8&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Robert Masen &lt;r@robertmasen.pizza&gt;&quot;]
+edition = &quot;2018&quot;
+
+[dependencies]
+ress = &quot;0.7&quot;
+serde = &quot;1&quot;
+serde_derive = &quot;1&quot;
+toml = &quot;0.5&quot;
+atty = &quot;0.2&quot;
+</code></pre>
+<p>Next we want to use the <code>Scanner</code> and <code>Token</code> from <code>ress</code>, we can do this by importing all the contents of the <code>prelude</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use ress::prelude::*;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Since we are using a <code>.toml</code> file to provide the list of banned tokens, let's create a struct that will represent our configuration.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Deserialize)]
+struct BannedTokens {
+    idents: Vec&lt;String&gt;,
+    keywords: Vec&lt;String&gt;,
+    puncts: Vec&lt;String&gt;,
+    strings: Vec&lt;String&gt;,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The toml file we are going to use is pretty big so but if you want to see what it looks like you can check it out <a href="../a.appendix/ie-8-banned.html">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
+<p>To start we need to deserialize that file, we can do that with the <code>std::fs::read_to_string</code> and <code>toml::from_str</code> functions.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let config_text = ::std::fs::read_to_string(&quot;banned_tokens.toml&quot;).expect(&quot;failed to read config&quot;);
+    let banned: BannedTokens = from_str(&amp;config_text).expect(&quot;Failed to deserialize banned tokens&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Now that we have a list of tokens that should not be included in our javascript, let's get the js text. It would be useful to be able to take a path argument or read the raw js from stdin. This function will check for an argument first and fallback to reading from stdin, it looks something like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
+    let mut cmd_args = args();
+    let _ = cmd_args.next(); //discard bin name
+    let js = if let Some(file_name) = cmd_args.next() {
+        let js = read_to_string(file_name)?;
+        js
+    } else {
+        let mut std_in = ::std::io::stdin();
+        let mut ret = String::new();
+        if atty::is(atty::Stream::Stdin) {
+            return Ok(ret)
+        }
+        std_in.read_to_string(&amp;mut ret)?;
+        ret
+    };
+    Ok(js)
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>we will call it like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let js = match get_js() {
+        Ok(js) =&gt; if js.len() == 0 {
+            print_usage();
+            std::process::exit(1);
+        } else {
+            js
+        },
+        Err(_) =&gt; {
+            print_usage();
+            std::process::exit(1);
+        }
+    };
+    let finder = BannedFinder::new(&amp;js, banned);
+<span class="boring">}
+</span></code></pre></pre>
+<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means no argument was provided but the program was not pipped any text. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn print_usage() {
+    println!(&quot;banned_tokens &lt;infile&gt;
+cat &lt;path/to/file&gt; | banned_tokens&quot;);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>With that out of the way, we now can get into how we are going to solve the actual problem of finding these tokens in a javascript file. There are many ways to make this work but for this example we are going to wrap the <code>Scanner</code> in another struct that implements <code>Iterator</code>. First here is what that struct is going to look like.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct BannedFinder&lt;'a&gt; {
+    scanner: Scanner&lt;'a&gt;,
+    banned: BannedTokens,
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>Before we get into the <code>impl Iterator</code> we should go over an <code>Error</code> implementation that we are going to use. It is relatively straight forward, the actual struct is going to be a tuple struct with three items. The first item is going to be a message that will include the token and type, the second and third are going to be the column/row of the banned token. We need to implement display (<code>Error</code> requires it) which will just create a nice error message for us.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Debug)]
+pub struct BannedError(String, usize, usize);
+
+impl ::std::error::Error for BannedError {
+
+}
+
+impl ::std::fmt::Display for BannedError {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        write!(f, &quot;Banned {} found at {}:{}&quot;, self.0, self.1, self.2)
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
+<p>Ok, now for the exciting part; we are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a&gt; Iterator for BannedFinder&lt;'a&gt; {
+    type Item = Result&lt;(), BannedError&gt;;
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        if let Some(item) = self.scanner.next() {
+            match item {
+                Ok(item) =&gt; {
+                    Some(match &amp;item.token {
+                        Token::Ident(ref id) =&gt; {
+                            let id = id.to_string();
+                            if self.banned.idents.contains(&amp;id) {
+                                Err(BannedError(format!(&quot;identifier {}&quot;, id), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::Keyword(ref key) =&gt; {
+                            if self.banned.keywords.contains(&amp;key.to_string()) {
+                                Err(BannedError(format!(&quot;keyword {}&quot;, key.to_string()), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::Punct(ref punct) =&gt; {
+                            if self.banned.puncts.contains(&amp;punct.to_string()) {
+                                Err(BannedError(format!(&quot;punct {}&quot;, punct.to_string()), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::String(ref lit) =&gt; {
+                            match lit {
+                                StringLit::Double(inner)
+                                | StringLit::Single(inner) =&gt; {
+                                    if self.banned.strings.contains(&amp;inner.to_string()) {
+                                        Err(BannedError(format!(&quot;string {}&quot;, lit.to_string()), item.location.start.line, item.location.start.column))
+                                    } else {
+                                        Ok(())
+                                    }
+                                }
+                            }
+                        },
+                        _ =&gt; Ok(()),
+                    })
+                },
+                Err(_) =&gt; {
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    }
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>First we need to define what the <code>Item</code> for our <code>Iterator</code> is. It is going to be a <code>Result&lt;(), BannedError&gt;</code>, this will allow the caller to check if an item passed inspection. Now we can add the <code>fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;</code> definition. Inside that we first want to make sure that the <code>Scanner</code> isn't returning <code>None</code>, if it is we can just return <code>None</code>. If the scanner returns and <code>Result&lt;Item, Error&gt;</code> we first need to check that it is <code>Ok</code>, in this example we are just going to ignore the <code>Err</code> case. Once we have an actual <code>Item</code> we want to check what kind of token it is, we can do that by matching on <code>&amp;item.token</code>.  We only care if the token is a <code>Keyword</code>, <code>Ident</code>, <code>Punct</code> or <code>String</code>, other wise we can say that the token passed. For each of these tokens we are going to check if the actual text is included in any of the <code>Vec&lt;String&gt;</code> properties of <code>self.banned</code>, if it is included we return a <code>BannedError</code> where the first property is a message containing the name of the token type and the text that token represents.</p>
+<p>Now that we have all of the underlying infrastructure setup, let's use the <code>BannedFinder</code> in our <code>main</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let finder = BannedFinder::new(&amp;js, banned);
+    for item in finder {
+        match item {
+            Ok(_) =&gt; (),
+            Err(msg) =&gt; println!(&quot;{}&quot;, msg),
+        }
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>That is pretty much it. If you wanted to see the full project you can find it in the <a href="https://github.com/FreeMasen/rusty-ecma-book/tree/master/lint-ie8">lint-ie8</a> folder of this book's github repository.</p>
+<p>$web-only-end$
+$slides-only$</p>
+<h2 id="demo"><a class="header" href="#demo">Demo</a></h2>
+<p>$slides-only-end$</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../02.ress/1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../03.ressa/1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../02.ress/1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../03.ressa/1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

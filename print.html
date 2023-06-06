@@ -1,0 +1,2401 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Build JavaScript Development Tools with Rust</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="01.overview/1.html">An Overview</a></li><li class="chapter-item expanded "><a href="02.ress/1.html"><strong aria-hidden="true">1.</strong> RESS</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="02.ress/2.html"><strong aria-hidden="true">1.1.</strong> Building a Linter</a></li></ol></li><li class="chapter-item expanded "><a href="03.ressa/1.html"><strong aria-hidden="true">2.</strong> RESSA</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="03.ressa/2.html"><strong aria-hidden="true">2.1.</strong> Building a Debug Helper</a></li></ol></li><li class="chapter-item expanded "><a href="04.resw/1.html"><strong aria-hidden="true">3.</strong> RESW</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="04.resw/2.html"><strong aria-hidden="true">3.1.</strong> Finishing a Debug Helper</a></li></ol></li><li class="chapter-item expanded "><a href="05.conclusion/1.html"><strong aria-hidden="true">4.</strong> Conclusion</a></li><li class="chapter-item expanded "><a href="a.appendix/overview.html"><strong aria-hidden="true">5.</strong> Appendix</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="a.appendix/tokens.html"><strong aria-hidden="true">5.1.</strong> Tokens</a></li><li class="chapter-item expanded "><a href="a.appendix/ie-8-banned.html"><strong aria-hidden="true">5.2.</strong> Banned Tokens</a></li><li class="chapter-item expanded "><a href="a.appendix/ast.html"><strong aria-hidden="true">5.3.</strong> AST</a></li><li class="chapter-item expanded "><a href="a.appendix/string.writer.html"><strong aria-hidden="true">5.4.</strong> StringWriter</a></li><li class="chapter-item expanded "><a href="a.appendix/projects.html"><strong aria-hidden="true">5.5.</strong> Projects</a></li><li class="chapter-item expanded "><a href="a.appendix/scanners.html"><strong aria-hidden="true">5.6.</strong> Ress Scanners</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Build JavaScript Development Tools with Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 style="text-align: center;margin: 0;">An Overview</h1>
+<div style="margin: auto;width:100%;max-width:500px;max-height:500px;" title="This logo is a mash up of the Rust and EcmaInternational logos">
+<svg width="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1_2)">
+<path d="M100 0H0V100H100V0Z" fill="#E33B26"/>
+<path d="M50.402 91V63.3636H61.3054C63.3925 63.3636 65.1738 63.737 66.6491 64.4837C68.1335 65.2214 69.2625 66.2694 70.0362 67.6278C70.8189 68.9773 71.2102 70.5651 71.2102 72.3913C71.2102 74.2266 70.8144 75.8054 70.0227 77.1278C69.2311 78.4413 68.084 79.4489 66.5817 80.1506C65.0883 80.8523 63.2801 81.2031 61.157 81.2031H53.8565V76.5071H60.2124C61.3279 76.5071 62.2545 76.3542 62.9922 76.0483C63.7299 75.7424 64.2786 75.2836 64.6385 74.6719C65.0073 74.0601 65.1918 73.3 65.1918 72.3913C65.1918 71.4737 65.0073 70.7 64.6385 70.0703C64.2786 69.4406 63.7254 68.9638 62.9787 68.6399C62.241 68.3071 61.3099 68.1406 60.1854 68.1406H56.245V91H50.402ZM65.3267 78.4233L72.1953 91H65.745L59.0249 78.4233H65.3267ZM75.3395 91V63.3636H93.9616V68.1811H81.1825V74.7663H93.0036V79.5838H81.1825V86.1825H94.0156V91H75.3395Z" fill="black"/>
+</g>
+<defs>
+<clipPath id="clip0_1_2">
+<rect width="100" height="100" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div>
+<p>$web-only$
+To get started building development tools using the Rust programming language, we are going to be utilizing 3 crates. The first is a crate called <a href="https://github.com/FreeMasen/RESS"><code>ress</code></a> or Rusty ECMAScript Scanner, this crate is used to convert JavaScript text into a series of <code>Token</code>s. Next is <a href="https://github.com/FreeMasen/RESSA"><code>ressa</code></a> or Rusty ECMAScript Syntax Analyzer, this crate will take that series of <code>Token</code>s and build an Abstract Syntax Tree or AST. This AST is provided by a third crate <a href="https://github.com/FreeMasen/resast"><code>resast</code></a>. Either of these tools will be useful for building development tools however since the output of <code>ress</code> is essentially flat it means we can only build a much simpler kind of tool. Over the course of this book we will cover the basics of how to build a development tool with either of these crates.
+$web-only-end$
+$slides-only$</p>
+<ul>
+<li>What is RESS
+<ul>
+<li>Overview</li>
+<li>Demo Project</li>
+</ul>
+</li>
+<li>What is RESSA
+<ul>
+<li>Overview</li>
+<li>Demo Project</li>
+</ul>
+</li>
+<li>What is RESW (maybe)
+<ul>
+<li>Overview
+$slides-only-end$</li>
+</ul>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ress"><a class="header" href="#ress"><code>RESS</code></a></h1>
+<p>$slides-only$</p>
+<ul>
+<li><code>impl Iterator for Scanner</code></li>
+<li>Converts text into <code>Token</code>s</li>
+<li>Flat Structure
+$slides-only-end$
+$web-only$
+Before we start on any examples let's dig a little into what <code>ress</code> does. The job of a <strong>scanner</strong> (sometimes called a <strong>tokenizer</strong> or <strong>lexer</strong>) in the parsing process is to convert raw text or bytes into logically separated parts called <em>tokens</em> and <code>ress</code> does just that. It reads your JavaScript text and then tells you what a given word or symbol might represent. It does this through the <a href="02.ress/../a.appendix/scanners.html"><code>Scanner</code> interface</a>, to construct a scanner you pass it the text you would like it to tokenize. </li>
+</ul>
+<p>$web-only-end$</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let js = &quot;var i = 0;&quot;;
+    let scanner = Scanner::new(js);
+<span class="boring">}
+</span></code></pre></pre>
+<p>$web-only$</p>
+<p>Now that you have prepared a scanner, how do we use it? Well, the <code>Scanner</code> implements <code>Iterator</code> so we can actually use it in a for loop like so.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    for token in scanner {
+        println!(&quot;{:#?}&quot;, token);
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>If we were to run the above program it would print to the terminal the following.
+$web-only-end$</p>
+<pre><code>Item {
+    token: Keyword(
+        Var,
+    ),
+    span: Span {
+        start: 0,
+        end: 3,
+    },
+    location: SourceLocation {
+        start: Position {
+            line: 1,
+            column: 1,
+        },
+        end: Position {
+            line: 1,
+            column: 4,
+        },
+    },
+}
+Item {
+    token: Ident(
+        Ident(
+            &quot;i&quot;,
+        ),
+    ),
+    span: Span {
+        start: 4,
+        end: 5,
+    },
+    location: SourceLocation {
+        start: Position {
+            line: 1,
+            column: 5,
+        },
+        end: Position {
+            line: 1,
+            column: 6,
+        },
+    },
+}
+Item {
+    token: Punct(
+        Equal,
+    ),
+    span: Span {
+        start: 6,
+        end: 7,
+    },
+    location: SourceLocation {
+        start: Position {
+            line: 1,
+            column: 7,
+        },
+        end: Position {
+            line: 1,
+            column: 8,
+        },
+    },
+}
+Item {
+    token: Number(
+        Number(
+            &quot;0&quot;,
+        ),
+    ),
+    span: Span {
+        start: 8,
+        end: 9,
+    },
+    location: SourceLocation {
+        start: Position {
+            line: 1,
+            column: 9,
+        },
+        end: Position {
+            line: 1,
+            column: 10,
+        },
+    },
+}
+Item {
+    token: Punct(
+        SemiColon,
+    ),
+    span: Span {
+        start: 9,
+        end: 10,
+    },
+    location: SourceLocation {
+        start: Position {
+            line: 1,
+            column: 10,
+        },
+        end: Position {
+            line: 1,
+            column: 11,
+        },
+    },
+}
+Item {
+    token: EoF,
+    span: Span {
+        start: 10,
+        end: 10,
+    },
+    location: SourceLocation {
+        start: Position {
+            line: 1,
+            column: 11,
+        },
+        end: Position {
+            line: 1,
+            column: 11,
+        },
+    },
+}
+</code></pre>
+<p>$web-only$
+The scanner's <code>::next()</code> method returns an <code>Result&lt;Item, Error&gt;</code> the <code>Ok</code> variant has 3 properties <code>token</code>, <code>span</code> and <code>location</code>. The <code>span</code> is the byte index that starts and ends the token, the <code>location</code> property is the <em>human readable</em> location of the token, the <code>token</code> property is going to be one variant of the <code>Token</code> enum which has the following variants.</p>
+<ul>
+<li><code>Token::Boolean(BooleanLiteral)</code> - The text <code>true</code> or <code>false</code></li>
+<li><code>Token::Ident(Ident)</code> - A variable, function, or class name</li>
+<li><code>Token::Null</code> - The text <code>null</code></li>
+<li><code>Token::Keyword(Keyword)</code> - One of the 42 reserved words e.g. <code>function</code>, <code>var</code>, <code>delete</code>, etc</li>
+<li><code>Token::Numeric(Number)</code> - A number literal, this can be an integer, a float, scientific notation, binary notation, octal notation, or hexadecimal notation e.g. <code>1.5e9</code>, <code>0xfff</code>, etc</li>
+<li><code>Token::Punct(Punct)</code> - One of the 52+ reserved symbols or combinations of symbols e.g. <code>*</code>, <code>&amp;&amp;</code>, <code>=&gt;</code>, etc</li>
+<li><code>Token::String(StringLit)</code> - Either a double or single quoted string</li>
+<li><code>Token::RegEx(RegEx)</code> - A Regular Expression literal e.g. <code>/.+/g</code></li>
+<li><code>Token::Template(Template)</code> - A template string literal e.g. <code>one ${2} three</code></li>
+<li><code>Token::Comment(Comment)</code> - A single line, multi-line or html comment</li>
+</ul>
+<p>For a more in depth look at these tokens, take a look at the <a href="02.ress/../a.appendix/tokens.html">Appendix</a></p>
+<p>Overall the output of our scanner isn't going to provide any context for these tokens, that means when we are building our development tools it is going to be a little harder to figure out what is going on with any given token. One way we could take that is to just build a tool that is only concerned with the token level of information. Say you work on a team of JavaScript developers that need to adhere to a strict code style because the organization needs their website to be usable in Internet Explorer 8. With that restriction there are a large number of APIs that are off the table, looking over <a href="https://caniuse.com/#compare=ie+8,firefox+64&amp;compare_cats=JS,JS%20API">this list</a> we can see how big that really is. It could be useful to have a linter that will check for the keywords and identifiers that are not available in IE8. let's try and build one.</p>
+<p>$web-only-end$</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building-an-ie8-linter"><a class="header" href="#building-an-ie8-linter">Building an IE8 Linter</a></h1>
+<p>$web-only$
+To get started we need to add <code>ress</code> to our dependencies. This project is also going to need <code>serde</code>, <code>serde_derive</code> and <code>toml</code> because it will rely on a <code>.toml</code> file to make the list of unavailable tokens configurable.</p>
+<pre><code class="language-toml">[package]
+name = &quot;lint-ie8&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Robert Masen &lt;r@robertmasen.pizza&gt;&quot;]
+edition = &quot;2018&quot;
+
+[dependencies]
+ress = &quot;0.7&quot;
+serde = &quot;1&quot;
+serde_derive = &quot;1&quot;
+toml = &quot;0.5&quot;
+atty = &quot;0.2&quot;
+</code></pre>
+<p>Next we want to use the <code>Scanner</code> and <code>Token</code> from <code>ress</code>, we can do this by importing all the contents of the <code>prelude</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use ress::prelude::*;
+<span class="boring">}
+</span></code></pre></pre>
+<p>Since we are using a <code>.toml</code> file to provide the list of banned tokens, let's create a struct that will represent our configuration.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Deserialize)]
+struct BannedTokens {
+    idents: Vec&lt;String&gt;,
+    keywords: Vec&lt;String&gt;,
+    puncts: Vec&lt;String&gt;,
+    strings: Vec&lt;String&gt;,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The toml file we are going to use is pretty big so but if you want to see what it looks like you can check it out <a href="02.ress/../a.appendix/ie-8-banned.html">here</a>. Essentially it is a list of identifiers, strings, punctuation, and keywords that would cause an error when trying to run in IE8.</p>
+<p>To start we need to deserialize that file, we can do that with the <code>std::fs::read_to_string</code> and <code>toml::from_str</code> functions.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let config_text = ::std::fs::read_to_string(&quot;banned_tokens.toml&quot;).expect(&quot;failed to read config&quot;);
+    let banned: BannedTokens = from_str(&amp;config_text).expect(&quot;Failed to deserialize banned tokens&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Now that we have a list of tokens that should not be included in our javascript, let's get the js text. It would be useful to be able to take a path argument or read the raw js from stdin. This function will check for an argument first and fallback to reading from stdin, it looks something like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn get_js() -&gt; Result&lt;String, ::std::io::Error&gt; {
+    let mut cmd_args = args();
+    let _ = cmd_args.next(); //discard bin name
+    let js = if let Some(file_name) = cmd_args.next() {
+        let js = read_to_string(file_name)?;
+        js
+    } else {
+        let mut std_in = ::std::io::stdin();
+        let mut ret = String::new();
+        if atty::is(atty::Stream::Stdin) {
+            return Ok(ret)
+        }
+        std_in.read_to_string(&amp;mut ret)?;
+        ret
+    };
+    Ok(js)
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>we will call it like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let js = match get_js() {
+        Ok(js) =&gt; if js.len() == 0 {
+            print_usage();
+            std::process::exit(1);
+        } else {
+            js
+        },
+        Err(_) =&gt; {
+            print_usage();
+            std::process::exit(1);
+        }
+    };
+    let finder = BannedFinder::new(&amp;js, banned);
+<span class="boring">}
+</span></code></pre></pre>
+<p>We want to handle the failure when attempting to get the js, so we will match on the call to <code>get_js</code>. If everything went well we need to check if the text is an empty string, this means no argument was provided but the program was not pipped any text. In either of these failure cases we want to print a nice message about how the command should have been written and then exit with a non-zero status code. <code>print_usage</code> is a pretty simple function that will just print to stdout the two ways to use the program.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn print_usage() {
+    println!(&quot;banned_tokens &lt;infile&gt;
+cat &lt;path/to/file&gt; | banned_tokens&quot;);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>With that out of the way, we now can get into how we are going to solve the actual problem of finding these tokens in a javascript file. There are many ways to make this work but for this example we are going to wrap the <code>Scanner</code> in another struct that implements <code>Iterator</code>. First here is what that struct is going to look like.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct BannedFinder&lt;'a&gt; {
+    scanner: Scanner&lt;'a&gt;,
+    banned: BannedTokens,
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>Before we get into the <code>impl Iterator</code> we should go over an <code>Error</code> implementation that we are going to use. It is relatively straight forward, the actual struct is going to be a tuple struct with three items. The first item is going to be a message that will include the token and type, the second and third are going to be the column/row of the banned token. We need to implement display (<code>Error</code> requires it) which will just create a nice error message for us.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Debug)]
+pub struct BannedError(String, usize, usize);
+
+impl ::std::error::Error for BannedError {
+
+}
+
+impl ::std::fmt::Display for BannedError {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        write!(f, &quot;Banned {} found at {}:{}&quot;, self.0, self.1, self.2)
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Now we can add a method to <code>BannedFinder</code> that will take an index and return the row/column pair.</p>
+<p>Ok, now for the exciting part; we are going to <code>impl Iterator for BannedFinder</code> which will look like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a&gt; Iterator for BannedFinder&lt;'a&gt; {
+    type Item = Result&lt;(), BannedError&gt;;
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        if let Some(item) = self.scanner.next() {
+            match item {
+                Ok(item) =&gt; {
+                    Some(match &amp;item.token {
+                        Token::Ident(ref id) =&gt; {
+                            let id = id.to_string();
+                            if self.banned.idents.contains(&amp;id) {
+                                Err(BannedError(format!(&quot;identifier {}&quot;, id), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::Keyword(ref key) =&gt; {
+                            if self.banned.keywords.contains(&amp;key.to_string()) {
+                                Err(BannedError(format!(&quot;keyword {}&quot;, key.to_string()), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::Punct(ref punct) =&gt; {
+                            if self.banned.puncts.contains(&amp;punct.to_string()) {
+                                Err(BannedError(format!(&quot;punct {}&quot;, punct.to_string()), item.location.start.line, item.location.start.column))
+                            } else {
+                                Ok(())
+                            }
+                        },
+                        Token::String(ref lit) =&gt; {
+                            match lit {
+                                StringLit::Double(inner)
+                                | StringLit::Single(inner) =&gt; {
+                                    if self.banned.strings.contains(&amp;inner.to_string()) {
+                                        Err(BannedError(format!(&quot;string {}&quot;, lit.to_string()), item.location.start.line, item.location.start.column))
+                                    } else {
+                                        Ok(())
+                                    }
+                                }
+                            }
+                        },
+                        _ =&gt; Ok(()),
+                    })
+                },
+                Err(_) =&gt; {
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    }
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>First we need to define what the <code>Item</code> for our <code>Iterator</code> is. It is going to be a <code>Result&lt;(), BannedError&gt;</code>, this will allow the caller to check if an item passed inspection. Now we can add the <code>fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;</code> definition. Inside that we first want to make sure that the <code>Scanner</code> isn't returning <code>None</code>, if it is we can just return <code>None</code>. If the scanner returns and <code>Result&lt;Item, Error&gt;</code> we first need to check that it is <code>Ok</code>, in this example we are just going to ignore the <code>Err</code> case. Once we have an actual <code>Item</code> we want to check what kind of token it is, we can do that by matching on <code>&amp;item.token</code>.  We only care if the token is a <code>Keyword</code>, <code>Ident</code>, <code>Punct</code> or <code>String</code>, other wise we can say that the token passed. For each of these tokens we are going to check if the actual text is included in any of the <code>Vec&lt;String&gt;</code> properties of <code>self.banned</code>, if it is included we return a <code>BannedError</code> where the first property is a message containing the name of the token type and the text that token represents.</p>
+<p>Now that we have all of the underlying infrastructure setup, let's use the <code>BannedFinder</code> in our <code>main</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let finder = BannedFinder::new(&amp;js, banned);
+    for item in finder {
+        match item {
+            Ok(_) =&gt; (),
+            Err(msg) =&gt; println!(&quot;{}&quot;, msg),
+        }
+    }
+<span class="boring">}
+</span></code></pre></pre>
+<p>That is pretty much it. If you wanted to see the full project you can find it in the <a href="https://github.com/FreeMasen/rusty-ecma-book/tree/master/lint-ie8">lint-ie8</a> folder of this book's github repository.</p>
+<p>$web-only-end$
+$slides-only$</p>
+<h2 id="demo"><a class="header" href="#demo">Demo</a></h2>
+<p>$slides-only-end$</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ressa"><a class="header" href="#ressa">RESSA</a></h1>
+<p>$slides-only$</p>
+<ul>
+<li><code>impl Iterator for Parser</code></li>
+<li>Converts stream of <code>Token</code>s into AST</li>
+<li>Significantly more context
+$slides-only-end$
+$web-only$
+Before we get into how to use <code>ressa</code>, It is a good idea to briefly touch on the scope of a <strong>parser</strong> or <strong>syntax analyzer</strong>. The biggest thing to understand is that we still are not dealing with the <em>semantic</em> meaning of the program. That means <code>ressa</code> itself won't discover things like assigning to undeclared variables or attempting to call undefined functions because that would require more context. To that end, <code>ressa</code>'s true value isn't realized until it is embedded into another program that provide that context.</li>
+</ul>
+<p>With that said <code>ressa</code> is providing a larger context as compared to what is provided by <code>ress</code>. It achieves that by wrapping the <code>Scanner</code> in a struct called <code>Parser</code>. Essentially <code>Parser</code> provides a way to keep track of what any given set of <code>Token</code>s might mean. <code>Parser</code> also implements <code>Iterator</code> over the enum <code>Result&lt;ProgramPart, Error&gt;</code>, the <code>Ok</code> variant has 3 cases representing the 3 different top level JavaScript constructs.</p>
+<ul>
+<li><code>Decl</code> - a variable/function/class declaration
+<ul>
+<li><code>Var</code> - A top level variable declaration e.g. <code>let x = 0;</code></li>
+<li><code>Class</code> - A named class definition at the top level</li>
+<li><code>Func</code> - A named function definition at the top level</li>
+<li><code>Import</code> - An ES Module import statement</li>
+<li><code>Export</code> - An ES Module export statement</li>
+</ul>
+</li>
+<li><code>Dir</code> - A script directive, pretty much just 'use strict'</li>
+<li><code>Stmt</code> - A catch all for all other statements
+<ul>
+<li><code>Block</code> - A collection of statements wrapped in curly braces</li>
+<li><code>Break</code> - A break statement will exit a loop or labeled statement early</li>
+<li><code>Continue</code> - A continue statement will short circuit a loop</li>
+<li><code>Debugger</code> - the literal text <code>debugger</code></li>
+<li><code>DoWhile</code> - A do loop executes the body before testing whether to continue</li>
+<li><code>Empty</code> - A single semicolon</li>
+<li><code>Expr</code> - A catch-all for everything else</li>
+<li><code>For</code> - A c-style for loop e.g. <code>for (var i = 0; i &lt; 100; i++) ;</code></li>
+<li><code>ForIn</code> - A for loop that assigns the key of an enumerable at the top of each iteration</li>
+<li><code>ForOf</code> - A for loop that assigns the value of an iterable at the top of each iteration</li>
+<li><code>If</code> - A set of if/else if/else statements</li>
+<li><code>Labeled</code> - A statement that has been named by an attached identifier</li>
+<li><code>Return</code> - The return statement that resolves a function's value</li>
+<li><code>Switch</code> - A test <code>Expression</code> and a collection of <code>CaseStmt</code>s</li>
+<li><code>Throw</code> - The throw keyword followed by an <code>Expression</code></li>
+<li><code>Try</code> - A try/catch/finally block for catching <code>Throw</code>n items</li>
+<li><code>Var</code> - A non-top level variable declaration</li>
+<li><code>While</code> - A loop which continues based on a test <code>Expression</code></li>
+<li><code>With</code> - An antiquated statement that changes the order of identifier resolution</li>
+</ul>
+</li>
+</ul>
+<p><code>Stmt</code> being the real work-horse of the group, while a top level function definition would be a <code>Decl</code>, a non-top level function definition would be a <code>Stmt</code>. Both <code>Decl</code> and <code>Stmt</code> themselves are enums representing the different possible variations. Looking further into the <code>Stmt</code> variants, you may notice there is another <em>catch all</em> in the <code>Expr</code> variant which contains an <code>Expr</code> (expression) enum which defines an even more granular set of program parts.</p>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>Assign</code> - Assigning a value to a variable, this includes any update &amp; assign operations e.g. <code>x = 1</code>, <code>x +=1</code>, etc</li>
+<li><code>Array</code> - An array literal e.g. <code>[1,2,3,4]</code></li>
+<li><code>ArrowFunc</code> - An arrow function expression</li>
+<li><code>Await</code> - Any expression preceded by the <code>await</code> keyword</li>
+<li><code>Call</code> - Calling a function or method</li>
+<li><code>Class</code> - A class expression is a class definition with an optional identifier that is assigned to a variable or used as an argument in a <code>Call</code> expression</li>
+<li><code>Conditional</code> - Also known as the &quot;ternary&quot; operator e.g. <code>test ? consequent : alternate</code></li>
+<li><code>Func</code> - A function expression is a function definition with an optional identifier that is either self executing, assigned to a variable or used as a <code>Call</code> argument</li>
+<li><code>Ident</code> - The identifier of a variable, call argument, class, import, export or function</li>
+<li><code>Lit</code> - A <em>primitive</em> literal</li>
+<li><code>Logical</code> - Two expressions separated by <code>&amp;&amp;</code> or <code>||</code></li>
+<li><code>Member</code> - Accessing a sub property on something. e.g. <code>[0,1,2][1]</code> or <code>console.log</code></li>
+<li><code>MetaProp</code> - Currently the only <code>MetaProperty</code> is in a function body you can check <code>new.target</code> to see if something was called with the <code>new</code> keyword</li>
+<li><code>New</code> - A <code>Call</code> expression preceded by the <code>new</code> keyword</li>
+<li><code>Obj</code> - An object literal e.g. <code>{a: 1, b: 2}</code></li>
+<li><code>Seq</code> - Any sequence of expressions separated by commas</li>
+<li><code>Spread</code> - the <code>...</code> operator followed by an expression</li>
+<li><code>Super</code> - The <code>super</code> pseudo-keyword used for accessing properties of a <code>super</code> class</li>
+<li><code>TaggedTemplate</code> - An identifier followed by a template literal <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_templates">see MDN for more info</a></li>
+<li><code>This</code> - The <code>this</code> pseudo-keyword used for accessing instance properties</li>
+<li><code>Unary</code> - An operation (that is not an update) that requires on expression as an argument e.g. <code>delete x</code>, <code>!true</code>, etc</li>
+<li><code>Update</code> - An operation that uses the <code>++</code> or <code>--</code> operator</li>
+<li><code>Yield</code> - the <code>yield</code> contextual keyword followed by an optional expression for use in generator function</li>
+</ul>
+</li>
+</ul>
+<p>Most of the <code>Expr</code>, <code>Stmt</code>, and <code>Decl</code> variants have associated values, to see more information about them check out the <a href="https://docs.rs/resast">documentation</a>. There should be an example and description provided for each of the possible combinations.</p>
+<p>With that long winded explanation of the <em>basic</em> structure we are working with let's take a look at how we would use the <code>Parser</code>. In this example we have a javascript snippet that defines a function 'Thing', it will assign the first argument <code>stuff</code> to a property of the function <code>this.stuff</code>.
+$web-only-end$</p>
+<pre><pre class="playground"><code class="language-rust">use ressa::*;
+
+static JS: &amp;str = &quot;
+function Thing(stuff) {
+    this.stuff = stuff;
+}
+&quot;;
+
+fn main() {
+    let parser = Parser::new(JS).expect(&quot;Failed to create parser&quot;);
+    for part in parser {
+        let part = part.expect(&quot;Failed to parse part&quot;);
+        println!(&quot;{:?}&quot;, part);
+    }
+}
+</code></pre></pre>
+<p>$web-only$
+If we were to run the above we would get the following output.
+$web-only-end$</p>
+<pre><code class="language-ron">Decl(
+    Func(
+        Func {
+            id: Some(
+                Ident {
+                    name: &quot;Thing&quot;,
+                },
+            ),
+            params: [
+                Pat(
+                    Ident(
+                        Ident {
+                            name: &quot;stuff&quot;,
+                        },
+                    ),
+                ),
+            ],
+            body: FuncBody(
+                [
+                    Stmt(
+                        Expr(
+                            Assign(
+                                AssignExpr {
+                                    operator: Equal,
+                                    left: Expr(
+                                        Member(
+                                            MemberExpr {
+                                                object: This,
+                                                property: Ident(
+                                                    Ident {
+                                                        name: &quot;stuff&quot;,
+                                                    },
+                                                ),
+                                                computed: false,
+                                            },
+                                        ),
+                                    ),
+                                    right: Ident(
+                                        Ident {
+                                            name: &quot;stuff&quot;,
+                                        },
+                                    ),
+                                },
+                            ),
+                        ),
+                    ),
+                ],
+            ),
+            generator: false,
+            is_async: false,
+        },
+    ),
+)
+</code></pre>
+<p>$web-only$
+If we walk through the output, we start by seeing that the</p>
+<ol>
+<li>This program consists of a single part which is a  <code>ProgramPart::Decl</code></li>
+<li>Inside of that is a <code>Decl::Func</code></li>
+<li>Inside of that is a <code>Func</code>
+<ol>
+<li>It has an <code>id</code>, which is an optional <code>Ident</code>, with the name of <code>Some(&quot;Thing&quot;)</code></li>
+<li>It has a one item vec of <code>Pat</code>s in <code>params</code>
+<ol>
+<li>Which is a <code>Pat::Identifier</code></li>
+<li>Inside of that is an <code>Identifier</code> with the value of &quot;stuff&quot;</li>
+</ol>
+</li>
+<li>It has a body that is a one item vec of <code>ProgramPart</code>s
+<ol>
+<li>The item is a <code>ProgramPart::Stmt</code></li>
+<li>Which is a <code>Stmt::Expr</code></li>
+<li>Inside of that is an <code>Expr::Assign</code></li>
+<li>Inside of that is an <code>AssignExpr</code>
+<ol>
+<li>Which has an <code>operator</code> of <code>Equal</code></li>
+<li>The <code>left</code> hand side is an <code>Expr::Member</code></li>
+<li>Inside of that is a <code>MemberExpr</code>
+<ol>
+<li>The <code>object</code> being <code>Expr::This</code></li>
+<li>The <code>property</code> being <code>Expr::Ident</code> with the name of &quot;stuff&quot;</li>
+</ol>
+</li>
+<li>The <code>right</code> hand side is an <code>Expr::Ident</code> with the name of &quot;stuff&quot;</li>
+<li><code>computed</code> is false</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>It is not a <code>generator</code></li>
+<li><code>is_async</code> is false</li>
+</ol>
+</li>
+</ol>
+<p>Phew! That is quite a lot of information! A big part of why we need to be that verbose is because of the &quot;you can do anything&quot; nature of JavaScript. Let's use the <code>MemberExpr</code> as an example, below are a collection of ways to write a <code>MemberExpr</code> in JavaScript.</p>
+<pre><code class="language-js">console.log;//member expr
+console['log']; //member expr
+const logVar = 'log';
+console[logVar];//member expr
+console[['l','o','g'].join('')];//member expr
+class Log {
+    toString() {
+        return 'log';
+    }
+}
+const logToString = new Log();
+console[logToString];//member expr
+function logFunc() {
+    return 'log';
+}
+console[logFunc()];//member expr
+function getConsole() {
+    return console
+}
+getConsole()[logFunc()];//member expr
+getConsole().log;//member expr
+</code></pre>
+<p>And with the way JavaScript has evolved this probably isn't an exhaustive list of ways to construct a <code>MemberExpr</code>. With the level of information <code>ressa</code> provides we have enough to truly understand the <em>syntactic</em> meaning of the text. This will enable us to build more powerful tools to analyze and/or manipulate any given JavaScript program. With the pervasiveness of <a href="https://en.wikipedia.org/wiki/Debugging#Techniques">print debugging</a>, wouldn't it be nice if we had a tool that would automatically insert a <code>console.log</code> at the top of every function and method in a program? We could make it print the name of that function and also each of the arguments, let's try and build one.
+$web-only-end$</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building-a-debug-helper"><a class="header" href="#building-a-debug-helper">Building a Debug Helper</a></h1>
+<p>$slides-only$</p>
+<h2 id="demo-1"><a class="header" href="#demo-1">Demo</a></h2>
+<p>$slides-only-end$
+$web-only$
+To simplify things, we are just going to lift the technique for getting the JavaScript text from the <a href="03.ressa/../02.ress/2.html">ress example</a>, so we won't be covering that again.</p>
+<p>With that out of the way let's take a look at the <code>Cargo.toml</code> and <code>use</code> statements for our program.</p>
+<pre><code class="language-toml">[package]
+name = &quot;console_logify&quot;
+version = &quot;0.1.0&quot;
+authors = [&quot;Robert Masen &lt;r@robertmasen.pizza&gt;&quot;]
+edition = &quot;2018&quot;
+
+[dependencies]
+ressa = &quot;0.7.0-beta-7&quot;
+atty = &quot;0.2&quot;
+resw = &quot;0.4.0-beta-1&quot;
+resast = &quot;0.4&quot;
+</code></pre>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use ressa::Parser;
+use resw::Writer;
+use resast::prelude::*;
+<span class="boring">}
+</span></code></pre></pre>
+<p>This will make sure that all of the items we will need from <code>ressa</code> and <code>resast</code> are in scope. Now we can start defining our method for inserting the debug logging into any functions that we find. To start we are going to create a function that will generate a new <code>ProgramPart::Stmt</code> that will represent our call to <code>console.log</code> which might look like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn console_log&lt;'a&gt;(args: Vec&lt;Expr&lt;'a&gt;&gt;) -&gt; ProgramPart&lt;'a&gt; {
+    ProgramPart::Stmt(Stmt::Expr(Expr::Call(
+        CallExpr {
+            callee: Box::new(Expr::Member(
+                MemberExpr {
+                    computed: false,
+                    object: Box::new(Expr::ident_from(&quot;console&quot;)),
+                    property: Box::new(Expr::ident_from(&quot;log&quot;)),
+                }
+            )),
+            arguments: args,
+        }
+    )))
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This signature might look a little intimidating with all the lifetime annotations, the reason they need to be there is that at the heart of every <code>resast</code> node is a <code>Cow</code> (Clone On Write) slice of the originally javascript string. By putting it in a <code>Cow</code> that makes it possible to more easily manipulate the tree without having to pay the cost of allocating a new string for every node at parse time. The lifetime annotations just tell the compiler that our argument and our return value will live the same lifetime, since our arguments are going to be embedded in our return value. We will end up using this pattern quite often in this example, now let's go over what is actually happening here. We will take in the <code>args</code> to supplu the arguments passed into <code>console.log</code> as our only argument. 
+Now we are going to build the tree that represents the javascript, which will look like this:</p>
+<ul>
+<li><code>ProgramPart</code>
+<ul>
+<li><code>Stmt</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>CallExpr</code>
+<ul>
+<li><code>callee</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>MemberExpr</code>
+<ul>
+<li><code>computed</code>: <code>false</code></li>
+<li><code>object</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>Ident</code>
+<ul>
+<li><code>name</code>: <code>&quot;console&quot;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>property</code>
+<ul>
+<li><code>Expr</code>
+<ul>
+<li><code>Ident</code>
+<ul>
+<li><code>name</code>: <code>&quot;log&quot;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>arguments</code>
+<ul>
+<li><code>Vec&lt;Expr&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>It might be easier to start from the inner most structure, the <code>MemberExpr</code>, this represents the <code>console.log</code> portion of the desired output. First, we want to set the <code>computed</code> property to false, this means we are using a <code>.</code> instead of <code>[]</code>, next we need to define the <code>object</code> which will be the identifier <code>console</code> and the <code>property</code> which will be the identifer <code>log</code>. We nest this inside of a <code>CallExpr</code> as the <code>callee</code>, this represents everything up to the opening parenthesis. The second property <code>arguments</code> will, as the name suggests, represent the the arguments, we'll simply assign that to the <code>args</code> provided by the caller. Moving up the tree we wrap the <code>CallExpr</code> in a <code>Expr</code>, and a <code>Stmt</code> and a <code>ProgramPart</code>.</p>
+<p>Next, let's work on a few more helper functions, first up is one that will insert a <code>ProgramPart</code> to the top of a <code>FuncBody</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn insert_expr_into_func_body&lt;'a&gt;(expr: ProgramPart&lt;'a&gt;, body: &amp;mut FuncBody&lt;'a&gt;) {
+    body.0.insert(0, expr);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This one is pretty straight forward, we take the part and a mutable reference to the body we are modifying. A <code>FuncBody</code> is a tuple struct that wraps a <code>Vec&lt;ProgrgramPart&gt;</code>, this means we can use the <code>insert</code> method on <code>Vec</code> to add the new item to the first position. </p>
+<p>Another useful utility would be a way to convert an <code>Ident</code> into a <code>StringLit</code>, it is something that we will be doing quite often. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn ident_to_string_lit&lt;'a&gt;(i: &amp;Ident&lt;'a&gt;) -&gt; Expr&lt;'a&gt; {
+    Expr::Lit(Lit::String(StringLit::Single(i.name.clone())))
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This one is also pretty straight forwrard, we take a reference to an <code>Ident</code> and clone the <code>name</code> property into a <code>StringLit::Single</code>, we want to wrap that up into an <code>Expr</code>, to do that we need to wrap it in a <code>Lit::String</code> first. </p>
+<p>To continue that theme, let's build another function that takes in an expression and returns that expression's representation as a <code>StringLit</code>. To start, let's build a function that converts an <code>Expr</code> into a rust <code>String</code>. The problem is that not all <code>Expr</code>s can be easily converted into a rust <code>String</code>. This will be a good opportunity to use the <code>Option</code> type to filter out any of the expressions we might not want to pass into <code>console.log</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn expr_to_string(expr: &amp;Expr) -&gt; Option&lt;String&gt; {
+    match expr {
+        Expr::Ident(ref ident) =&gt; Some(ident.name.to_string()),
+        Expr::This =&gt; Some(&quot;this&quot;.to_string()),
+        Expr::Member(ref mem) =&gt; {
+            let prefix = expr_to_string(&amp;mem.object)?;
+            let suffix = expr_to_string(&amp;mem.property)?;
+            Some(if mem.computed {
+                format!(&quot;{}[{}]&quot;, prefix, suffix)
+            } else {
+                format!(&quot;{}.{}&quot;, prefix, suffix)
+            })
+        },
+        Expr::Lit(lit) =&gt; {
+            match lit {
+                Lit::String(s) =&gt; Some(s.clone_inner().to_string()),
+                Lit::Number(n) =&gt; Some(n.to_string()),
+                Lit::Boolean(b) =&gt; Some(b.to_string()),
+                Lit::RegEx(r) =&gt; Some(format!(&quot;/{}/{}&quot;, r.pattern, r.flags)),
+                Lit::Null =&gt; Some(&quot;null&quot;.to_string()),
+                _ =&gt; None,
+            }
+        },
+        _ =&gt; None,
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This function is just a match expressions, the first case is the <code>Ident</code> that we simply make a copy of the the <code>name</code> property by calling <code>to_string</code>. Next is the <code>This</code> case, which we jsut create a new string and return that. for a member expression, we ant to return the <code>object</code> property converted to a string and the <code>property</code> property converted to a string seperated by a <code>.</code>, if either of these two can't be converted to a string, we just return <code>None</code>. The last case that we want to attempt to convert is the literal case, for that we simply extract the inner string in most cases. For the regex case, we reconstruct that by putting the <code>pattern</code> between two slashes and <code>flags</code> at the end. For the <code>null</code> case we just return that as a new string. The last case we might handle is <code>Template</code> which would be a little more complicated to re-construct for this example so we will just return <code>None</code> in that case. For any other expressions we want to return <code>None</code> as it would be far more complicated and pretty uncommon to come up in our use case.</p>
+<p>Now, we want to wrap the result of this new function into an <code>Expr</code> just like we did for our identifier.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn expr_to_string_lit&lt;'a&gt;(e: &amp;Expr&lt;'a&gt;) -&gt; Option&lt;Expr&lt;'a&gt;&gt; {
+    let inner = expr_to_string(e)?;
+    Some(Expr::Lit(Lit::String(StringLit::Single(::std::borrow::Cow::Owned(inner)))))
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Because modern javascript allows for patterns as function arguments, we are going to need a couple of helper's to handle these possiblities. Let's take this js as an example.</p>
+<pre><code class="language-js">function Thing({a, b = 0}, [c, d, e]) {
+
+}
+</code></pre>
+<p>Our goal would be to add a call to this function that looks like this.</p>
+<pre><code class="language-js">console.log('Thing', a, b, c, d, e);
+</code></pre>
+<p>Before we get into these pattern arguments, we want to have an easy way to clone an <code>Expr</code> but only when it is an <code>Ident</code>. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn clone_ident_from_expr&lt;'a&gt;(expr: &amp;Expr&lt;'a&gt;) -&gt; Option&lt;Expr&lt;'a&gt;&gt; {
+    if let Expr::Ident(_) = expr {
+        Some(expr.clone())
+    } else {
+        None
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we are just using an <code>if let</code> to test for the an <code>Ident</code> and cloning if there is a match. Now let's dig into the <code>Pat</code> argument conversion. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn extract_idents_from_pat&lt;'a&gt;(pat: &amp;Pat&lt;'a&gt;) -&gt; Vec&lt;Option&lt;Expr&lt;'a&gt;&gt;&gt; {
+    match pat {
+        Pat::Ident(i) =&gt; {
+            vec![Some(Expr::Ident(i.clone()))]
+        },
+        Pat::Obj(obj) =&gt; {
+            obj.iter().map(|part| {
+                match part {
+                    ObjPatPart::Rest(pat) =&gt; {
+                        extract_idents_from_pat(pat)
+                    },
+                    ObjPatPart::Assign(prop) =&gt; {
+                        match prop.key {
+                            PropKey::Pat(ref pat) =&gt; {
+                                extract_idents_from_pat(pat)
+                            },
+                            PropKey::Expr(ref expr) =&gt; {
+                                vec![clone_ident_from_expr(expr)]
+                            },
+                            PropKey::Lit(ref lit) =&gt; {
+                                vec![Some(Expr::Lit(lit.clone()))]
+                            }
+                        }
+                    },
+                }
+            }).flatten().collect()
+        },
+        Pat::Array(arr) =&gt; {
+            arr.iter().map(|p| {
+                match p {
+                    Some(ArrayPatPart::Expr(expr)) =&gt; {
+                        vec![clone_ident_from_expr(expr)]
+                    },
+                    Some(ArrayPatPart::Pat(pat)) =&gt; {
+                        extract_idents_from_pat(pat)
+                    },
+                    None =&gt; vec![],
+                }
+            }).flatten().collect()
+        },
+        Pat::RestElement(pat) =&gt; {
+            extract_idents_from_pat(pat)
+        },
+        Pat::Assign(assign) =&gt; {
+            extract_idents_from_pat(&amp;assign.left)
+        },
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Because pattern's like the object or array pattern can contain multiple arguments, in our example a and b would be in the same pattern, we want to return a <code>Vec</code> of the optional identifiers. First, let's cover the simplest pattern the <code>Ident</code> case. In this case we simply want to create a new <code>Vec</code> with a clone of the inner wrapped up in an <code>Expr</code> as its only contents. Next we get something a little more complicated the <code>Obj</code> case. Inside of a <code>Pat::Obj</code> is a <code>Vec</code> of an enum called <code>ObjPatPart</code> which has 2 cases the normal <code>Assign</code> and the <code>Rest</code> (preceded by <code>...</code>). The nice thing about the <code>Rest</code> case is that we can simply use recursion to get the ident's out of the inner <code>Pat</code>. The <code>Assign</code> case has a data scructure called <code>Prop</code>, in this situation we only really care about the <code>key</code> property, since that is where our identifier would live. A propety key can be either a <code>Pat</code>, <code>Expr</code> or <code>Lit</code>, in the first case we can use the same recursive call to get the identifiers it contains. For the expression case we are going to use that helper function we just wrote to get the ident out if it is an ident, finally we are going to just clone the liter into a new <code>Expr</code>. Since we need to do this for each of the <code>ObjPatPart</code>s in the object pattern we are going to use the <code>Iterator</code> trait's <code>map</code> to do the first step in the process, this will convert each element into a <code>Vec</code> of optional <code>Expr</code>s, to get that back down to a single <code>Vec</code> we can use the <code>flatten</code> method. Finally we will <code>collect</code> the iterator back together. Next we have the <code>Array</code>, this is going to look very similar. First we are going to map the inner <code>ArrayPatPart</code>s into our identifiers, this enum has 3 cases the <code>Expr</code> which we can pass off to our helper just like before, the <code>Pat</code> which we will use recursion for again and finally a <code>None</code> case which we can just return an empty <code>Vec</code>. The <code>RestElement</code> works just like the object pattern version, we just recurse with the inner value. Finally we have the <code>Assign</code> case, this one we want to use the same recursion method but only on the <code>left</code> property. Whew, that one was a bit of a doozy!</p>
+<p>We are just now starting to dig into the meat of this project, getting through this complicated mappings now is going to greatly simplify things for us later. Since we arre going to be primarily working with the <code>FuncArg</code>s in any given <code>Func</code> or <code>ArrowFunc</code>, we should have a function that maps any list of arguments to a new list of identifiers and literals.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn extract_idents_from_args&lt;'a&gt;(args: &amp;[FuncArg&lt;'a&gt;]) -&gt; Vec&lt;Expr&lt;'a&gt;&gt; {
+    let mut ret = vec![];
+    for arg in args {
+        match arg {
+            FuncArg::Expr(expr) =&gt; ret.push(clone_ident_from_expr(expr)),
+            FuncArg::Pat(pat) =&gt; ret.extend(extract_idents_from_pat(pat)),
+        }
+    }
+    ret.into_iter().filter_map(|e| e).collect()
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>In this function we are going to liberally use the last to helpers we put together. a <code>FuncArg</code> can be either a <code>Pat</code> or and <code>Expr</code>, in the former we are dealing with a possible list of many new elements but for the latter there would be only one. With that in mind we are going to use the <code>Vec</code> method <code>push</code> for one element and <code>extend</code> for possibly many. Once we have gone through each of the arguments provided we want to filter out any of the <code>None</code> cases by using the <code>filter_map</code> which will filter out any <code>None</code>s and unwrap and <code>Some</code>s for us automatically. We can then collect up the result to return.</p>
+<p>Last in our helper functions is going to be a way to go from an <code>AssignLeft</code> into an <code>Expr</code> with a <code>StringLit</code> inside. For this we are going to use the <code>expr_to_string_lit</code> helper in the <code>Expr</code> case and we are going to match on the <code>Pat</code> case, returning a call to the <code>ident_to_string_lit</code> helper. </p>
+<p>Armed with these helpers it is time to write our first mapping function. A pattern that will be true of all of our mapping functions is that they will always take a <code>Vec</code> of <code>Expr</code>s as the first argument. This how we are going to track the prefix of any log we want to write. We are going to start with the <code>Class</code>, which is primarily a collection of <code>Func</code>s wrapped up in <code>Prop</code>s so let's start at the property level.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn map_class_prop&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut prop: Prop&lt;'a&gt;) -&gt; Prop&lt;'a&gt; {
+    match prop.kind {
+        PropKind::Ctor =&gt; {
+            args.insert(args.len().saturating_sub(1), Expr::Lit(Lit::String(StringLit::single_from(&quot;new&quot;))));
+        },
+        PropKind::Get =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;get&quot;)))
+            );
+        },
+        PropKind::Set =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;set&quot;)))
+            );
+        },
+        _ =&gt; (),
+    };
+    match &amp;prop.key {
+        PropKey::Expr(ref expr) =&gt; match expr {
+            Expr::Ident(ref i) =&gt; {
+                if i.name != &quot;constructor&quot; {
+                    args.push(ident_to_string_lit(i));
+                }
+            }
+            _ =&gt; (),
+        },
+        PropKey::Lit(ref l) =&gt; match l {
+            Lit::Boolean(_)
+            | Lit::Number(_)
+            | Lit::RegEx(_)
+            | Lit::String(_) =&gt; {
+                args.push(Expr::Lit(l.clone()))
+            }
+            Lit::Null =&gt; {
+                args.push(Expr::Lit(Lit::String(StringLit::Single(::std::borrow::Cow::Owned(String::from(&quot;null&quot;))))));
+            }
+            _ =&gt; (),
+        },
+        PropKey::Pat(ref p) =&gt; {
+            match p {
+                Pat::Ident(ref i) =&gt; args.push(ident_to_string_lit(i)),
+                _ =&gt; args.extend(extract_idents_from_pat(p).into_iter().filter_map(|e| e)),
+            }
+        },
+    }
+    if let PropValue::Expr(expr) = prop.value {
+        prop.value = PropValue::Expr(map_expr(args, expr));
+    }
+    prop
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>To start, we want to look at the <code>kind</code> property, there are 3 kinds that are important for us here. The first is <code>Ctor</code> (short for constructor), if we find one of those we want to put the <code>new</code> just before the class name, which should be the last element in the args. To make sure we don't run into any big problems later we should use the <code>saturation_sub</code> method on <code>usize</code> to do the subtraction. Next are the <code>Get</code> and <code>Set</code> accessors, if we find one of those we just want to append this keyword to the end of the current args.</p>
+<p>Now that we have that, we need to start digging into the <code>ProgramPart</code> to identify anything we want to modify. Since <code>Parser</code> implements <code>Iterator</code> and its <code>Item</code> is <code>Result&lt;ProgramPart, Error&gt;</code> we first need to use <code>filter_map</code> to extract the <code>ProgramPart</code> from the result. It would probably be good to handle the error case here but for the sake of simplicity we are going to skip any errors. Now that we have an <code>Iterator</code> over <code>ProgramPart</code>s we can use <code>map</code> to update each part. </p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let js = get_js().expect(&quot;Unable to get JavaScript&quot;);
+    let parser = Parser::new(&amp;js).expect(&quot;Unable to construct parser&quot;);
+    for part in parser.filter_map(|p| p.ok()).map(map_part) {
+        //FIXME: Write updated program part to somewhere
+    }
+}
+</code></pre></pre>
+<p>With that in mind the entry point is going to be a function that takes a <code>ProgramPart</code> and returns a new <code>ProgramPart</code>. It might look like this</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn map_part&lt;'a&gt;(args: Vec&lt;Expr&lt;'a&gt;&gt;, part: ProgramPart&lt;'a&gt;) -&gt; ProgramPart&lt;'a&gt; {
+    match part {
+        ProgramPart::Decl(decl) =&gt; ProgramPart::Decl(map_decl(args, decl)),
+        ProgramPart::Stmt(stmt) =&gt; ProgramPart::Stmt(map_stmt(args, stmt)),
+        ProgramPart::Dir(_) =&gt; part,
+    }
+}
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>We are going to match on the part provided and either return that part if it is a <code>Directive</code> or if it isn't we need to investigate further to discover if it is a function or not. We do that in two places <code>map_decl</code> and <code>map_stmt</code> both of which are going to utilize similar method for digging further into the tree.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn map_decl&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, decl: Decl&lt;'a&gt;) -&gt; Decl&lt;'a&gt; {
+    match decl {
+        Decl::Func(f) =&gt; Decl::Func(map_func(args, f)),
+        Decl::Class(class) =&gt; Decl::Class(map_class(args, class)),
+        Decl::Var(kind, del) =&gt; {
+            Decl::Var(kind, del.into_iter().map(|part| {
+                if let Pat::Ident(ref ident) = part.id {
+                    args.push(ident_to_string_lit(ident));
+                }
+                VarDecl {
+                    id: part.id,
+                    init: part.init.map(|e| map_expr(args.clone(), e))
+                }
+            }).collect())
+        }
+<span class="boring">}
+</span></code></pre></pre>
+<p>There are two ways for a <code>Decl</code> to resolve into a function or method and that is with the <code>Function</code> and <code>Class</code> variants while a <code>Stmt</code> can end up there if it is an <code>Expr</code>. When we include <code>map_expr</code> we see that there are cases for both <code>Function</code> and <code>Class</code> in the <code>Expr</code> enum. That means once we get past those we will be handling the rest in the exact same way.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>        _ =&gt; decl.clone(),
+    }
+}
+
+fn map_stmt&lt;'a&gt;(args: Vec&lt;Expr&lt;'a&gt;&gt;, stmt: Stmt&lt;'a&gt;) -&gt; Stmt&lt;'a&gt; {
+    match stmt {
+        Stmt::Expr(expr) =&gt; Stmt::Expr(map_expr(args, expr)),
+        _ =&gt; stmt.clone(),
+<span class="boring">}
+</span></code></pre></pre>
+<p>Finally we are going to start manipulating the AST in <code>map_func</code>.</p>
+<p>The first thing we are going to do is to clone the <code>func</code> to give us a mutable version. Next we are going to check if the <code>id</code> is <code>Some</code>, if it is we can add that name to our <code>console.log</code> arguments. Now function arguments can be pretty complicated, to try and keep things simple we are going to only worry about the ones that are either <code>Expr::Ident</code> or <code>Pat::Identifier</code>. To build something more robust it might be good to include destructured arguments or arguments with default values but for this example we are just going to keep it simple.</p>
+<p>First we are going to <code>filter_map</code> the <code>func.params</code> to only get the items that ultimately resolve to <code>Identifer</code>s, at that point we can wrap all of these identifiers in an <code>Expr::Ident</code> and add them to the <code>console.log</code> args. Now we can simply insert the result of passing those args to <code>console_log</code> at the first position of the <code>func.body</code>. Because functions can appear in the body of other functions we also want to map all of the <code>func.body</code> program parts. Once that has completed we can return the updated <code>func</code> to the caller.</p>
+<p>The next thing we are going to want to deal with is <code>Class</code>, we want to insert console.log into the top of each method on a class. This is a bit unique because we also want to provide the name of that class (if it exists) as the first argument to console.log. That might look like this.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span>
+<span class="boring">fn main() {
+</span>fn map_func&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut func: Func&lt;'a&gt;) -&gt; Func&lt;'a&gt; {
+    if let Some(ref id) = &amp;func.id {
+        args.push(ident_to_string_lit(id));
+    }
+    let local_args = extract_idents_from_args(&amp;func.params);
+    func.body = FuncBody(func.body.0.into_iter().map(|p| map_part(args.clone(), p)).collect());
+    insert_expr_into_func_body(console_log(args.clone().into_iter().chain(local_args.into_iter()).collect()), &amp;mut func.body);
+    func
+}
+
+fn map_arrow_func&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut f: ArrowFuncExpr&lt;'a&gt;) -&gt; ArrowFuncExpr&lt;'a&gt; {
+    args.extend(extract_idents_from_args(&amp;f.params));
+    match &amp;mut f.body {
+        ArrowFuncBody::FuncBody(ref mut body) =&gt; {
+            insert_expr_into_func_body(console_log(args), body)
+        },
+        ArrowFuncBody::Expr(expr) =&gt; {
+            f.body = ArrowFuncBody::FuncBody(FuncBody(vec![
+                console_log(args),
+                ProgramPart::Stmt(
+                    Stmt::Return(
+                        Some(*expr.clone())
+                    )
+                )
+            ]))
+        }
+    }
+    f
+}
+
+fn map_class&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut class: Class&lt;'a&gt;) -&gt; Class&lt;'a&gt; {
+    if let Some(ref id) = class.id {
+        args.push(ident_to_string_lit(id))
+    }
+    let mut new_body = vec![];
+    for item in class.body.0 {
+        new_body.push(map_class_prop(args.clone(), item))
+    }
+    class.body = ClassBody(new_body);
+    class
+}
+
+fn map_class_prop&lt;'a&gt;(mut args: Vec&lt;Expr&lt;'a&gt;&gt;, mut prop: Prop&lt;'a&gt;) -&gt; Prop&lt;'a&gt; {
+    match prop.kind {
+        PropKind::Ctor =&gt; {
+            args.insert(args.len().saturating_sub(1), Expr::Lit(Lit::String(StringLit::single_from(&quot;new&quot;))));
+        },
+        PropKind::Get =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;get&quot;)))
+            );
+        },
+        PropKind::Set =&gt; {
+            args.push(
+                Expr::Lit(Lit::String(StringLit::single_from(&quot;set&quot;)))
+            );
+        },
+        _ =&gt; (),
+    };
+    match &amp;prop.key {
+        PropKey::Expr(ref expr) =&gt; match expr {
+            Expr::Ident(ref i) =&gt; {
+                if i.name != &quot;constructor&quot; {
+                    args.push(ident_to_string_lit(i));
+                }
+            }
+            _ =&gt; (),
+        },
+        PropKey::Lit(ref l) =&gt; match l {
+            Lit::Boolean(_)
+            | Lit::Number(_)
+            | Lit::RegEx(_)
+            | Lit::String(_) =&gt; {
+                args.push(Expr::Lit(l.clone()))
+            }
+            Lit::Null =&gt; {
+                args.push(Expr::Lit(Lit::String(StringLit::Single(::std::borrow::Cow::Owned(String::from(&quot;null&quot;))))));
+            }
+            _ =&gt; (),
+        },
+        PropKey::Pat(ref p) =&gt; {
+            match p {
+                Pat::Ident(ref i) =&gt; args.push(ident_to_string_lit(i)),
+                _ =&gt; args.extend(extract_idents_from_pat(p).into_iter().filter_map(|e| e)),
+            }
+        },
+    }
+    if let PropValue::Expr(expr) = prop.value {
+        prop.value = PropValue::Expr(map_expr(args, expr));
+    }
+    prop
+}
+
+fn assign_left_to_string_lit&lt;'a&gt;(left: &amp;AssignLeft&lt;'a&gt;) -&gt; Option&lt;Expr&lt;'a&gt;&gt; {
+    match left {
+        AssignLeft::Expr(expr) =&gt; expr_to_string_lit(expr),
+        AssignLeft::Pat(pat) =&gt; {
+            match pat {
+                Pat::Ident(ident) =&gt; Some(ident_to_string_lit(ident)),
+                _ =&gt; None,
+            }
+        }
+    }
+}
+
+
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we have two functions, the first pulls out the id from the provided class or uses an empty string of it doesn't exist. We then just pass that off to <code>map_class_prop</code> which will handle all of the different types of properties a class can have. The first thing this does is map the <code>prefix</code> into the right format, so a call to <code>new Thing()</code> would print <code>new Thing</code>, or a get method would print <code>Thing get</code> before the method name. Next we take a look at the <code>property.key</code>, this will provide us with the name of our function, but according to the specification a class property key can be an identifier, a literal value, or a pattern, so we need to figure out what the name of this method is by digging into that value. First in the case that it is an ident we want to add it to the args, unless it is the value <code>constructor</code> because we already put the <code>new</code> keyword in that one. Next we can pull out the literal values and add those as they appear. Lastly we will only handle the pattern case when it is a <code>Pat::Identifier</code> otherwise we will just skip it. Now to get the parameter names from the method definition we need to look at the <code>property.value</code> which should always be an <code>Expr::Function</code>. Once we match on that we simply repeat the process of <code>map_function</code> pulling the args out but only when they are <code>Ident</code>s and then passing that along to <code>console_log</code> and inserting that <code>Expr</code> at the top of the function body.</p>
+<p>At this point we have successfully updated our AST to include a call to <code>console.log</code> at the top of each function and method in our code. Now the big question is how do we write that out to a file. This problem is not a small one, in the next section we are going to cover a third crate <code>resw</code> that we can use to finish this project.
+$web-only-end$</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="resw"><a class="header" href="#resw">RESW</a></h1>
+<p>$web-only$
+While <code>ress</code> and <code>ressa</code> consume text and generate data structures, <code>resw</code> is going to consume data structures and write out text. This means it can do the heavy lifting when solving the problem our debug logging project left us with. However instead of just sweeping that under the rug, we are going to go over how <code>resw</code> works. Because the nature of JavaScript, <code>resw</code> makes some style decisions that might not work for everyone, by going over the project in detail the hope is that other's will feel enabled to either contribute a configuration option into <code>resw</code> or even implement their own project that consumes <code>ressa</code>'s AST and generates text.</p>
+<p>If you are just interested in seeing how we are going to finish the project from the last chapter, feel free to move ahead.</p>
+<p>Similar to the structure of <code>ressa</code>, <code>resw</code> exposes a struct that will keep track of the context for us called <code>Writer</code>. There are 2 methods for constructing a <code>Writer</code>, the first is the <code>::new</code> method the second is the <code>::builder</code> method that utilizes the <em>builder</em> pattern to customize some options. Those options include</p>
+<ul>
+<li>New line character (default <code>\n</code>)</li>
+<li>Quote (default to use origin quotation mark)
+<ul>
+<li>Setting this to any value will force all of the string literals in the provided JavaScript to be re-written with the provided quotes</li>
+</ul>
+</li>
+<li>Indent (default 4 spaces)</li>
+</ul>
+<p>Either method you are going to need to provide the destination, this can be anything that implements the <code>std::io::Write</code> trait. For testing purposes the crate provides an implementor of <code>Write</code> in <code>WriteString</code>, we are not going to cover that here but a more detailed explanation can be found in the <a href="04.resw/./a.appendix/string.writer.html">appendix</a>.</p>
+<p>Once a <code>Writer</code> is constructed, it provides an API surface that should cover most of the <code>ressa</code> AST. The primary entry-point for is going to be either <code>write_program</code> or <code>write_part</code>. For the most part, the primary role of the writer is going to be incrementally move down the AST until we find something that we are confident in exactly what to write. Let's take the following js as an example.</p>
+<pre><code class="language-js">function Thing(stuff) {
+    this.stuff = stuff;
+}
+let thing = new Thing('argument');
+</code></pre>
+<p>If we run that that through the <code>ressa::Parser</code>, we would see the following AST.</p>
+<pre><code class="language-ron">Decl(
+    Function(
+        Function {
+            id: Some(
+                &quot;Thing&quot;
+            ),
+            params: [
+                Pat(
+                    Identifier(
+                        &quot;stuff&quot;
+                    )
+                )
+            ],
+            body: [
+                Stmt(
+                    Expr(
+                        Assignment(
+                            AssignmentExpr {
+                                operator: Equal,
+                                left: Expr(
+                                    Member(
+                                        MemberExpr {
+                                            object: ThisExpr,
+                                            property: Ident(
+                                                &quot;stuff&quot;
+                                            ),
+                                            computed: false
+                                        }
+                                    )
+                                ),
+                                right: Ident(
+                                    &quot;stuff&quot;
+                                )
+                            }
+                        )
+                    )
+                )
+            ],
+            generator: false,
+            is_async: false
+        }
+    )
+)
+Decl(
+    Variable(
+        Let,
+        [
+            VariableDecl {
+                id: Identifier(
+                    &quot;thing&quot;
+                ),
+                init: Some(
+                    New(
+                        NewExpr {
+                            callee: Ident(
+                                &quot;Thing&quot;
+                            ),
+                            arguments: [
+                                Literal(
+                                    String(
+                                        &quot;\'argument\'&quot;
+                                    )
+                                )
+                            ]
+                        }
+                    )
+                )
+            }
+        ]
+    )
+)
+</code></pre>
+<p>Using that, let's take a look at how <code>resw</code> would generate the text to represent our AST. First we would enter at <code>write_part</code> with the first <code>ProgramPart</code>. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_part(&amp;mut self, part: &amp;ProgramPart) -&gt; Res {
+    self.at_top_level = true;
+    self._write_part(part)?;
+    self.write_new_line()?;
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Interestingly enough, <code>write_part</code> is really more concerned with maintaining a context flag for if we are at the top level or not, this becomes important when trying to determine if any expression needs to be wrapped in parentheses. Almost all of the work is going to be passed off to an internal private function <code>_write_part</code>. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn _write_part(&amp;mut self, part: &amp;ProgramPart) -&gt; Res {
+    self.write_leading_whitespace()?;
+    match part {
+        ProgramPart::Decl(decl) =&gt; self.write_decl(decl)?,
+        ProgramPart::Dir(dir) =&gt; self.write_directive(dir)?,
+        ProgramPart::Stmt(stmt) =&gt; self.write_stmt(stmt)?,
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The first thing we want to do is make sure that any leading whitespace is included with <code>write_leading_whitespace</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_leading_whitespace(&amp;mut self) -&gt; Res {
+    self.write(&amp;self.indent.repeat(self.current_indent))?;
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This is achieved by looking at the <code>current_indent</code> and writing the configurable property <code>indent</code> to the destination repeated the for our current indent level, so if our indent was <code>\t</code> and we were at level 2 it would write <code>&quot;\t\t&quot;</code>. Internally the <code>write</code> method just writes a single <code>&amp;str</code> to the destination. After we write our leading whitespace, we can start to descend the AST, we do that by matching on the part. You can see that there is a branch for each of the possible enum variants, looking back at the example, we know the next step would be to head to <code>write_decl</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_decl(&amp;mut self, decl: &amp;Decl) -&gt; Res {
+    match decl {
+        Decl::Variable(ref kind, ref decls) =&gt; self.write_variable_decls(kind, decls)?,
+        Decl::Class(ref class) =&gt; {
+            self.at_top_level = false;
+            self.write_class(class)?;
+            self.write_new_line()?;
+        },
+        Decl::Function(ref func) =&gt; {
+            self.at_top_level = false;
+            self.write_function(func)?;
+            self.write_new_line()?;
+        },
+        Decl::Export(ref exp) =&gt; self.write_export_decl(exp)?,
+        Decl::Import(ref imp) =&gt; self.write_import_decl(imp)?,
+    };
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Moving further down we simply match on the the declaration handling each variant as needed. For our example we would move into the <code>Decl::Function</code> branch. The first step in that branch is to set the context flag <code>at_top_level</code> to <code>false</code> and then move into the <code>write_function</code> method.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_function(&amp;mut self, func: &amp;Function) -&gt; Res {
+    if func.is_async {
+        self.write(&quot;async &quot;)?;
+    }
+    self.write(&quot;function&quot;)?;
+    if let Some(ref id) = func.id {
+        self.write(&quot; &quot;)?;
+        if func.generator {
+            self.write(&quot;*&quot;)?;
+        }
+        self.write(id)?;
+    } else if func.generator {
+        self.write(&quot;*&quot;)?;
+    }
+    self.write_function_args(&amp;func.params)?;
+    self.write(&quot; &quot;)?;
+    self.write_function_body(&amp;func.body)
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we are going to actually start writing some information out to our destination. First is we check the flag on <code>Function</code> to see if we need to write the <code>async</code> keyword, next we write the keyword <code>function</code> followed by a check to see if the id is <code>Some</code>. If so we need to check the flag on <code>Function</code> to see if that function is a generator, if it is we need to add a <code>*</code> before the id, and Lastly we write the <code>id</code></p>
+<p>Now that we have gotten though that we can start to look at the parameters and body. First we are going to pass off the parameters to <code>write_function_args</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Write the arguments of a function or method definition
+/// ```js
+/// function(arg1, arg2) {
+/// }
+/// ```
+pub fn write_function_args(&amp;mut self, args: &amp;[FunctionArg]) -&gt; Res {
+    self.write(&quot;(&quot;)?;
+    let mut after_first = false;
+    for ref arg in args {
+        if after_first {
+            self.write(&quot;, &quot;)?;
+        } else {
+            after_first = true;
+        }
+        self.write_function_arg(arg)?;
+    }
+    self.write(&quot;)&quot;)?;
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The first step here is to write the open parenthesis, next we are going to use a flag <code>after_first</code> to help with handing if a comma should be written before the argument. This is the first place that we have seen where <code>resw</code> is making a style choice, all function parameters will not include a trailing comma. Ideally style choices will be configurable in the future but currently this one is not. Now that we have handled the comma situation we can pass the argument off to <code>write_function_arg</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_function_arg(&amp;mut self, arg: &amp;FunctionArg) -&gt; Res {
+    match arg {
+        FunctionArg::Expr(ref ex) =&gt; self.write_expr(ex)?,
+        FunctionArg::Pat(ref pa) =&gt; self.write_pattern(pa)?,
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we see another function that simply move us further down the AST. Function arguments can be either expressions or patterns so we need to handle both. For our example we are going to head down the <code>Pat</code> branch with <code>write_pattern</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_pattern(&amp;mut self, pattern: &amp;Pat) -&gt; Res {
+    match pattern {
+        Pat::Identifier(ref i) =&gt; self.write(i),
+        Pat::Object(ref o) =&gt; self.write_object_pattern(o),
+        Pat::Array(ref a) =&gt; self.write_array_pattern(a.as_slice()),
+        Pat::RestElement(ref r) =&gt; self.write_rest_element(r),
+        Pat::Assignment(ref a) =&gt; self.write_assignment_pattern(a),
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Most of the options here are simply going to continue branching down our AST, however for our example we are going to head down the first match arm with <code>Pat::Identifer</code> and just write that string out to our destination.</p>
+<p>Moving back up we only had one parameter for our function signature so we finish out <code>write_function_args</code> with a closing parenthesis. That then leads us to <code>write_function_body</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_function_body(&amp;mut self, body: &amp;FunctionBody) -&gt; Res {
+    if body.len() == 0 {
+        self.write(&quot;{ &quot;)?;
+    } else {
+        self.write_open_brace()?;
+        self.write_new_line()?;
+    }
+    for ref part in body {
+        self._write_part(part)?;
+    }
+    if body.len() == 0 {
+        self.write(&quot;}&quot;)?;
+    } else {
+        self.write_close_brace()?;
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The first thing we need to do is take a look at the <code>&amp;FunctionBody</code> which is a type alias for <code>Vec&lt;ProgramPart&gt;</code>. We check to see if this function has any body, if not we just write a single open curly brace, if it does we want to write the curly brace using <code>write_open_brace</code>, this is a convenience method for writing the character and also incrementing the <code>current_indent</code>, lastly we write a new line. Now we loop over each of the <code>ProgramPart</code>s in <code>body</code> and pass that off to <code>_write_body</code>. For our example there is only going to be one part. This part is a <code>ProgramPart::Stmt</code> which would be handled by <code>write_stmt</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_stmt(&amp;mut self, stmt: &amp;Stmt) -&gt; Res {
+    let mut semi = true;
+    let mut new_line = true;
+    let cached_state = self.at_top_level;
+    match stmt {
+        Stmt::Empty =&gt; {
+            new_line = false;
+        },
+        Stmt::Debugger =&gt; self.write_debugger_stmt()?,
+        Stmt::Expr(ref stmt) =&gt; {
+            let wrap = match stmt {
+                Expr::Literal(_)
+                | Expr::Object(_)
+                | Expr::Function(_) 
+                | Expr::Binary(_) =&gt; true,
+                _ =&gt; false,
+            };
+            if wrap {
+                self.write_wrapped_expr(stmt)?
+            } else {
+                self.write_expr(stmt)?
+            }
+        },
+        Stmt::Block(ref stmt) =&gt; {
+            self.at_top_level = false;
+            self.write_block_stmt(stmt)?;
+            semi = false;
+            new_line = false;
+            self.at_top_level = cached_state;
+        }
+        Stmt::With(ref stmt) =&gt; {
+            self.write_with_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::Return(ref stmt) =&gt; self.write_return_stmt(stmt)?,
+        Stmt::Labeled(ref stmt) =&gt; {
+            self.write_labeled_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::Break(ref stmt) =&gt; self.write_break_stmt(stmt)?,
+        Stmt::Continue(ref stmt) =&gt; self.write_continue_stmt(stmt)?,
+        Stmt::If(ref stmt) =&gt; {
+            self.write_if_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::Switch(ref stmt) =&gt; {
+            self.at_top_level = false;
+            self.write_switch_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::Throw(ref stmt) =&gt; self.write_throw_stmt(stmt)?,
+        Stmt::Try(ref stmt) =&gt; {
+            self.write_try_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::While(ref stmt) =&gt; {
+            new_line = self.write_while_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::DoWhile(ref stmt) =&gt; self.write_do_while_stmt(stmt)?,
+        Stmt::For(ref stmt) =&gt; {
+            self.at_top_level = false;
+            new_line = self.write_for_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::ForIn(ref stmt) =&gt; {
+            self.at_top_level = false;
+            new_line = self.write_for_in_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::ForOf(ref stmt) =&gt; {
+            self.at_top_level = false;
+            new_line = self.write_for_of_stmt(stmt)?;
+            semi = false;
+        }
+        Stmt::Var(ref stmt) =&gt; self.write_var_stmt(stmt)?,
+    };
+    if semi {
+        self.write_empty_stmt()?;
+    }
+    if new_line {
+        self.write_new_line()?;
+    }
+    self.at_top_level = cached_state;
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>That is a pretty big match statement! Before we enter that we have a couple of context flags to help us with formatting <code>write_semi</code> and <code>new_line</code>, both with a default value of <code>true</code>. Looking at our example, we would enter the <code>Stmt::Expr</code> arm of the match which handles handles the possible requirement that this statement be wrapped in parentheses. Primitive literals, object literals, functions, and binary operations would require parentheses when not part of a larger statement. There is a convenience method called <code>write_wrapped_expr</code> that just writes parentheses around a call to <code>write_expr</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_expr(&amp;mut self, expr: &amp;Expr) -&gt; Res {
+    let cached_state = self.at_top_level;
+    match expr {
+        Expr::Literal(ref expr) =&gt; self.write_literal(expr)?,
+        Expr::This =&gt; self.write_this_expr()?,
+        Expr::Super =&gt; self.write_super_expr()?,
+        Expr::Array(ref expr) =&gt; self.write_array_expr(expr)?,
+        Expr::Object(ref expr) =&gt; self.write_object_expr(expr)?,
+        Expr::Function(ref expr) =&gt; {
+            self.at_top_level = false;
+            self.write_function(expr)?;
+            self.at_top_level = cached_state;
+        }
+        Expr::Unary(ref expr) =&gt; self.write_unary_expr(expr)?,
+        Expr::Update(ref expr) =&gt; self.write_update_expr(expr)?,
+        Expr::Binary(ref expr) =&gt; self.write_binary_expr(expr)?,
+        Expr::Assignment(ref expr) =&gt; {
+            self.at_top_level = false;
+            self.write_assignment_expr(expr)?
+        },
+        Expr::Logical(ref expr) =&gt; self.write_logical_expr(expr)?,
+        Expr::Member(ref expr) =&gt; self.write_member_expr(expr)?,
+        Expr::Conditional(ref expr) =&gt; self.write_conditional_expr(expr)?,
+        Expr::Call(ref expr) =&gt; self.write_call_expr(expr)?,
+        Expr::New(ref expr) =&gt; self.write_new_expr(expr)?,
+        Expr::Sequence(ref expr) =&gt; self.write_sequence_expr(expr)?,
+        Expr::Spread(ref expr) =&gt; self.write_spread_expr(expr)?,
+        Expr::ArrowFunction(ref expr) =&gt; {
+            self.at_top_level = false;
+            self.write_arrow_function_expr(expr)?;
+            self.at_top_level = cached_state;
+        }
+        Expr::Yield(ref expr) =&gt; self.write_yield_expr(expr)?,
+        Expr::Class(ref expr) =&gt; {
+            self.at_top_level = false;
+            self.write_class(expr)?;
+            self.at_top_level = cached_state;
+        }
+        Expr::MetaProperty(ref expr) =&gt; self.write_meta_property(expr)?,
+        Expr::Await(ref expr) =&gt; self.write_await_expr(expr)?,
+        Expr::Ident(ref expr) =&gt; self.write_ident(expr)?,
+        Expr::TaggedTemplate(ref expr) =&gt; self.write_tagged_template(expr)?,
+        _ =&gt; unreachable!(),
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The first step here is to keep a copy of the previous <code>at_top_level</code> flag so that we can revert back to it after writing, some of the arms are going to change it. Next we enter another very large match statement. Our example would take the <code>Expr::Assignment</code> arm, passing further work off to <code>write_assignment_expr</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_assignment_expr(&amp;mut self, assignment: &amp;AssignmentExpr) -&gt; Res {
+    let wrap_self = match &amp;assignment.left {
+        AssignmentLeft::Expr(ref e) =&gt; match &amp;**e {
+            Expr::Object(_) 
+            | Expr::Array(_) =&gt; true,
+            _ =&gt; false,
+        }, 
+        AssignmentLeft::Pat(ref p) =&gt; match p {
+            Pat::Array(_) =&gt; true,
+            Pat::Object(_) =&gt; true,
+            _ =&gt; false,
+        }
+    };
+    if wrap_self {
+        self.write(&quot;(&quot;)?;
+    }
+    match &amp;assignment.left {
+        AssignmentLeft::Expr(ref e) =&gt; self.write_expr(e)?,
+        AssignmentLeft::Pat(ref p) =&gt; self.write_pattern(p)?,
+    }
+    self.write(&quot; &quot;)?;
+    self.write_assignment_operator(&amp;assignment.operator)?;
+    self.write(&quot; &quot;)?;
+    self.write_expr(&amp;assignment.right)?;
+    if wrap_self {
+        self.write(&quot;)&quot;)?;
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we are first we need to determine if the whole assignment expression needs to be wrapped in parentheses which would only be true if the left hand side was an object or array literal. Next we test the <code>assignment.left</code> property since it can be either an <code>Expr</code> or a <code>Pat</code>, our example would take us back to the <code>write_expr</code> method. This would take us back up through <code>write_expr</code> but this time we would pass into the <code>Expr::Member</code> arm which passes its work off to <code>write_member_expr</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_member_expr(&amp;mut self, member: &amp;MemberExpr) -&gt; Res {
+    match &amp;*member.object {
+        Expr::Assignment(_) 
+        | Expr::Literal(Literal::Number(_))
+        | Expr::Conditional(_)
+        | Expr::Logical(_) 
+        | Expr::Function(_)
+        | Expr::ArrowFunction(_)
+        | Expr::Object(_)
+        | Expr::Binary(_) 
+        | Expr::Unary(_)
+        | Expr::Update(_) =&gt; self.write_wrapped_expr(&amp;member.object)?,
+        _ =&gt; self.write_expr(&amp;member.object)?,
+    }
+    if member.computed {
+        self.write(&quot;[&quot;)?;
+    } else {
+        self.write(&quot;.&quot;)?;
+    }
+    self.write_expr(&amp;member.property)?;
+    if member.computed {
+        self.write(&quot;]&quot;)?;
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we first check to see if the <code>object</code> property is required to be wrapped in parentheses for us though we just want to pass that along to <code>write_expr</code>. This time though there we are going to end up at <code>Expr::ThisExpr</code> which just writes out the literal word <code>this</code>. Next we are going to look at the flag on <code>MemberExpr</code> &quot;computed&quot; to see if this was written originally with the bracket notation (<code>this['stuff']</code>) or the dot notation (<code>this.stuff</code>), writing the appropriate character. Now we are again going to pass some work back to <code>write_expr</code>, this time with the <code>property</code> property. This would end on the branch for <code>Expr::Ident</code> which just writes that value to the destination. If the member expression was computed we would need to write the <code>]</code> but for our example it is not. </p>
+<p>At this point we are back up at <code>write_assignment_expr</code> where we are going to write a single space and then pass the <code>assignment.operator</code> off to <code>write_assignment_operator</code>. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_assignment_operator(&amp;mut self, op: &amp;AssignmentOperator) -&gt; Res {
+    let s = match op {
+        AssignmentOperator::AndEqual =&gt; &quot;&amp;=&quot;,
+        AssignmentOperator::DivEqual =&gt; &quot;/=&quot;,
+        AssignmentOperator::Equal =&gt; &quot;=&quot;,
+        AssignmentOperator::LeftShiftEqual =&gt; &quot;&lt;&lt;=&quot;,
+        AssignmentOperator::MinusEqual =&gt; &quot;-=&quot;,
+        AssignmentOperator::ModEqual =&gt; &quot;%=&quot;,
+        AssignmentOperator::OrEqual =&gt; &quot;|=&quot;,
+        AssignmentOperator::PlusEqual =&gt; &quot;+=&quot;,
+        AssignmentOperator::PowerOfEqual =&gt; &quot;**=&quot;,
+        AssignmentOperator::RightShiftEqual =&gt; &quot;&gt;&gt;=&quot;,
+        AssignmentOperator::TimesEqual =&gt; &quot;*=&quot;,
+        AssignmentOperator::UnsignedRightShiftEqual =&gt; &quot;&gt;&gt;&gt;=&quot;,
+        AssignmentOperator::XOrEqual =&gt; &quot;^=&quot;,
+    };
+    self.write(s)?;
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This is a relatively straight forward process of looking at which operator was provided and then writing out the text that represents that operator. For our example it would be <code>=</code>, we then need to write a single space. The last step in <code>write_assignment_expr</code> is to handle the <code>assignment.right</code> which is also an <code>Expr</code> so we pass that off to <code>write_expr</code>. Our example will head to the <code>Expr::Ident</code> match arm and then just write to the destination. With that we have now reached the last step in <code>write_function_body</code> which is to <code>write_close_brace</code> similar to <code>write_open_brace</code> here we are decrementing the <code>current_indent</code> context property. That also brings us to the end of <code>write_function</code>, <code>write_decl</code>, and <code>_write_part</code>. The last thing we do in <code>write_part</code> is to add a trailing new line, another style choice.</p>
+<p>As our example continues we would then start again at <code>write_part</code> with the next part. This is going to move though <code>_write_part</code> the same as before, however when we get to <code>write_decl</code> we have a new branch to head down. This is the <code>Decl::Variable</code> arm which passes its work off to <code>write_variable_decls</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_variable_decls(&amp;mut self, kind: &amp;VariableKind, decls: &amp;[VariableDecl]) -&gt; Res {
+    self.write_variable_kind(kind)?;
+    let mut after_first = false;
+    for decl in decls {
+        if after_first {
+            self.write(&quot;, &quot;)?;
+        } else {
+            after_first = true;
+        }
+        self.write_variable_decl(decl)?;
+    }
+    self.write_empty_stmt()?;
+    self.write_new_line()
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>As you might expect the first thing we want to do is to write the variable kind. We pass off the <code>kind</code> variable to <code>write_variable_kind</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_variable_kind(&amp;mut self, kind: &amp;VariableKind) -&gt; Res {
+    let s = match kind {
+        VariableKind::Const =&gt; &quot;const &quot;,
+        VariableKind::Let =&gt; &quot;let &quot;,
+        VariableKind::Var =&gt; &quot;var &quot;,
+    };
+    self.write(s)
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Similar to our examination of <code>write_assignment_operator</code> we are going to simply look at which keyword was used and then write that out, with a trailing space. </p>
+<p>Next we need to keep track of two flags <code>after_first</code> which should be familiar from <code>write_function_args</code>. In our loop, we pass of each of the declarations to <code>write_variable_decl</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_variable_decl(&amp;mut self, decl: &amp;VariableDecl) -&gt; Res {
+    self.write_pattern(&amp;decl.id)?;
+    if let Some(ref init) = decl.init {
+        self.write(&quot; = &quot;)?;
+        self.write_expr(init)?;
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we first write out the id of this variable by passing it off to <code>write_pattern</code>. Thankfully our example is pretty simple so we are again going to take that first branch for <code>Pat::Ident</code> and write the identifer to our destination. After that we want to check if this variable is initialized, ours is, and if so we would write the &quot; = &quot; and then write the expression by passing that off to <code>write_expr</code>. For this pass through <code>write_expr</code> we are going to travel down the <code>Expr::New</code> arm which passes its work off to <code>write_new_expr</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_new_expr(&amp;mut self, new: &amp;NewExpr) -&gt; Res {
+    self.write(&quot;new &quot;)?;
+    match &amp;*new.callee {
+        Expr::Assignment(_) 
+        | Expr::Call(_) =&gt; self.write_wrapped_expr(&amp;new.callee)?,
+        _ =&gt; self.write_expr(&amp;new.callee)?,
+    }
+    self.write_sequence_expr(&amp;new.arguments)?;
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>At this point we want to first write the <code>new</code> keyword followed by a space. Next we want to write out what the <code>new.callee</code> is which would again bring us to <code>write_expr</code>. Our example would travel to the <code>Expr::Ident</code> arm which just writes that out. Next we need to write an open parenthesis followed by the provided arguments. This time we are going to use the <code>write_sequence_expr</code> method to do that. </p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_sequence_expr(&amp;mut self, sequence: &amp;[Expr]) -&gt; Res {
+    let mut after_first = false;
+    self.write(&quot;(&quot;)?;
+    for ref e in sequence {
+        if after_first {
+            self.write(&quot;, &quot;)?;
+        }
+        self.write_expr(e)?;
+        after_first = true;
+    }
+    self.write(&quot;)&quot;)?;
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>At this point the structure of this function's body should look familiar, we are going to loop over the provide expressions and write them out with a comma and space before all but the first one. For our example we are going only hit this once so no comma, then we are going to pass that off to <code>write_expr</code>. This time as we pass through the match in <code>write_expr</code> we are going to hit the <code>Expr::Literal</code> arm which passes its work off to <code>write_literal</code>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_literal(&amp;mut self, lit: &amp;Literal) -&gt; Res {
+    match lit {
+        Literal::Boolean(b) =&gt; self.write_bool(*b),
+        Literal::Null =&gt; self.write(&quot;null&quot;),
+        Literal::Number(n) =&gt; self.write(&amp;n),
+        Literal::String(s) =&gt; self.write_string(s),
+        Literal::RegEx(r) =&gt; self.write_regex(r),
+        Literal::Template(t) =&gt; self.write_template(t),
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here we see another match statement, our example will take us down the <code>Literal::String</code> arm which passes off work to <code>write_string</code>. You may be wondering why that is, since writing strings is all we have really been doing. The answer is that this is one of the few style preferences that is currently configurable as you'll see.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn write_string(&amp;mut self, s: &amp;str) -&gt; Res {
+    if let Some(c) = self.quote {
+        self.re_write_string(s, c)?;
+    } else {
+        self.write(s)?;
+    }
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>We first check to see if the <code>self.quote</code> property has been set, this would indicate that the user has a quote preference. If it is set then we want to re-write the string to use this quote, this involves re-writing any internal escaped quotes for the old quote and escaping the new quote that might appear in the contents. If that property is <code>None</code> then we would just write it out normally as the <code>ressa::node::Literal::String</code> preserves the original quotation mark.</p>
+<p>After that we are again back at <code>write_new_expr</code> where the last thing to do is write the closing parenthesis, after which we are at the bottom of <code>write_variable_decl</code>. When we move up again to the <code>write_variable_decls</code> we would write a semi-colon and new line to close that out. This brings us to the bottom of <code>write_decl</code>, <code>_write_part</code>, and <code>write_part</code>, it also brings us to the end of our example JavaScript. While we didn't touch every part of how <code>resw</code> works, there is a lot of surface area to cover, hopefully it has provided enough information for you feel confident in how it works. For more information you can check out the <a href="https://docs.rs/ressa/"><code>ressa</code> docs</a> and the <a href="https://docs.rs/resw/"><code>resw</code> docs</a>. </p>
+<p>Up next we are going to see how you would use <code>resw</code> to complete our debug log helper.</p>
+<p>$web-only-end$</p>
+<p>$slides-only$</p>
+<ul>
+<li><code>Writer</code> takes <code>ProgramPart</code>s</li>
+<li>Somewhat Configurable</li>
+<li>Writes to <code>impl Write</code>
+$slides-only$</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building-a-writer"><a class="header" href="#building-a-writer">Building a Writer</a></h1>
+<p>$web-only$
+Thankfully because of the existence of <code>resw</code> completing the <code>console.log</code> debugging tool is going to be trivial. The primary entry point for <code>resw</code> is the <code>Writer</code> struct, which has a method <code>write_part</code> that will take a <code>&amp;mut self</code> and <code>&amp;ProgramPart</code>, so we can use that in our for loop to write out the parts as they are parsed. That might look like this.</p>
+<pre><pre class="playground"><code class="language-rust">};
+
+fn main() {
+    let mut args = ::std::env::args();
+    let _ = args.next();
+    let file_name = args
+        .next()
+        .unwrap_or(String::from(&quot;./examples/insert_logging.js&quot;));
+    let js = read_to_string(file_name).expect(&quot;Unable to find js file&quot;);
+</code></pre></pre>
+<p>With that complete we can see how well it works for us. Let's use the following example JavaScript.</p>
+<pre><code class="language-js">function Thing(stuff) {
+    this.stuff = stuff;
+}
+let x = new Thing('argument');
+</code></pre>
+<p>Just as a simple test we could enter the following into our terminal</p>
+<pre><code class="language-bash">$ echo &quot;function Thing(stuff) {
+    this.stuff = stuff;
+}
+let x = new Thing('argument');
+&quot; | console_logify
+function Thing(stuff) {
+    console.log('Thing', stuff);
+    this.stuff = stuff;
+}
+
+let x = new Thing('argument!');
+</code></pre>
+<p>That looks exactly like the output we were looking for. Let's double check that it will behave as expected by piping the output to <code>node</code></p>
+<pre><code class="language-bash">$ echo &quot;function Thing(stuff) {
+    this.stuff = stuff;
+}
+let x = new Thing('argument');
+&quot; | console_logify | node -
+Thing argument
+</code></pre>
+<p>It worked!</p>
+<p>$web-only-end$
+$slides-only$</p>
+<h2 id="demo-2"><a class="header" href="#demo-2">Demo</a></h2>
+<p>$slides-only-end$</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h1>
+<p>$web-only$
+Hopefully now you have the all you to get started building your JavaScript development tools using Rust. If you do create one please open an issue on this project's <a href="https://github.com/FreeMasen/rusty-ecma-book/issues">GitHub issues</a> page with the project's name, a short description, and a link, and it will be added to the <a href="05.conclusion//a.appendix/projects.html">appendix</a>.</p>
+<p>If you run into any problems in any crates (including typos in this book) it would be wonderful of you to open an issue on GitHub.</p>
+<ul>
+<li><a href="https://github.com/FreeMasen/RESS/issues"><code>ress</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/RESSA/issues"><code>ressa</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/RESW/issues"><code>resw</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/resast/issues"><code>resast</code> issues</a></li>
+<li><a href="https://github.com/FreeMasen/rusty-ecma-book"><code>book</code> issues</a></li>
+</ul>
+<p>If you want to get involved, there are probably a few open issues that could use some help. Each project does provide contributing guidelines.</p>
+<ul>
+<li><a href="https://github.com/FreeMasen/RESSA/blob/master/CONTRIBUTING.md"><code>ress</code> contributions</a></li>
+<li><a href="https://github.com/FreeMasen/RESSA/blob/master/CONTRIBUTING.md"><code>ressa</code> contributions</a></li>
+<li><a href="https://github.com/FreeMasen/RESW#contributing"><code>resw</code> contributions</a></li>
+<li><a href="https://github.com/Freemasen/resast#contributing"><code>resast</code> contributions</a></li>
+</ul>
+<p>$web-only-end$
+$slides-only$</p>
+<ul>
+<li>Annotated version of this presentation
+<ul>
+<li>https://FreeMasen.github.io/rusty-ecma-book</li>
+</ul>
+</li>
+<li>Where to find me
+<ul>
+<li>email: r.f.masen@gmail.com</li>
+<li>website: https://WiredForge.com</li>
+<li>twitter/github: @FreeMasen
+$slides-only-end$</li>
+</ul>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
+<ol>
+<li><a href="a.appendix/./tokens.html">Tokens</a></li>
+<li><a href="a.appendix/./ie-8-banned.html">banned_tokens.toml</a></li>
+<li><a href="a.appendix/./a.appendix/ast.html">AST</a></li>
+<li><a href="a.appendix/./a.appendix/string.writer.html">StringWriter</a></li>
+<li><a href="a.appendix/./a.appendix/projects.html">Projects</a></li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tokens"><a class="header" href="#tokens">Tokens</a></h1>
+<p>Here is a list of all of the possible tokens <code>ress</code> provides</p>
+<ul>
+<li><code>Token</code>
+<ul>
+<li><code>EoF</code></li>
+<li><code>Boolean</code> - <code>enum BooleanLiteral</code>
+<ul>
+<li><code>True</code></li>
+<li><code>False</code></li>
+</ul>
+</li>
+<li><code>Ident</code> - <code>struct Ident(String)</code></li>
+<li><code>Keyword</code> - <code>enum Keyword</code>
+<ul>
+<li><code>Await</code></li>
+<li><code>Break</code></li>
+<li><code>Case</code></li>
+<li><code>Catch</code></li>
+<li><code>Class</code></li>
+<li><code>Const</code></li>
+<li><code>Continue</code></li>
+<li><code>Debugger</code></li>
+<li><code>Default</code></li>
+<li><code>Delete</code></li>
+<li><code>Do</code></li>
+<li><code>Else</code></li>
+<li><code>Enum</code></li>
+<li><code>Export</code></li>
+<li><code>Finally</code></li>
+<li><code>For</code></li>
+<li><code>Function</code></li>
+<li><code>If</code></li>
+<li><code>Implements</code></li>
+<li><code>Import</code></li>
+<li><code>In</code></li>
+<li><code>InstanceOf</code></li>
+<li><code>Interface</code></li>
+<li><code>Let</code></li>
+<li><code>New</code></li>
+<li><code>Package</code></li>
+<li><code>Private</code></li>
+<li><code>Protected</code></li>
+<li><code>Public</code></li>
+<li><code>Return</code></li>
+<li><code>Static</code></li>
+<li><code>Super</code></li>
+<li><code>Switch</code></li>
+<li><code>This</code></li>
+<li><code>Throw</code></li>
+<li><code>Try</code></li>
+<li><code>TypeOf</code></li>
+<li><code>Var</code></li>
+<li><code>Void</code></li>
+<li><code>While</code></li>
+<li><code>With</code></li>
+<li><code>Yield</code></li>
+</ul>
+</li>
+<li><code>Null</code></li>
+<li><code>Numeric</code> - <code>struct Number(String)</code>
+<ul>
+<li><code>0</code></li>
+<li><code>.0</code></li>
+<li><code>0.0</code></li>
+<li><code>0.0e1</code></li>
+<li><code>0.0E1</code></li>
+<li><code>.0e1</code></li>
+<li><code>.0E1</code></li>
+<li><code>0xfff</code></li>
+<li><code>0Xfff</code></li>
+<li><code>0o777</code></li>
+<li><code>0O777</code></li>
+<li><code>0b111</code></li>
+<li><code>0B111</code></li>
+</ul>
+</li>
+<li><code>Punct</code> - <code>enum Punct</code>
+<ul>
+<li><code>And</code> - <code>&amp;</code></li>
+<li><code>Assign</code> - <code>=</code></li>
+<li><code>Asterisk</code> - <code>*</code></li>
+<li><code>BitwiseNot</code> - <code>~</code></li>
+<li><code>Caret</code> - <code>^</code></li>
+<li><code>CloseBrace</code> - <code>}</code></li>
+<li><code>CloseBracket</code> - <code>]</code></li>
+<li><code>CloseParen</code> - <code>)</code></li>
+<li><code>Colon</code> - <code>:</code></li>
+<li><code>Comma</code> - <code>,</code></li>
+<li><code>ForwardSlash</code> - <code>/</code></li>
+<li><code>GreaterThan</code> - <code>&gt;</code></li>
+<li><code>LessThan</code> - <code>&lt;</code></li>
+<li><code>Minus</code> - <code>-</code></li>
+<li><code>Modulo</code> - <code>%</code></li>
+<li><code>Not</code> - <code>!</code></li>
+<li><code>OpenBrace</code> - <code>{</code></li>
+<li><code>OpenBracket</code> - <code>[</code></li>
+<li><code>OpenParen</code> - <code>(</code></li>
+<li><code>Period</code> - <code>.</code></li>
+<li><code>Pipe</code> - <code>|</code></li>
+<li><code>Plus</code> - <code>+</code></li>
+<li><code>QuestionMark</code> - <code>?</code></li>
+<li><code>SemiColon</code> - <code>;</code></li>
+<li><code>Spread</code> - <code>...</code></li>
+<li><code>UnsignedRightShiftAssign</code> - <code>&gt;&gt;&gt;=</code></li>
+<li><code>StrictEquals</code> - <code>===</code></li>
+<li><code>StrictNotEquals</code> - <code>!==</code></li>
+<li><code>UnsignedRightShift</code> - <code>&gt;&gt;&gt;</code></li>
+<li><code>LeftShiftAssign</code> - <code>&lt;&lt;=</code></li>
+<li><code>RightShiftAssign</code> - <code>&gt;&gt;=</code></li>
+<li><code>ExponentAssign</code> - <code>**=</code></li>
+<li><code>LogicalAnd</code> - <code>&amp;&amp;</code></li>
+<li><code>LogicalOr</code> - <code>||</code></li>
+<li><code>Equal</code> - <code>==</code></li>
+<li><code>NotEqual</code> - <code>!=</code></li>
+<li><code>AddAssign</code> - <code>+=</code></li>
+<li><code>SubtractAssign</code> - <code>-=</code></li>
+<li><code>MultiplyAssign</code> - <code>*=</code></li>
+<li><code>DivideAssign</code> - <code>/=</code></li>
+<li><code>Increment</code> - <code>++</code></li>
+<li><code>Decrement</code> - <code>--</code></li>
+<li><code>LeftShift</code> - <code>&lt;&lt;</code></li>
+<li><code>RightShift</code> - <code>&gt;&gt;</code></li>
+<li><code>BitwiseAndAssign</code> - <code>&amp;=</code></li>
+<li><code>BitwiseOrAssign</code> - <code>|=</code></li>
+<li><code>BitwiseXOrAssign</code> - <code>^=</code></li>
+<li><code>ModuloAssign</code> - <code>%=</code></li>
+<li><code>FatArrow</code> - <code>=&gt;</code></li>
+<li><code>GreaterThanEqual</code> - <code>&gt;=</code></li>
+<li><code>LessThanEqual</code> - `&lt;=</li>
+<li><code>Exponent</code> - <code>**</code></li>
+</ul>
+</li>
+<li><code>String</code> - <code>enum StringLit</code>
+<ul>
+<li><code>Single(String)</code></li>
+<li><code>Double(String)</code></li>
+</ul>
+</li>
+<li><code>Regex</code> - <code>struct Regex</code>
+<ul>
+<li><code>body</code> - <code>String</code></li>
+<li><code>flags</code> - <code>Option&lt;String&gt;</code></li>
+</ul>
+</li>
+<li><code>Template</code> - <code>enum Template</code>,
+<ul>
+<li><code>NoSub(String)</code></li>
+<li><code>Head(String)</code></li>
+<li><code>Middle(String)</code></li>
+<li><code>Tail(String)</code></li>
+</ul>
+</li>
+<li><code>Comment</code> - <code>struct Comment</code>
+<ul>
+<li><code>kind</code> - <code>enum Kind</code>
+<ul>
+<li><code>Single</code> - <code>//comment</code></li>
+<li><code>Multi</code> - <code>/* comment */</code></li>
+<li><code>Html</code> - <code>&lt;!-- comment --&gt; trailing content</code></li>
+</ul>
+</li>
+<li><code>content</code> - <code>String</code></li>
+<li><code>tail_content</code> - <code>Option&lt;String&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="banned_tokenstoml"><a class="header" href="#banned_tokenstoml">banned_tokens.toml</a></h1>
+<pre><code class="language-toml">idents = [
+    &quot;Int8Array&quot;,
+    &quot;Uint8Array&quot;,
+    &quot;Uint8ClampedArray&quot;,
+    &quot;Int16Array&quot;,
+    &quot;Uint16Array&quot;,
+    &quot;Int32Array&quot;,
+    &quot;Uint32Array&quot;,
+    &quot;Float32Array&quot;,
+    &quot;Float64Array&quot;,
+    &quot;Promise&quot;,
+    &quot;Proxy&quot;,
+    &quot;async&quot;,
+    &quot;padStart&quot;,
+    &quot;padEnd&quot;,
+    &quot;includes&quot;,
+    &quot;find&quot;,
+    &quot;getComputedStyle&quot;,
+    &quot;FontFace&quot;,
+    &quot;FontFaceSet&quot;,
+    &quot;FontFaceSetLoadEvent&quot;,
+    &quot;MediaSource&quot;,
+    &quot;sourceBuffers&quot;,
+    &quot;activeSourceBuffers&quot;,
+    &quot;readyState&quot;,
+    &quot;duration&quot;,
+    &quot;onsourceclose&quot;,
+    &quot;onsourceended&quot;,
+    &quot;addSourceBuffer&quot;,
+    &quot;removeSourceBuffer&quot;,
+    &quot;endOfStream&quot;,
+    &quot;setLiveSeekableRange&quot;,
+    &quot;clearLiveSeekableRange&quot;,
+    &quot;isTypeSupported&quot;,
+    &quot;TouchEvent&quot;,
+    &quot;Touch&quot;,
+    &quot;TouchList&quot;,
+    &quot;onpointerover&quot;,
+    &quot;onpointerenter&quot;,
+    &quot;onpointerdown&quot;,
+    &quot;onpointermove&quot;,
+    &quot;onpointerup&quot;,
+    &quot;onpointercancel&quot;,
+    &quot;onpointerout&quot;,
+    &quot;onpointerleave&quot;,
+    &quot;ongotpointercapture&quot;,
+    &quot;onlostpointercapture&quot;,
+    &quot;setPointerCapture&quot;,
+    &quot;releasePointerCapture&quot;,
+    &quot;MutationObserver&quot;,
+]
+keywords = [
+    &quot;let&quot;,
+    &quot;const&quot;,
+    &quot;class&quot;,
+    &quot;await&quot;,
+    &quot;import&quot;,
+    &quot;export&quot;,
+    &quot;yield&quot;,
+]
+puncts = [
+    &quot;=&gt;&quot;,
+    &quot;**&quot;,
+    &quot;...&quot;,
+    &quot;`&quot;,
+]
+strings = [
+    &quot;use strict&quot;,
+    &quot;sourceopen&quot;,
+    &quot;touchstart&quot;,
+    &quot;touchend&quot;,
+    &quot;touchmove&quot;,
+    &quot;touchcancel&quot;,
+    &quot;pointerenter&quot;,
+    &quot;pointerdown&quot;,
+    &quot;pointermove&quot;,
+    &quot;pointerup&quot;,
+    &quot;pointercancel&quot;,
+    &quot;pointerout&quot;,
+    &quot;pointerleave&quot;,
+    &quot;gotpointercapture&quot;,
+    &quot;lostpointercapture&quot;,
+    &quot;pointerover&quot;,
+]
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ast"><a class="header" href="#ast">AST</a></h1>
+<p>While it may be a bit of a cop-out, it seems silly to duplicate the AST docs provided by cargo-doc. In the future this page may include some more introspective information but for now please refer to the link below.</p>
+<p><a href="https://docs.rs/resast/"><code>resast</code> docs</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="stringwriter"><a class="header" href="#stringwriter">StringWriter</a></h1>
+<p>When building <code>resw</code> it became clear that the only way to validate the output would be to write a bunch of files to disk and then read them back which didn't seem like the correct option. Because of this <code>resw</code> includes an public module called <code>write_str</code>. In it you will find two structs <code>WriteString</code> and <code>ChildWriter</code>. The basic idea here is that you can use this to simply write the values to a buffer that the <code>resw::Writer</code> hasn't taken ownership over and then read them back after the <code>Writer</code> is done. Below is an example of how you might use that.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn test_round_trip() {
+    let original = &quot;let x = 0&quot;;
+    let dest = WriteString::new();
+    let parser = ressa::Parser::new(original).expect(&quot;Failed to create parser&quot;);
+    let writer = resw::Writer::new(dest.generate_child());
+    for part in parser {
+        let part = part.expect(&quot;failed to parse part&quot;);
+        writer.write_part(part).expect(&quot;failed to write part&quot;);
+    }
+    assert_eq!(dest.get_string_lossy(), original.to_string());
+}
+<span class="boring">}
+</span></code></pre></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="projects"><a class="header" href="#projects">Projects</a></h1>
+<table><thead><tr><th>name</th><th>description</th><th>website</th></tr></thead><tbody>
+<tr><td>console_logger</td><td>A utility that will insert <code>console.log</code> to the top of all of your function bodies</td><td><a href="https://github.com/freemasen/rusty-ecma-book">repo</a></td></tr>
+<tr><td>lint-ie8</td><td>A utility that will check for any javascript that would fail when executed by Internet Explorer 8</td><td><a href="https://github.com/freemasen/rusty-ecma-book">repo</a></td></tr>
+</tbody></table>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ress-scanners"><a class="header" href="#ress-scanners"><code>RESS</code> Scanners</a></h1>
+<p>In the initial implementation of the <code>ress</code> scanner, it was more important to get something working correctly than to have something blazing fast. To that end, the original <code>Scanner</code> performs a significant amount of memory allocation, which slows everything down quite a bit. To improve upon that <code>ress</code> offers a section option the <code>RefScanner</code>, which is a bit unfortunately named as it doesn't actually use any references. The <code>RefScanner</code> provides almost the same information as the <code>Scanner</code> but it does so without making any copies from the original javascript string, it the has the option to request the <code>String</code> for any <code>Item</code> giving the control to the user. Here is an example of the two approaches.</p>
+<h2 id="example-js"><a class="header" href="#example-js">Example JS</a></h2>
+<pre><code class="language-js">function things() {
+    return [1,2,3,4];
+}
+</code></pre>
+<h2 id="example-rust"><a class="header" href="#example-rust">Example Rust</a></h2>
+<pre><pre class="playground"><code class="language-rust">use ress::{
+    Scanner
+};
+fn main() {
+    let js = include_str!(&quot;../example.js&quot;);
+    let scanner = Scanner::new(js);
+    for (i, item) in scanner.enumerate() {
+        let item = item.unwrap();
+        let prefix = if i &lt; 10 {
+            format!(&quot; {}&quot;, i)
+        } else {
+            format!(&quot;{}&quot;, i)
+        };
+        println!(&quot;{} token: {:?}&quot;, prefix, item.token);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use ress::*;
+    #[test]
+    fn chapter_1_1() {
+        let js = &quot;var i = 0;&quot;;
+        let scanner = Scanner::new(js);
+        for token in scanner {
+            println!(&quot;{:#?}&quot;, token.unwrap());
+        }
+    }
+    use ressa::Parser;
+    #[test]
+    fn ressa_ex1() {
+        static JS: &amp;str = &quot;
+function Thing(stuff) {
+    this.stuff = stuff;
+}
+&quot;;
+        let parser = Parser::new(JS).expect(&quot;Failed to create parser&quot;);
+        for part in parser {
+            let part = part.expect(&quot;Failed to parse part&quot;);
+            println!(&quot;{:#?}&quot;, part);
+        }
+    }
+}
+</code></pre></pre>
+<h2 id="output"><a class="header" href="#output">Output</a></h2>
+<pre><code>
+running 1 test
+Decl(
+    Func(
+        Func {
+            id: Some(
+                Ident {
+                    name: &quot;Thing&quot;,
+                },
+            ),
+            params: [
+                Pat(
+                    Ident(
+                        Ident {
+                            name: &quot;stuff&quot;,
+                        },
+                    ),
+                ),
+            ],
+            body: FuncBody(
+                [
+                    Stmt(
+                        Expr(
+                            Assign(
+                                AssignExpr {
+                                    operator: Equal,
+                                    left: Expr(
+                                        Member(
+                                            MemberExpr {
+                                                object: This,
+                                                property: Ident(
+                                                    Ident {
+                                                        name: &quot;stuff&quot;,
+                                                    },
+                                                ),
+                                                computed: false,
+                                            },
+                                        ),
+                                    ),
+                                    right: Ident(
+                                        Ident {
+                                            name: &quot;stuff&quot;,
+                                        },
+                                    ),
+                                },
+                            ),
+                        ),
+                    ),
+                ],
+            ),
+            generator: false,
+            is_async: false,
+        },
+    ),
+)
+test test::ressa_ex1 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out
+
+</code></pre>
+<p>Let's look at token 7, the original token is <code>Token::Numeric(Number(String::From(&quot;1&quot;)))</code> while the ref token is <code>Token::Numeric(Number::Dec)</code>, both give similar information but the ref token doesn't allocate a new string for the text being represented, instead just informing the user that it is a decimal number. If you wanted to know what that string was, you could use the <code>RefScanner::string_for</code> method by passing it <code>RefItem.span</code>, this will return an <code>Option&lt;String&gt;</code> and so long as your span doesn't overflow the length of the js provided, it will have the value you are looking for. </p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+    </body>
+</html>
