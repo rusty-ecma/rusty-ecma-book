@@ -2,11 +2,10 @@
 name = "lint-ie8"
 version = "0.1.0"
 authors = ["Robert Masen <r@robertmasen.pizza>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-ress = "0.7"
-serde = "1"
-serde_derive = "1"
-toml = "0.5"
+ress = "0.11"
+serde = { version = "1", features = ["derive"] }
+toml = "0.7"
 atty = "0.2"

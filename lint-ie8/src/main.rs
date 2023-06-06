@@ -1,6 +1,6 @@
-#[macro_use]
-extern crate serde_derive;
+
 use ress::prelude::*;
+use serde::Deserialize;
 use toml::from_str;
 use std::{
     env::args,
@@ -105,7 +105,7 @@ impl<'a> Iterator for BannedFinder<'a> {
                             match lit {
                                 StringLit::Double(inner)
                                 | StringLit::Single(inner) => {
-                                    if self.banned.strings.contains(&inner.to_string()) {
+                                    if self.banned.strings.contains(&inner.content.to_string()) {
                                         Err(BannedError(format!("string {}", lit.to_string()), item.location.start.line, item.location.start.column))
                                     } else {
                                         Ok(())

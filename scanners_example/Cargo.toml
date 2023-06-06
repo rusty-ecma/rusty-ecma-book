@@ -5,5 +5,5 @@ authors = ["rfm <r@robertmasen.pizza>"]
 edition = "2018"
 
 [dependencies]
-ress = "0.7"
-ressa = "0.7.0-beta-6"
+ress = "0.11"
+ressa = "0.9.0-alpha.2"
