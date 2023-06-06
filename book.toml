@@ -7,9 +7,4 @@ title = "Build JavaScript Development Tools with Rust"
 [build]
 build-dir = "docs"
 
-[output.html]
-additional-js = [
-    "analytics.js"
-]
-
 [preprocessor.presentation-preprocessor]
