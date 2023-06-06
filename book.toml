@@ -4,7 +4,4 @@ multilingual = false
 src = "src"
 title = "Build JavaScript Development Tools with Rust"
 
-[build]
-build-dir = "docs"
-
 [preprocessor.presentation-preprocessor]
