@@ -171,8 +171,8 @@ fn map_class_prop<'a>(mut args: Vec<Expr<Cow<'a, str>>>, mut prop: Prop<Cow<'a, 
 }
 
 pub fn generate_string_lit(slice: &'static str) -> Lit<Cow<'static, str>> {
-    let null_string = Cow::Borrowed(slice);
-    let quoted = StringLit::Single(SourceText(null_string));
+    let cow = Cow::Borrowed(slice);
+    let quoted = StringLit::Single(SourceText(cow));
     Lit::String(quoted)
 }
 
@@ -259,7 +259,7 @@ fn extract_idents_from_pat<'a>(pat: &Pat<Cow<'a, str>>) -> Vec<Option<Expr<Cow<'
 
 fn expr_to_string_lit<'a>(e: &Expr<Cow<'a, str>>) -> Option<Expr<Cow<'a, str>>> {
     let inner = expr_to_string(e)?;
-    Some(Expr::Lit(Lit::String(StringLit::Single(SourceText(::std::borrow::Cow::Owned(inner))))))
+    Some(Expr::Lit(Lit::String(StringLit::Single(SourceText(Cow::Owned(inner))))))
 }
 
 fn expr_to_string<'a>(expr: &Expr<Cow<'a, str>>) -> Option<String> {
