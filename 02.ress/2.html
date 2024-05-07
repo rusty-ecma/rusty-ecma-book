@@ -148,7 +148,6 @@ ress = &quot;0.7&quot;
 serde = &quot;1&quot;
 serde_derive = &quot;1&quot;
 toml = &quot;0.5&quot;
-atty = &quot;0.2&quot;
 </code></pre>
 <p>Next we want to use the <code>Scanner</code> and <code>Token</code> from <code>ress</code>, we can do this by importing all the contents of the <code>prelude</code>.</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -192,7 +191,7 @@ struct BannedTokens {
     } else {
         let mut std_in = ::std::io::stdin();
         let mut ret = String::new();
-        if atty::is(atty::Stream::Stdin) {
+        if std_in.is_terminal() {
             return Ok(ret)
         }
         std_in.read_to_string(&amp;mut ret)?;
