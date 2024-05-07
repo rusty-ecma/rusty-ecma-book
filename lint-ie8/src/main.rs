@@ -5,7 +5,7 @@ use toml::from_str;
 use std::{
     env::args,
     fs::read_to_string,
-    io::Read,
+    io::{IsTerminal, Read},
 };
 
 #[derive(Deserialize)]
@@ -49,7 +49,7 @@ fn get_js() -> Result<String, ::std::io::Error> {
     } else {
         let mut std_in = ::std::io::stdin();
         let mut ret = String::new();
-        if atty::is(atty::Stream::Stdin) {
+        if std_in.is_terminal() {
             return Ok(ret)
         }
         std_in.read_to_string(&mut ret)?;
