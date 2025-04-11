@@ -1,6 +1,5 @@
 [book]
 authors = ["Robert Masen"]
-multilingual = false
 src = "src"
 title = "Build JavaScript Development Tools with Rust"
 
